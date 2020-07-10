@@ -16,7 +16,7 @@ namespace health.BaseData
             res["msg"] = "读取成功";
            
             dbfactory db = new dbfactory();
-            JArray rows = db.GetArray("select ID,AddressCategory from data_addresscategory"); 
+            JArray rows = db.GetArray("select ID,Code,AddressCategory from data_addresscategory"); 
             
             res["list"] = rows;
             return res;
@@ -26,7 +26,7 @@ namespace health.BaseData
         public JObject GetAddressCategory(int id)
         {
             dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select ID,AddressCategory from data_addresscategory where id=?p1",id); 
+            JObject res = db.GetOne("select ID,Code,AddressCategory from data_addresscategory where id=?p1",id); 
             if(res["id"]!=null){
                 res["status"] = 200;
                 res["msg"] = "读取成功";
