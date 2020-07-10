@@ -20,12 +20,12 @@ using Microsoft.AspNetCore.Authentication;
 namespace health.Controllers
 {
     [ApiController]
-    public class AreaController : ControllerBase
+    public class IdCategoryController : ControllerBase
     {
 
-        private readonly ILogger<AreaController> _logger;
+        private readonly ILogger<IdCategoryController> _logger;
 
-        public AreaController(ILogger<AreaController> logger)
+        public IdCategoryController(ILogger<IdCategoryController> logger)
         {
             _logger = logger;
         }
@@ -35,8 +35,8 @@ namespace health.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("GetAreaList")]
-        public JObject GetAreaList(int id)
+        [Route("GetIdCategoryList")]
+        public JObject GetIdCategoryList()
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
@@ -45,7 +45,7 @@ namespace health.Controllers
             res["msg"] = "读取成功";
            
             dbfactory db = new dbfactory();
-            JArray rows = db.GetArray("select id,AreaCode,AreaName from data_area where parentID=?p1",id); 
+            JArray rows = db.GetArray("select id,Code,Name from data_idcategory"); 
             
             res["list"] = rows;
             return res;
@@ -56,13 +56,13 @@ namespace health.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("GetArea")]
-        public JObject GetArea(int id)
+        [Route("GetIdCategory")]
+        public JObject GetIdCategory(int id)
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
             dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,AreaCode,AreaName from data_area where id=?p1",id); 
+            JObject res = db.GetOne("select id,Code,Name from data_idcategory where id=?p1",id); 
             if(res["id"] != null)
                 res["status"] = 200;
             else{
@@ -73,8 +73,8 @@ namespace health.Controllers
         }
 
         [HttpGet]
-        [Route("SetArea")]
-        public JObject SetArea([FromBody] JObject req)
+        [Route("SetIdCategory")]
+        public JObject SetIdCategory([FromBody] JObject req)
         {
             dbfactory db=new dbfactory();
             JObject res=new JObject();
@@ -84,7 +84,7 @@ namespace health.Controllers
                 if(id==0)
                 {
                     var dict=req.ToObject<Dictionary<string,object>>();
-                    var rows=db.Insert("data_area",dict);
+                    var rows=db.Insert("data_idcategory",dict);
                     if(rows>0)
                     {
                         res["status"]=200;
@@ -102,7 +102,7 @@ namespace health.Controllers
                     dict.Remove("id");
                     var keys = new Dictionary<string,object>();
                     keys["id"]=req["id"];
-                    var rows=db.Update("data_area",dict,keys);
+                    var rows=db.Update("data_idcategory",dict,keys);
                     if(rows>0)
                     {
                        res["status"]=200;
@@ -122,13 +122,13 @@ namespace health.Controllers
         }
 
         [HttpGet]
-        [Route("DelArea")]
-        public JObject DelArea([FromBody] JObject req)
+        [Route("DelIdCategory")]
+        public JObject DelIdCategory([FromBody] JObject req)
         {
             JObject res = new JObject();
             var dict=req.ToObject<Dictionary<string,object>>();
             dbfactory db = new dbfactory();
-            var count = db.del("data_area",dict);
+            var count = db.del("data_idcategory",dict);
             if(count > 0)
             {
                 res["status"]=200;
