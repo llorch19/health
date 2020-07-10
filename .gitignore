@@ -3,6 +3,8 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+.vscode/
+
 # autogen files
 HQMS.Api.Host/wwwroot/assets/js/ip.js
 # User-specific files
