@@ -31,7 +31,7 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取列表
+        /// 获取职业列表
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -52,7 +52,7 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取区域信息
+        /// 获取职业信息
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -72,7 +72,11 @@ namespace health.Controllers
             return res;
         }
 
-
+        /// <summary>
+        /// 增加或删除职业信息
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
         [HttpGet("SetOccupation")]
         public JObject SetOccupation([FromBody] JObject req)
         {
@@ -122,7 +126,11 @@ namespace health.Controllers
         }
 
 
-
+        /// <summary>
+        /// 删除职业信息
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
         [HttpGet("DelOccupation")]
         public JObject DelOccupation([FromBody] JObject req)
         {
