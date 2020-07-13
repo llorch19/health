@@ -17,18 +17,13 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using System.Collections.Immutable;
+using Microsoft.AspNetCore.Localization;
 
 namespace health.Controllers
 {
     [ApiController]
     public class MenuController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
-        JObject[] data;
 
         private readonly ILogger<MenuController> _logger;
 
@@ -43,7 +38,7 @@ namespace health.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetMenu")]
-        public JObject GetMenu()
+        public JObject GetMenu(int id)
         
         {
             dbfactory db = new dbfactory();
@@ -52,7 +47,7 @@ namespace health.Controllers
             JArray tmp = db.GetArray("select id,name,icon,label,pid from t_menu");
             JObject[] menus = new JObject[0];
             var input = tmp.ToObject<JObject[]>();
-            BuildMenu(input.ToArray(), 0,ref menus);
+            BuildMenu(input.ToArray(), id,ref menus);
             JArray list = new JArray();
             foreach (var item in menus)
             {
@@ -63,47 +58,59 @@ namespace health.Controllers
         }
 
         [NonAction]
-        public void BuildMenu(JObject[] tokens,int pid,ref JObject[] output)
+        public void BuildMenu(JObject[] flat,int rootid,ref JObject[] tree)
         {
-            var parent = output.FirstOrDefault(t => t.Value<int>("id") == pid);
-            var curChildren = tokens.Where(t=>t.Value<int>("pid")==pid);
-
-            if (parent==null)
+            var children = flat.Where(t => t.Value<int>("pid") == rootid);
+            if (rootid==0)
             {
-                foreach (var current in curChildren)
+                children = children.Union(flat.Where(t => t.GetValue("pid")==null));
+            }
+            
+            var current = flat.FirstOrDefault(t=>t.Value<int>("id")==rootid);
+            var parentOrBro = flat.Except(children).ToArray();
+
+            if (current==null && children.Count()==0)
+            {
+                return;
+            }else if(current==null)
+            {
+                current = new JObject();
+            }
+
+            if (children.Count()==0)
+            {
+                // current has no children
+                JArray array = new JArray();
+                if (!current.ContainsKey("children"))
                 {
-                    JArray array = new JArray();
-                    if (!current.ContainsKey("children"))
-                    {
-                        current.Add("children", array);
-                    }
+                    current.Add("children", array);
                 }
+
                 
-                output = output.Concat(curChildren).ToArray();
             }
             else
             {
                 JArray array = new JArray();
+                foreach (var child in children)
+                {
+                    array.Add(child);
+                }
 
-                foreach (var current in curChildren)
+
+                if (current.ContainsKey("children"))
                 {
-                    array.Add(current);
+                    current.Remove("children");
                 }
-                if (parent.ContainsKey("children"))
-                {
-                    parent.Remove("children");
-                }
-                parent.Add("children", array);
+                current.Add("children", array);
             }
-            
 
-            tokens = tokens.Except(curChildren).ToArray();
+            tree = tree.Union(new JObject[] { current }).ToArray();
 
-
-            int[] pids = tokens.Select(rt => rt.Value<int>("pid")).Distinct().ToArray();
+            // recursive children
+            int[] pids = children.Select(rt => rt.Value<int>("id")).Distinct().ToArray();
             foreach (int p in pids)
             {
-                BuildMenu(tokens,p,ref output);
+                BuildMenu(parentOrBro, p,ref tree);
             }
         }
         
