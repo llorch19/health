@@ -73,7 +73,7 @@ namespace health.Controllers
         }
 
 
-        [HttpGet("SetDetectionResultType")]
+        [HttpPost("SetDetectionResultType")]
         public JObject SetDetectionResultType([FromBody] JObject req)
         {
             dbfactory db=new dbfactory();
@@ -123,7 +123,7 @@ namespace health.Controllers
 
 
 
-        [HttpGet("DelDetectionResultType")]
+        [HttpPost("DelDetectionResultType")]
         public JObject DelDetectionResultType([FromBody] JObject req)
         {
             JObject res = new JObject();

@@ -77,7 +77,7 @@ namespace health.Controllers
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        [HttpGet("SetOccupation")]
+        [HttpPost("SetOccupation")]
         public JObject SetOccupation([FromBody] JObject req)
         {
             dbfactory db=new dbfactory();
@@ -131,7 +131,7 @@ namespace health.Controllers
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        [HttpGet("DelOccupation")]
+        [HttpPost("DelOccupation")]
         public JObject DelOccupation([FromBody] JObject req)
         {
             JObject res = new JObject();

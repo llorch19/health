@@ -40,7 +40,7 @@ namespace health.BaseData
             return res;   
         }
 
-        [HttpGet("SetAddressCategory")]
+        [HttpPost("SetAddressCategory")]
         public JObject SetAddressCategory([FromBody] JObject req)
         {
             JObject res=new JObject();
@@ -91,7 +91,7 @@ namespace health.BaseData
         }
 
 
-        [HttpGet("DelAddressCategory")]
+        [HttpPost("DelAddressCategory")]
         public JObject DelAddressCategory([FromBody] JObject req)
         {
             JObject res = new JObject();

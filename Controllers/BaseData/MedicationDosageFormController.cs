@@ -73,7 +73,7 @@ namespace health.Controllers
         }
 
 
-        [HttpGet("SetMedicationDosageForm")]
+        [HttpPost("SetMedicationDosageForm")]
         public JObject SetMedicationDosageForm([FromBody] JObject req)
         {
             dbfactory db=new dbfactory();
@@ -123,7 +123,7 @@ namespace health.Controllers
 
 
 
-        [HttpGet("DelMedicationDosageForm")]
+        [HttpPost("DelMedicationDosageForm")]
         public JObject DelMedicationDosageForm([FromBody] JObject req)
         {
             JObject res = new JObject();

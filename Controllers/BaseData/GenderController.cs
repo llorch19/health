@@ -72,7 +72,7 @@ namespace health.Controllers
             return res;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("SetGender")]
         public JObject SetGender([FromBody] JObject req)
         {
@@ -121,7 +121,7 @@ namespace health.Controllers
             return res;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("DelGender")]
         public JObject DelGender([FromBody] JObject req)
         {

@@ -72,7 +72,7 @@ namespace health.Controllers
             return res;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("SetIdCategory")]
         public JObject SetIdCategory([FromBody] JObject req)
         {
@@ -121,7 +121,7 @@ namespace health.Controllers
             return res;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("DelIdCategory")]
         public JObject DelIdCategory([FromBody] JObject req)
         {

@@ -72,7 +72,7 @@ namespace health.Controllers
             return res;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("SetArea")]
         public JObject SetArea([FromBody] JObject req)
         {
@@ -121,7 +121,7 @@ namespace health.Controllers
             return res;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("DelArea")]
         public JObject DelArea([FromBody] JObject req)
         {
