@@ -43,7 +43,8 @@ namespace health.Controllers
         {
             dbfactory db = new dbfactory();
             JObject res = new JObject();
-            res["code"] = 200;
+            res["status"] = 200;
+            //  在这里添加判断usergroup的中间件，并将usergroup应用于筛选菜单的条件
             JArray tmp = db.GetArray("select id,name,icon,label,pid from t_menu");
             JObject[] menus = new JObject[0];
             var input = tmp.ToObject<JObject[]>();
@@ -54,6 +55,7 @@ namespace health.Controllers
                 list.Add(item);
             }
             res.Add("list",list);
+            res["msg"] = "读取成功";
             return res;
         }
 
@@ -72,34 +74,26 @@ namespace health.Controllers
             foreach (var cur in selfAndBro)
             {
                 var children = flat.Where(t=> t.Value<int>("pid")==cur.Value<int>("id"));
-                if (children.Count()==0)
+                
+                // add <children> to <cur>
+                JArray array = new JArray();
+                foreach (var child in children)
                 {
-                    JArray array = new JArray();
-                    if (!cur.ContainsKey("children"))
-                    {
-                        cur.Add("children", array);
-                    }
+                    array.Add(child);
                 }
-                else
-                {
-                    JArray array = new JArray();
-                    foreach (var child in children)
-                    {
-                        array.Add(child);
-                    }
 
 
-                    if (cur.ContainsKey("children"))
-                    {
-                        cur.Remove("children");
-                    }
-                    cur.Add("children", array);
+                if (cur.ContainsKey("children"))
+                {
+                    cur.Remove("children");
                 }
+                cur.Add("children", array);
 
 
                 var anchor = parent?.Value<JArray>("children")?.ToArray<JToken>()?.FirstOrDefault(t=>t.Value<int>("id")==cur.Value<int>("id"));
                 if (anchor==null)
                 {
+                    // only unanchored <cur> should be unioned
                     tree = tree.Union(new JObject[] { cur }).ToArray();
                 }
 
