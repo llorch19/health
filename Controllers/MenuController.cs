@@ -38,7 +38,7 @@ namespace health.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetMenu")]
-        public JObject GetMenu(int id)
+        public JObject GetMenu(int pid)
         
         {
             dbfactory db = new dbfactory();
@@ -47,7 +47,7 @@ namespace health.Controllers
             JArray tmp = db.GetArray("select id,name,icon,label,pid from t_menu");
             JObject[] menus = new JObject[0];
             var input = tmp.ToObject<JObject[]>();
-            BuildMenu(input.ToArray(), id,ref menus);
+            BuildMenu(input.ToArray(), pid,ref menus);
             JArray list = new JArray();
             foreach (var item in menus)
             {
@@ -58,59 +58,59 @@ namespace health.Controllers
         }
 
         [NonAction]
-        public void BuildMenu(JObject[] flat,int rootid,ref JObject[] tree)
+        public void BuildMenu(JObject[] flat,int parentid,ref JObject[] tree)
         {
-            var children = flat.Where(t => t.Value<int>("pid") == rootid);
-            if (rootid==0)
-            {
-                children = children.Union(flat.Where(t => t.GetValue("pid")==null));
-            }
-            
-            var current = flat.FirstOrDefault(t=>t.Value<int>("id")==rootid);
-            var parentOrBro = flat.Except(children).ToArray();
+            var selfAndBro = flat.Where(t => t.Value<int>("pid") == parentid);
+            JObject parent = flat.FirstOrDefault(t=>t.Value<int>("id")==parentid);
+            var childrenOrNephew = flat.Except(selfAndBro).ToArray();
 
-            if (current==null && children.Count()==0)
+            if (selfAndBro.Count()==0)
             {
                 return;
-            }else if(current==null)
-            {
-                current = new JObject();
             }
 
-            if (children.Count()==0)
+            foreach (var cur in selfAndBro)
             {
-                // current has no children
-                JArray array = new JArray();
-                if (!current.ContainsKey("children"))
+                var children = flat.Where(t=> t.Value<int>("pid")==cur.Value<int>("id"));
+                if (children.Count()==0)
                 {
-                    current.Add("children", array);
+                    JArray array = new JArray();
+                    if (!cur.ContainsKey("children"))
+                    {
+                        cur.Add("children", array);
+                    }
+                }
+                else
+                {
+                    JArray array = new JArray();
+                    foreach (var child in children)
+                    {
+                        array.Add(child);
+                    }
+
+
+                    if (cur.ContainsKey("children"))
+                    {
+                        cur.Remove("children");
+                    }
+                    cur.Add("children", array);
                 }
 
-                
-            }
-            else
-            {
-                JArray array = new JArray();
+
+                var anchor = parent?.Value<JArray>("children")?.ToArray<JToken>()?.FirstOrDefault(t=>t.Value<int>("id")==cur.Value<int>("id"));
+                if (anchor==null)
+                {
+                    tree = tree.Union(new JObject[] { cur }).ToArray();
+                }
+
+              
+
                 foreach (var child in children)
                 {
-                    array.Add(child);
+                    var pidChild = cur.Value<int>("id");
+                    var flatChild = childrenOrNephew.Union(new JObject[] { cur }).ToArray();
+                    BuildMenu(flatChild, pidChild,ref tree);
                 }
-
-
-                if (current.ContainsKey("children"))
-                {
-                    current.Remove("children");
-                }
-                current.Add("children", array);
-            }
-
-            tree = tree.Union(new JObject[] { current }).ToArray();
-
-            // recursive children
-            int[] pids = children.Select(rt => rt.Value<int>("id")).Distinct().ToArray();
-            foreach (int p in pids)
-            {
-                BuildMenu(parentOrBro, p,ref tree);
             }
         }
         
