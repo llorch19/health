@@ -159,7 +159,7 @@ namespace health.Controllers
             var claimsIdentity = new ClaimsIdentity(new[]{
                 new Claim(ClaimTypes.Name, "admin")
             });
-
+            
             var handler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
