@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>health</name>
+    </assembly>
+    <members>
+        <member name="M:health.Controllers.AreaController.GetAreaList(System.Int32)">
+            <summary>
+            获取列表
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.AreaController.GetArea(System.Int32)">
+            <summary>
+            获取区域信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.DetectionResultTypeController.GetDetectionResultTypeList(System.Int32)">
+            <summary>
+            获取列表
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.DetectionResultTypeController.GetDetectionResultType(System.Int32)">
+            <summary>
+            获取区域信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.GenderController.GetGenderList">
+            <summary>
+            获取列表
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.GenderController.GetGender(System.Int32)">
+            <summary>
+            获取区域信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.IdCategoryController.GetIdCategoryList">
+            <summary>
+            获取列表
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.IdCategoryController.GetIdCategory(System.Int32)">
+            <summary>
+            获取区域信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.MedicationDosageFormController.GetMedicationDosageFormList(System.Int32)">
+            <summary>
+            获取列表
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.MedicationDosageFormController.GetMedicationDosageForm(System.Int32)">
+            <summary>
+            获取区域信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.MedicationFreqCategoryController.GetMedicationFreqCategoryList(System.Int32)">
+            <summary>
+            获取列表
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.MedicationFreqCategoryController.GetMedicationFreqCategory(System.Int32)">
+            <summary>
+            获取区域信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.MedicationPathwayController.GetMedicationPathwayList(System.Int32)">
+            <summary>
+            获取列表
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.MedicationPathwayController.GetMedicationPathway(System.Int32)">
+            <summary>
+            获取区域信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.OccupationController.GetOccupationList(System.Int32)">
+            <summary>
+            获取职业列表
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.OccupationController.GetOccupation(System.Int32)">
+            <summary>
+            获取职业信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.OccupationController.SetOccupation(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            增加或删除职业信息
+            </summary>
+            <param name="req"></param>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.OccupationController.DelOccupation(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            删除职业信息
+            </summary>
+            <param name="req"></param>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.TreatmentOptionController.GetTreatmentOptionList(System.Int32)">
+            <summary>
+            获取列表
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.TreatmentOptionController.GetTreatmentOption(System.Int32)">
+            <summary>
+            获取区域信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.MenuController.GetMenu(System.Int32)">
+            <summary>
+            获取区域信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.WeatherForecastController.GetAreaList(System.Int32)">
+            <summary>
+            获取列表
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.WeatherForecastController.GetArea(System.Int32)">
+            <summary>
+            获取区域信息
+            </summary>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
