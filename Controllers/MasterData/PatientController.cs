@@ -34,9 +34,7 @@ namespace health.Controllers
         public JObject GetPersonList(int pageIndex)
         {
             JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-
+           
             dbfactory db = new dbfactory();
             JArray rows = db.GetArray(
                 @"select 
@@ -58,6 +56,9 @@ ON t_patient.ID=t_attandent.PatientID
 LIMIT ?p1,10"
                 , pageIndex);
 
+
+            res["status"] = 200;
+            res["msg"] = "读取成功";
             res["list"] = rows;
             return res;
         }

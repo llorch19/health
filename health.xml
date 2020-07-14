@@ -126,6 +126,32 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:health.Controllers.MessageController.GetMessageList(System.Int32)">
+            <summary>
+            获取公告列表，[科普公告]菜单
+            </summary>
+            <returns>JSON数组形式的公告信息</returns>
+        </member>
+        <member name="M:health.Controllers.MessageController.GetMessage(System.Int32)">
+            <summary>
+            获取公告信息，点击[科普公告]中的一个栏目
+            </summary>
+            <returns>JSON数组形式的公告信息</returns>
+        </member>
+        <member name="M:health.Controllers.MessageController.SetMessage(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            更改公告信息。如果id=0新增公告，如果id>0修改公告。
+            </summary>
+            <param name="req">在请求body中JSON形式的公告信息</param>
+            <returns>JSON形式的响应状态信息</returns>
+        </member>
+        <member name="M:health.Controllers.MessageController.DelMessage(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            删除公告。
+            </summary>
+            <param name="req">在请求body中JSON形式的公告信息</param>
+            <returns>JSON形式的响应状态信息</returns>
+        </member>
         <member name="M:health.Controllers.OrgnizationController.GetOrgList(System.Int32)">
             <summary>
             获取机构列表
@@ -176,6 +202,13 @@
             删除个人信息
             </summary>
             <param name="req">在请求body中JSON形式的个人信息</param>
+            <returns>JSON形式的响应状态信息</returns>
+        </member>
+        <member name="M:health.Controllers.PatientController.Transfer(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            转诊
+            </summary>
+            <param name="req">在请求body中JSON形式的转诊信息</param>
             <returns>JSON形式的响应状态信息</returns>
         </member>
         <member name="M:health.Controllers.MenuController.GetMenu(System.Int32)">
