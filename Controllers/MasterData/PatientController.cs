@@ -264,5 +264,20 @@ where PatientID=?p1", id);
                 return res;
             }
         }
+
+        /// <summary>
+        /// 转诊
+        /// </summary>
+        /// <param name="req">在请求body中JSON形式的转诊信息</param>
+        /// <returns>JSON形式的响应状态信息</returns>
+        [HttpPost]
+        [Route("Transfer")]
+        public JObject Transfer([FromBody] JObject req)
+        {
+            JObject res = new JObject();
+            res["status"] = 201;
+            res["msg"] = "功能正在开发中";
+            return res;
+        }
     }
 }
