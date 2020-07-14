@@ -126,6 +126,32 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:health.Controllers.OrgnizationController.GetOrgList(System.Int32)">
+            <summary>
+            获取机构列表
+            </summary>
+            <returns>JSON数组形式的机构信息</returns>
+        </member>
+        <member name="M:health.Controllers.OrgnizationController.GetOrg(System.Int32)">
+            <summary>
+            获取机构信息
+            </summary>
+            <returns>JSON形式的某个机构信息</returns>
+        </member>
+        <member name="M:health.Controllers.OrgnizationController.SetOrg(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            更改机构信息。如果id=0新增机构信息，如果id>0修改机构信息。
+            </summary>
+            <param name="req">在请求body中JSON形式的机构信息</param>
+            <returns>JSON形式的响应状态信息</returns>
+        </member>
+        <member name="M:health.Controllers.OrgnizationController.DelOrg(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            删除机构信息
+            </summary>
+            <param name="req">在请求body中JSON形式的机构信息</param>
+            <returns>JSON形式的响应状态信息</returns>
+        </member>
         <member name="M:health.Controllers.MenuController.GetMenu(System.Int32)">
             <summary>
             获取区域信息
