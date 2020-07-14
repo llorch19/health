@@ -108,7 +108,7 @@ namespace health.Controllers
             JObject res = new JObject();
             res["status"] = 200;
             //  在这里添加判断usergroup的中间件，并将usergroup应用于筛选菜单的条件
-            JArray tmp = db.GetArray("select id,name,icon,label,pid from t_menu");
+            JArray tmp = db.GetArray("select id,name,icon,label,pid,seq from t_menu");
             JObject[] menus = new JObject[0];
             var input = tmp.ToObject<JObject[]>();
             BuildMenu(input.ToArray(), pid, ref menus);
