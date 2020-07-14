@@ -136,10 +136,10 @@ namespace health.Controllers
 
                 // add <children> to <cur>
                 JArray array = new JArray();
-                foreach (var child in children) 
+                foreach (var child in children)
                     array.Add(child);
 
-                if (cur.ContainsKey("children")) 
+                if (cur.ContainsKey("children"))
                     cur.Remove("children");
                 cur.Add("children", array);
 

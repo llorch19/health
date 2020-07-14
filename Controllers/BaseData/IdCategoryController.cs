@@ -43,10 +43,10 @@ namespace health.Controllers
             JObject res = new JObject();
             res["status"] = 200;
             res["msg"] = "读取成功";
-           
+
             dbfactory db = new dbfactory();
-            JArray rows = db.GetArray("select id,Code,Name from data_idcategory"); 
-            
+            JArray rows = db.GetArray("select id,Code,Name from data_idcategory");
+
             res["list"] = rows;
             return res;
         }
@@ -62,10 +62,11 @@ namespace health.Controllers
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
             dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,Code,Name from data_idcategory where id=?p1",id); 
-            if(res["id"] != null)
+            JObject res = db.GetOne("select id,Code,Name from data_idcategory where id=?p1", id);
+            if (res["id"] != null)
                 res["status"] = 200;
-            else{
+            else
+            {
                 res["status"] = 201;
                 res["msg"] = "查询不到对应的数据";
             }
@@ -76,47 +77,49 @@ namespace health.Controllers
         [Route("SetIdCategory")]
         public JObject SetIdCategory([FromBody] JObject req)
         {
-            dbfactory db=new dbfactory();
-            JObject res=new JObject();
-            if(req["id"] !=null)
+            dbfactory db = new dbfactory();
+            JObject res = new JObject();
+            if (req["id"] != null)
             {
-                int id=req["id"].ToObject<int>();
-                if(id==0)
+                int id = req["id"].ToObject<int>();
+                if (id == 0)
                 {
-                    var dict=req.ToObject<Dictionary<string,object>>();
-                    var rows=db.Insert("data_idcategory",dict);
-                    if(rows>0)
+                    var dict = req.ToObject<Dictionary<string, object>>();
+                    var rows = db.Insert("data_idcategory", dict);
+                    if (rows > 0)
                     {
-                        res["status"]=200;
-                        res["msg"]="新增成功";
+                        res["status"] = 200;
+                        res["msg"] = "新增成功";
                     }
                     else
                     {
-                        res["status"]=201;
-                        res["msg"]="无法新增数据";
+                        res["status"] = 201;
+                        res["msg"] = "无法新增数据";
                     }
                 }
-                else if(id>0)
+                else if (id > 0)
                 {
-                    var dict = req.ToObject<Dictionary<string,object>>();
+                    var dict = req.ToObject<Dictionary<string, object>>();
                     dict.Remove("id");
-                    var keys = new Dictionary<string,object>();
-                    keys["id"]=req["id"];
-                    var rows=db.Update("data_idcategory",dict,keys);
-                    if(rows>0)
+                    var keys = new Dictionary<string, object>();
+                    keys["id"] = req["id"];
+                    var rows = db.Update("data_idcategory", dict, keys);
+                    if (rows > 0)
                     {
-                       res["status"]=200;
-                       res["msg"]="修改成功";
+                        res["status"] = 200;
+                        res["msg"] = "修改成功";
                     }
-                    else{
-                        res["status"]=201;
-                        res["msg"]="修改失败";
+                    else
+                    {
+                        res["status"] = 201;
+                        res["msg"] = "修改失败";
                     }
                 }
             }
-            else{
-                res["status"]=201;
-                res["message"]="非法的请求";
+            else
+            {
+                res["status"] = 201;
+                res["msg"] = "非法的请求";
             }
             return res;
         }
@@ -126,19 +129,19 @@ namespace health.Controllers
         public JObject DelIdCategory([FromBody] JObject req)
         {
             JObject res = new JObject();
-            var dict=req.ToObject<Dictionary<string,object>>();
+            var dict = req.ToObject<Dictionary<string, object>>();
             dbfactory db = new dbfactory();
-            var count = db.del("data_idcategory",dict);
-            if(count > 0)
+            var count = db.del("data_idcategory", dict);
+            if (count > 0)
             {
-                res["status"]=200;
+                res["status"] = 200;
                 res["msg"] = "操作成功";
                 return res;
             }
             else
             {
-                res["status"]=201;
-                res["msg"]= "操作失败";
+                res["status"] = 201;
+                res["msg"] = "操作失败";
                 return res;
             }
         }

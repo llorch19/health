@@ -14,10 +14,10 @@ namespace health.BaseData
             JObject res = new JObject();
             res["status"] = 200;
             res["msg"] = "读取成功";
-           
+
             dbfactory db = new dbfactory();
-            JArray rows = db.GetArray("select ID,Code,AddressCategory from data_addresscategory"); 
-            
+            JArray rows = db.GetArray("select ID,Code,AddressCategory from data_addresscategory");
+
             res["list"] = rows;
             return res;
         }
@@ -26,8 +26,9 @@ namespace health.BaseData
         public JObject GetAddressCategory(int id)
         {
             dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select ID,Code,AddressCategory from data_addresscategory where id=?p1",id); 
-            if(res["id"]!=null){
+            JObject res = db.GetOne("select ID,Code,AddressCategory from data_addresscategory where id=?p1", id);
+            if (res["id"] != null)
+            {
                 res["status"] = 200;
                 res["msg"] = "读取成功";
             }
@@ -37,34 +38,36 @@ namespace health.BaseData
                 res["msg"] = "查询不到对应的数据";
             }
 
-            return res;   
+            return res;
         }
 
         [HttpPost("SetAddressCategory")]
         public JObject SetAddressCategory([FromBody] JObject req)
         {
-            JObject res=new JObject();
+            JObject res = new JObject();
             dbfactory db = new dbfactory();
-            if(req["id"]==null){
-                res["status"]=201;
-                res["msg"]="无法添加或修改数据";
+            if (req["id"] == null)
+            {
+                res["status"] = 201;
+                res["msg"] = "无法添加或修改数据";
                 return res;
             }
 
-            if(req["id"].ToObject<int>()==0)
+            if (req["id"].ToObject<int>() == 0)
             {
-                var dict=req.ToObject<Dictionary<string,object>>();
+                var dict = req.ToObject<Dictionary<string, object>>();
                 dict.Remove("id");
-                var newID = db.Insert("data_addresscategory",dict);
-                if(newID>0)
+                var newID = db.Insert("data_addresscategory", dict);
+                if (newID > 0)
                 {
-                    res["status"]=200;
-                    res["msg"]="操作成功";
+                    res["status"] = 200;
+                    res["msg"] = "操作成功";
                     return res;
                 }
-                else{
-                    res["status"]=201;
-                    res["msg"]="操作失败";
+                else
+                {
+                    res["status"] = 201;
+                    res["msg"] = "操作失败";
                     return res;
                 }
             }
@@ -95,19 +98,19 @@ namespace health.BaseData
         public JObject DelAddressCategory([FromBody] JObject req)
         {
             JObject res = new JObject();
-            var dict=req.ToObject<Dictionary<string,object>>();
+            var dict = req.ToObject<Dictionary<string, object>>();
             dbfactory db = new dbfactory();
-            var count = db.del("data_addresscategory",dict);
-            if(count > 0)
+            var count = db.del("data_addresscategory", dict);
+            if (count > 0)
             {
-                res["status"]=200;
+                res["status"] = 200;
                 res["msg"] = "操作成功";
                 return res;
             }
             else
             {
-                res["status"]=201;
-                res["msg"]= "操作失败";
+                res["status"] = 201;
+                res["msg"] = "操作失败";
                 return res;
             }
         }

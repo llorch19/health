@@ -38,7 +38,7 @@ namespace health.Controllers
             JObject res = new JObject();
             res["status"] = 200;
             res["msg"] = "读取成功";
-           
+
             dbfactory db = new dbfactory();
             JArray rows = db.GetArray(
                 @"select ID
@@ -51,8 +51,8 @@ namespace health.Controllers
                 ,IFNULL(Tel,'') as Tel
                 ,IFNULL(Coordinates,'') as Coordinates
                   from t_orgnization limit ?p1,10"
-                , pageIndex); 
-            
+                , pageIndex);
+
             res["list"] = rows;
             return res;
         }
@@ -77,10 +77,11 @@ namespace health.Controllers
                 ,IFNULL(Tel,'') as Tel
                 ,IFNULL(Coordinates,'') as Coordinates
                   from t_orgnization where id=?p1"
-                , id); 
-            if(res["id"] != null)
+                , id);
+            if (res["id"] != null)
                 res["status"] = 200;
-            else{
+            else
+            {
                 res["status"] = 201;
                 res["msg"] = "查询不到对应的数据";
             }
@@ -96,47 +97,49 @@ namespace health.Controllers
         [Route("SetOrg")]
         public JObject SetOrg([FromBody] JObject req)
         {
-            dbfactory db=new dbfactory();
-            JObject res=new JObject();
-            if(req["id"] !=null)
+            dbfactory db = new dbfactory();
+            JObject res = new JObject();
+            if (req["id"] != null)
             {
-                int id=req["id"].ToObject<int>();
-                if(id==0)
+                int id = req["id"].ToObject<int>();
+                if (id == 0)
                 {
-                    var dict=req.ToObject<Dictionary<string,object>>();
-                    var rows=db.Insert("t_orgnization", dict);
-                    if(rows>0)
+                    var dict = req.ToObject<Dictionary<string, object>>();
+                    var rows = db.Insert("t_orgnization", dict);
+                    if (rows > 0)
                     {
-                        res["status"]=200;
-                        res["msg"]="新增成功";
+                        res["status"] = 200;
+                        res["msg"] = "新增成功";
                     }
                     else
                     {
-                        res["status"]=201;
-                        res["msg"]="无法新增数据";
+                        res["status"] = 201;
+                        res["msg"] = "无法新增数据";
                     }
                 }
-                else if(id>0)
+                else if (id > 0)
                 {
-                    var dict = req.ToObject<Dictionary<string,object>>();
+                    var dict = req.ToObject<Dictionary<string, object>>();
                     dict.Remove("id");
-                    var keys = new Dictionary<string,object>();
-                    keys["id"]=req["id"];
-                    var rows=db.Update("t_orgnization", dict,keys);
-                    if(rows>0)
+                    var keys = new Dictionary<string, object>();
+                    keys["id"] = req["id"];
+                    var rows = db.Update("t_orgnization", dict, keys);
+                    if (rows > 0)
                     {
-                       res["status"]=200;
-                       res["msg"]="修改成功";
+                        res["status"] = 200;
+                        res["msg"] = "修改成功";
                     }
-                    else{
-                        res["status"]=201;
-                        res["msg"]="修改失败";
+                    else
+                    {
+                        res["status"] = 201;
+                        res["msg"] = "修改失败";
                     }
                 }
             }
-            else{
-                res["status"]=201;
-                res["message"]="非法的请求";
+            else
+            {
+                res["status"] = 201;
+                res["msg"] = "非法的请求";
             }
             return res;
         }
@@ -151,19 +154,19 @@ namespace health.Controllers
         public JObject DelOrg([FromBody] JObject req)
         {
             JObject res = new JObject();
-            var dict=req.ToObject<Dictionary<string,object>>();
+            var dict = req.ToObject<Dictionary<string, object>>();
             dbfactory db = new dbfactory();
             var count = db.del("t_orgnization", dict);
-            if(count > 0)
+            if (count > 0)
             {
-                res["status"]=200;
+                res["status"] = 200;
                 res["msg"] = "操作成功";
                 return res;
             }
             else
             {
-                res["status"]=201;
-                res["msg"]= "操作失败";
+                res["status"] = 201;
+                res["msg"] = "操作失败";
                 return res;
             }
         }
