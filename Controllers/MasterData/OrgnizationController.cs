@@ -1,3 +1,13 @@
+/*
+ * Title : 机构信息控制器
+ * Author: zudan
+ * Date  : 2020-07-14
+ * Description: 对机构信息的增删查改
+ * Comments
+ * - 多行，SQL字符串可以用@符号来写，这样可以有效减少+号的拼接。 @norway 2020-07-14 09:56
+ * 
+ * 
+ */
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -31,16 +41,16 @@ namespace health.Controllers
            
             dbfactory db = new dbfactory();
             JArray rows = db.GetArray(
-                "select ID" +
-                ",IFNULL(OrgName,'') as OrgName" +
-                ",IFNULL(OrgCode,'') as OrgCode" +
-                ",IFNULL(CertCode,'') as CertCode" +
-                ",IFNULL(LegalName,'') as LegalName" +
-                ",IFNULL(LegalIDCode,'') as LegalIDCode" +
-                ",IFNULL(Address,'') as Address" +
-                ",IFNULL(Tel,'') as Tel" +
-                ",IFNULL(Coordinates,'') as Coordinates" +
-                " from t_orgnization limit ?p1,10"
+                @"select ID
+                ,IFNULL(OrgName,'') as OrgName
+                ,IFNULL(OrgCode,'') as OrgCode
+                ,IFNULL(CertCode,'') as CertCode
+                ,IFNULL(LegalName,'') as LegalName
+                ,IFNULL(LegalIDCode,'') as LegalIDCode
+                ,IFNULL(Address,'') as Address
+                ,IFNULL(Tel,'') as Tel
+                ,IFNULL(Coordinates,'') as Coordinates
+                  from t_orgnization limit ?p1,10"
                 , pageIndex); 
             
             res["list"] = rows;
@@ -57,16 +67,16 @@ namespace health.Controllers
         {
             dbfactory db = new dbfactory();
             JObject res = db.GetOne(
-                "select ID" +
-                ",IFNULL(OrgName,'') as OrgName" +
-                ",IFNULL(OrgCode,'') as OrgCode" +
-                ",IFNULL(CertCode,'') as CertCode" +
-                ",IFNULL(LegalName,'') as LegalName" +
-                ",IFNULL(LegalIDCode,'') as LegalIDCode" +
-                ",IFNULL(Address,'') as Address" +
-                ",IFNULL(Tel,'') as Tel" +
-                ",IFNULL(Coordinates,'') as Coordinates" +
-                " from t_orgnization where id=?p1"
+                @"select ID
+                ,IFNULL(OrgName,'') as OrgName
+                ,IFNULL(OrgCode,'') as OrgCode
+                ,IFNULL(CertCode,'') as CertCode
+                ,IFNULL(LegalName,'') as LegalName
+                ,IFNULL(LegalIDCode,'') as LegalIDCode
+                ,IFNULL(Address,'') as Address
+                ,IFNULL(Tel,'') as Tel
+                ,IFNULL(Coordinates,'') as Coordinates
+                  from t_orgnization where id=?p1"
                 , id); 
             if(res["id"] != null)
                 res["status"] = 200;

@@ -39,16 +39,16 @@ namespace health.Controllers
            
             dbfactory db = new dbfactory();
             JArray rows = db.GetArray(
-                "select ID" +
-                ",IFNULL(OrgName,'') as OrgName" +
-                ",IFNULL(OrgCode,'') as OrgCode" +
-                ",IFNULL(CertCode,'') as CertCode" +
-                ",IFNULL(LegalName,'') as LegalName" +
-                ",IFNULL(LegalIDCode,'') as LegalIDCode" +
-                ",IFNULL(Address,'') as Address" +
-                ",IFNULL(Tel,'') as Tel" +
-                ",IFNULL(Coordinates,'') as Coordinates" +
-                " from t_orgnization limit ?p1,10"
+                @"select ID
+                ,IFNULL(OrgName,'') as OrgName
+                ,IFNULL(OrgCode,'') as OrgCode
+                ,IFNULL(CertCode,'') as CertCode
+                ,IFNULL(LegalName,'') as LegalName
+                ,IFNULL(LegalIDCode,'') as LegalIDCode
+                ,IFNULL(Address,'') as Address
+                ,IFNULL(Tel,'') as Tel
+                ,IFNULL(Coordinates,'') as Coordinates
+                from t_orgnization limit ?p1,10"
                 , pageIndex); 
             
             res["list"] = rows;
@@ -60,21 +60,21 @@ namespace health.Controllers
         /// </summary>
         /// <returns>JSON形式的某个机构信息</returns>
         [HttpGet]
-        [Route("GetOrg")]
-        public JObject GetOrg(int id)
+        [Route("GetPatient")]
+        public JObject GetPatient(int id)
         {
             dbfactory db = new dbfactory();
             JObject res = db.GetOne(
-                "select ID" +
-                ",IFNULL(OrgName,'') as OrgName" +
-                ",IFNULL(OrgCode,'') as OrgCode" +
-                ",IFNULL(CertCode,'') as CertCode" +
-                ",IFNULL(LegalName,'') as LegalName" +
-                ",IFNULL(LegalIDCode,'') as LegalIDCode" +
-                ",IFNULL(Address,'') as Address" +
-                ",IFNULL(Tel,'') as Tel" +
-                ",IFNULL(Coordinates,'') as Coordinates" +
-                " from t_orgnization where id=?p1"
+                @"select ID
+                ,IFNULL(OrgName,'') as OrgName
+                ,IFNULL(OrgCode,'') as OrgCode
+                ,IFNULL(CertCode,'') as CertCode
+                ,IFNULL(LegalName,'') as LegalName
+                ,IFNULL(LegalIDCode,'') as LegalIDCode
+                ,IFNULL(Address,'') as Address
+                ,IFNULL(Tel,'') as Tel
+                ,IFNULL(Coordinates,'') as Coordinates
+                from t_orgnization where id=?p1"
                 , id); 
             if(res["id"] != null)
                 res["status"] = 200;
@@ -91,8 +91,8 @@ namespace health.Controllers
         /// <param name="req">在请求body中JSON形式的机构信息</param>
         /// <returns>JSON形式的响应状态信息</returns>
         [HttpPost]
-        [Route("SetOrg")]
-        public JObject SetOrg([FromBody] JObject req)
+        [Route("SetPatient")]
+        public JObject SetPatient([FromBody] JObject req)
         {
             dbfactory db=new dbfactory();
             JObject res=new JObject();
@@ -145,8 +145,8 @@ namespace health.Controllers
         /// <param name="req">在请求body中JSON形式的机构信息</param>
         /// <returns>JSON形式的响应状态信息</returns>
         [HttpPost]
-        [Route("DelOrg")]
-        public JObject DelOrg([FromBody] JObject req)
+        [Route("DelPatient")]
+        public JObject DelPatient([FromBody] JObject req)
         {
             JObject res = new JObject();
             var dict=req.ToObject<Dictionary<string,object>>();
