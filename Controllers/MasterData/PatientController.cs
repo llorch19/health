@@ -71,17 +71,26 @@ LIMIT ?p1,10"
         public JObject GetPatient(int id)
         {
             dbfactory db = new dbfactory();
-            JObject res = db.GetOne(
-                @"select ID
-                ,IFNULL(OrgName,'') as OrgName
-                ,IFNULL(OrgCode,'') as OrgCode
-                ,IFNULL(CertCode,'') as CertCode
-                ,IFNULL(LegalName,'') as LegalName
-                ,IFNULL(LegalIDCode,'') as LegalIDCode
-                ,IFNULL(Address,'') as Address
-                ,IFNULL(Tel,'') as Tel
-                ,IFNULL(Coordinates,'') as Coordinates
-                from t_orgnization where id=?p1"
+            JObject res = new JObject();
+            res["personinfo"] = db.GetOne(
+                @"select 
+IFNULL(t_patient.ID,'') as ID
+,IFNULL(OrgName,'') as OrgName,IFNULL(OrgCode,'') as OrgCode,IFNULL(RegisterNO,'') as RegisterNO
+,IFNULL(FamilyName,'') as FamilyName,IFNULL(t_patient.Tel,'') as Tel,IFNULL(t_patient.IDCardNO,'') as IDCardNO,IFNULL(GenderName,'') as GenderName
+,IFNULL(t_patient.Birthday,'') as Birthday,IFNULL(t_patient.Nation,'') as Nation,IFNULL(DomicileType,'') as DomicileType,IFNULL(t_patient.DomicileDetail,'') as DomicileDetail
+,IFNULL(WorkUnitName,'') as WorkUnitName,IFNULL(data_occupation.OccupationName,'') as OccupationName,IFNULL(Detainees,'') as Detainees,IFNULL(data_addresscategory.AddressCategory,'') as AddressCategory
+,IFNULL(t_patient.Address,'') as Address
+,IFNULL(GuardianName,'') as GuardianName,IFNULL(GuardianContact,'') as GuardianContact
+from t_patient 
+LEFT JOIN t_orgnization
+ON t_patient.OrgnizationID=t_orgnization.ID
+LEFT JOIN data_gender
+ON t_patient.GenderID=data_gender.ID
+LEFT JOIN data_occupation
+ON t_patient.OccupationCategoryID=data_occupation.ID
+LEFT JOIN data_addresscategory
+ON t_patient.AddressCategoryID=data_addresscategory.ID
+where t_patient.ID=?p1"
                 , id);
             if (res["id"] != null)
                 res["status"] = 200;
