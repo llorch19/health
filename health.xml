@@ -152,30 +152,30 @@
             <param name="req">在请求body中JSON形式的机构信息</param>
             <returns>JSON形式的响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.PatientController.GetPatientList(System.Int32)">
+        <member name="M:health.Controllers.PatientController.GetPersonList(System.Int32)">
             <summary>
-            获取个人列表
+            获取个人列表，[人员转诊]菜单
             </summary>
             <returns>JSON数组形式的个人信息</returns>
         </member>
-        <member name="M:health.Controllers.PatientController.GetPatient(System.Int32)">
+        <member name="M:health.Controllers.PatientController.GetPerson(System.Int32)">
             <summary>
-            获取机构信息
+            获取人员信息，[人员信息录入]菜单
             </summary>
-            <returns>JSON形式的某个机构信息</returns>
+            <returns>JSON形式的某位个人信息，包括个人信息，</returns>
         </member>
-        <member name="M:health.Controllers.PatientController.SetPatient(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.PatientController.SetPerson(Newtonsoft.Json.Linq.JObject)">
             <summary>
-            更改机构信息。如果id=0新增机构信息，如果id>0修改机构信息。
+            更改个人信息。如果id=0新增个人信息，如果id>0修改个人信息。
             </summary>
-            <param name="req">在请求body中JSON形式的机构信息</param>
+            <param name="req">在请求body中JSON形式的个人信息</param>
             <returns>JSON形式的响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.PatientController.DelPatient(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.PatientController.DelPerson(Newtonsoft.Json.Linq.JObject)">
             <summary>
-            删除机构信息
+            删除个人信息
             </summary>
-            <param name="req">在请求body中JSON形式的机构信息</param>
+            <param name="req">在请求body中JSON形式的个人信息</param>
             <returns>JSON形式的响应状态信息</returns>
         </member>
         <member name="M:health.Controllers.MenuController.GetMenu(System.Int32)">
