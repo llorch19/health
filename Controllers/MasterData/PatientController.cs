@@ -17,10 +17,10 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
-    public class UserController : ControllerBase
+    public class PatientController : ControllerBase
     {
-        private readonly ILogger<UserController> _logger;
-        public UserController(ILogger<UserController> logger)
+        private readonly ILogger<PatientController> _logger;
+        public PatientController(ILogger<PatientController> logger)
         {
             _logger = logger;
         }
@@ -39,16 +39,23 @@ namespace health.Controllers
 
             dbfactory db = new dbfactory();
             JArray rows = db.GetArray(
-                @"select ID
-                ,IFNULL(OrgName,'') as OrgName
-                ,IFNULL(OrgCode,'') as OrgCode
-                ,IFNULL(CertCode,'') as CertCode
-                ,IFNULL(LegalName,'') as LegalName
-                ,IFNULL(LegalIDCode,'') as LegalIDCode
-                ,IFNULL(Address,'') as Address
-                ,IFNULL(Tel,'') as Tel
-                ,IFNULL(Coordinates,'') as Coordinates
-                from t_orgnization limit ?p1,10"
+                @"select 
+IFNULL(t_patient.ID,0) as ID
+,IFNULL(t_attandent.IsTransfer,'') as IsTransfer
+,IFNULL(FamilyName,'') as FamilyName
+,IFNULL(GenderName,'') as GenderName
+,IFNULL(OrgName,'') as OrgName
+,IFNULL(t_patient.RegisterNO,'') as RegisterNO
+,IFNULL(t_patient.Tel,'') as Tel
+,IFNULL(t_patient.IDCardNO,'') as IDCardNO  
+from t_patient
+LEFT JOIN data_gender
+on t_patient.GenderID=data_gender.ID
+LEFT JOIN t_orgnization
+ON t_patient.OrgnizationID=t_orgnization.ID
+LEFT JOIN t_attandent
+ON t_patient.ID=t_attandent.PatientID
+LIMIT ?p1,10"
                 , pageIndex);
 
             res["list"] = rows;
