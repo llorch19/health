@@ -1,39 +1,24 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
-using util;
-using util.mysql;
 using Newtonsoft.Json.Linq;
-using IdentityModel.Client;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication;
+using System.Collections.Generic;
+using util.mysql;
 
 namespace health.Controllers
 {
     [ApiController]
     public class DetectionResultTypeController : ControllerBase
     {
-
         private readonly ILogger<DetectionResultTypeController> _logger;
-
         public DetectionResultTypeController(ILogger<DetectionResultTypeController> logger)
         {
             _logger = logger;
         }
 
         /// <summary>
-        /// 获取列表
+        /// 获取“检测结果”列表
         /// </summary>
-        /// <returns></returns>
+        /// <returns>JSON对象，包含“检测结果”的数组</returns>
         [HttpGet]
         [Route("GetDetectionResultTypeList")]
         public JObject GetDetectionResultTypeList(int id)
@@ -52,7 +37,7 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取区域信息
+        /// 获取“检测结果”信息
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -74,6 +59,12 @@ namespace health.Controllers
         }
 
 
+
+        /// <summary>
+        /// 修改“检测结果”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待修改的“检测结果”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost("SetDetectionResultType")]
         public JObject SetDetectionResultType([FromBody] JObject req)
         {
@@ -125,7 +116,11 @@ namespace health.Controllers
         }
 
 
-
+        /// <summary>
+        /// 删除“检测结果”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待删除的“检测结果”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost("DelDetectionResultType")]
         public JObject DelDetectionResultType([FromBody] JObject req)
         {

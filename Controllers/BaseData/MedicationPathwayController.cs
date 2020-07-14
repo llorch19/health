@@ -31,9 +31,9 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取列表
+        /// 获取“用药途径”列表
         /// </summary>
-        /// <returns></returns>
+        /// <returns>JSON对象，包含所有可用的“用药途径”数组</returns>
         [HttpGet]
         [Route("GetMedicationPathwayList")]
         public JObject GetMedicationPathwayList(int id)
@@ -52,9 +52,10 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取区域信息
+        /// 获取“用药途径”信息
         /// </summary>
-        /// <returns></returns>
+        /// <param name="id">指定id</param>
+        /// <returns>JSON对象，包含相应的“用药途径”信息</returns>
         [HttpGet]
         [Route("GetMedicationPathway")]
         public JObject GetMedicationPathway(int id)
@@ -73,7 +74,11 @@ namespace health.Controllers
             return res;
         }
 
-
+        /// <summary>
+        /// 修改“用药途径”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待修改的“用药途径”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost("SetMedicationPathway")]
         public JObject SetMedicationPathway([FromBody] JObject req)
         {
@@ -125,7 +130,11 @@ namespace health.Controllers
         }
 
 
-
+        /// <summary>
+        /// 删除“用药途径”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待删除的“用药途径”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost("DelMedicationPathway")]
         public JObject DelMedicationPathway([FromBody] JObject req)
         {

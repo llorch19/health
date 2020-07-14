@@ -22,18 +22,16 @@ namespace health.Controllers
     [ApiController]
     public class GenderController : ControllerBase
     {
-
         private readonly ILogger<GenderController> _logger;
-
         public GenderController(ILogger<GenderController> logger)
         {
             _logger = logger;
         }
 
         /// <summary>
-        /// 获取列表
+        /// 获取“性别”列表
         /// </summary>
-        /// <returns></returns>
+        /// <returns>JSON对象，包含所有可用的“性别”数组</returns>
         [HttpGet]
         [Route("GetGenderList")]
         public JObject GetGenderList()
@@ -52,9 +50,10 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取区域信息
+        /// 获取“性别”信息
         /// </summary>
-        /// <returns></returns>
+        /// <param name="id">指定id</param>
+        /// <returns>JSON对象，包含相应的“性别”信息</returns>
         [HttpGet]
         [Route("GetGender")]
         public JObject GetGender(int id)
@@ -73,6 +72,11 @@ namespace health.Controllers
             return res;
         }
 
+        /// <summary>
+        /// 修改“性别”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待修改的“性别”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("SetGender")]
         public JObject SetGender([FromBody] JObject req)
@@ -124,6 +128,12 @@ namespace health.Controllers
             return res;
         }
 
+
+        /// <summary>
+        /// 删除“性别”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待删除的“性别”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("DelGender")]
         public JObject DelGender([FromBody] JObject req)

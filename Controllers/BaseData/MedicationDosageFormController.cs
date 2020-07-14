@@ -31,9 +31,9 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取列表
+        /// 获取“药物剂型”列表
         /// </summary>
-        /// <returns></returns>
+        /// <returns>JSON对象，包含所有可用的“药物剂型”数组</returns>
         [HttpGet]
         [Route("GetMedicationDosageFormList")]
         public JObject GetMedicationDosageFormList(int id)
@@ -52,9 +52,10 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取区域信息
+        /// 获取“药物剂型”信息
         /// </summary>
-        /// <returns></returns>
+        /// <param name="id">指定id</param>
+        /// <returns>JSON对象，包含相应的“药物剂型”信息</returns>
         [HttpGet]
         [Route("GetMedicationDosageForm")]
         public JObject GetMedicationDosageForm(int id)
@@ -74,6 +75,11 @@ namespace health.Controllers
         }
 
 
+        /// <summary>
+        /// 修改“药物剂型”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待修改的“药物剂型”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost("SetMedicationDosageForm")]
         public JObject SetMedicationDosageForm([FromBody] JObject req)
         {
@@ -125,7 +131,11 @@ namespace health.Controllers
         }
 
 
-
+        /// <summary>
+        /// 删除“药物剂型”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待删除的“药物剂型”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost("DelMedicationDosageForm")]
         public JObject DelMedicationDosageForm([FromBody] JObject req)
         {

@@ -31,9 +31,9 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取列表
+        /// 获取“治疗方案”列表
         /// </summary>
-        /// <returns></returns>
+        /// <returns>JSON对象，包含所有可用的“治疗方案”数组</returns>
         [HttpGet]
         [Route("GetTreatmentOptionList")]
         public JObject GetTreatmentOptionList(int id)
@@ -52,9 +52,10 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取区域信息
+        /// 获取“治疗方案”信息
         /// </summary>
-        /// <returns></returns>
+        /// <param name="id">指定id</param>
+        /// <returns>JSON对象，包含相应的“治疗方案”信息</returns>
         [HttpGet]
         [Route("GetTreatmentOption")]
         public JObject GetTreatmentOption(int id)
@@ -73,7 +74,11 @@ namespace health.Controllers
             return res;
         }
 
-
+        /// <summary>
+        /// 修改“治疗方案”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待修改的“治疗方案”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost("SetTreatmentOption")]
         public JObject SetTreatmentOption([FromBody] JObject req)
         {
@@ -125,7 +130,11 @@ namespace health.Controllers
         }
 
 
-
+        /// <summary>
+        /// 删除“治疗方案”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待删除的“治疗方案”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost("DelTreatmentOption")]
         public JObject DelTreatmentOption([FromBody] JObject req)
         {

@@ -1,21 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
-using util;
-using util.mysql;
 using Newtonsoft.Json.Linq;
-using IdentityModel.Client;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication;
+using System.Collections.Generic;
+using util.mysql;
 
 namespace health.Controllers
 {
@@ -31,15 +18,13 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取列表
+        /// 获取“区域”列表
         /// </summary>
-        /// <returns></returns>
+        /// <returns>JSON对象，包含指定id的下属“区域”数组</returns>
         [HttpGet]
         [Route("GetAreaList")]
         public JObject GetAreaList(int id)
         {
-            //int id = 0;
-            //int.TryParse(HttpContext.Request.Query["id"],out id);
             JObject res = new JObject();
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -52,9 +37,9 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取区域信息
+        /// 获取“区域”信息
         /// </summary>
-        /// <returns></returns>
+        /// <returns>获取指定id的“区域”信息</returns>
         [HttpGet]
         [Route("GetArea")]
         public JObject GetArea(int id)
@@ -73,6 +58,11 @@ namespace health.Controllers
             return res;
         }
 
+        /// <summary>
+        /// 修改“区域”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待修改的“区域”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("SetArea")]
         public JObject SetArea([FromBody] JObject req)
@@ -124,6 +114,12 @@ namespace health.Controllers
             return res;
         }
 
+
+        /// <summary>
+        /// 删除“区域”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待删除的“区域”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("DelArea")]
         public JObject DelArea([FromBody] JObject req)

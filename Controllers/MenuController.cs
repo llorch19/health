@@ -97,9 +97,10 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取区域信息
+        /// 获取系统菜单列表
         /// </summary>
-        /// <returns></returns>
+        /// <param name="pid">指定根菜单的id</param>
+        /// <returns>JSON对象，递归地包含了相应的系统菜单</returns>
         [HttpGet]
         [Route("GetMenu")]
         public JObject GetMenu(int pid)

@@ -23,9 +23,10 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取公告列表，[科普公告]菜单
+        /// 获取“公告”列表，[科普公告]菜单
         /// </summary>
-        /// <returns>JSON数组形式的公告信息</returns>
+        /// <param name="pageIndex">页码</param>
+        /// <returns>JSON对象，包含相应的公告数组</returns>
         [HttpGet]
         [Route("GetMessageList")]
         public JObject GetMessageList(int pageIndex)
@@ -66,9 +67,10 @@ LIMIT ?p1,10
 
 
         /// <summary>
-        /// 获取公告信息，点击[科普公告]中的一个栏目
+        /// 获取“公告”信息，点击[科普公告]中的一个栏目
         /// </summary>
-        /// <returns>JSON数组形式的公告信息</returns>
+        /// <param name="id">指定的id</param>
+        /// <returns>JSON对象，包含相应的“公告”信息</returns>
         [HttpGet]
         [Route("GetMessage")]
         public JObject GetMessage(int id)
@@ -107,10 +109,10 @@ WHERE t_messagesent.ID=?p1
 
 
         /// <summary>
-        /// 更改公告信息。如果id=0新增公告，如果id>0修改公告。
+        /// 更改“公告”信息。如果id=0新增，如果id>0修改。
         /// </summary>
-        /// <param name="req">在请求body中JSON形式的公告信息</param>
-        /// <returns>JSON形式的响应状态信息</returns>
+        /// <param name="req">在请求body中JSON形式的“公告”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("SetMessage")]
         public JObject SetMessage([FromBody] JObject req)
@@ -168,10 +170,10 @@ WHERE t_messagesent.ID=?p1
 
 
         /// <summary>
-        /// 删除公告。
+        /// 删除“公告”。
         /// </summary>
-        /// <param name="req">在请求body中JSON形式的公告信息</param>
-        /// <returns>JSON形式的响应状态信息</returns>
+        /// <param name="req">在请求body中JSON形式的“公告”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("DelMessage")]
         public JObject DelMessage([FromBody] JObject req)

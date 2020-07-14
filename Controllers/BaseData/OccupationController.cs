@@ -31,9 +31,9 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取职业列表
+        /// 获取“职业”列表
         /// </summary>
-        /// <returns></returns>
+        /// <returns>JSON对象，包含所有可用的“职业”数组</returns>
         [HttpGet]
         [Route("GetOccupationList")]
         public JObject GetOccupationList(int id)
@@ -52,9 +52,10 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取职业信息
+        /// 获取“职业”信息
         /// </summary>
-        /// <returns></returns>
+        /// <param name="id">指定id</param>
+        /// <returns>JSON对象，包含相应的“职业”信息</returns>
         [HttpGet]
         [Route("GetOccupation")]
         public JObject GetOccupation(int id)
@@ -74,10 +75,10 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 增加或删除职业信息
+        /// 修改“职业”
         /// </summary>
-        /// <param name="req"></param>
-        /// <returns></returns>
+        /// <param name="req">JSON对象，包含待修改的“职业”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost("SetOccupation")]
         public JObject SetOccupation([FromBody] JObject req)
         {
@@ -130,10 +131,10 @@ namespace health.Controllers
 
 
         /// <summary>
-        /// 删除职业信息
+        /// 删除“职业”
         /// </summary>
-        /// <param name="req"></param>
-        /// <returns></returns>
+        /// <param name="req">JSON对象，包含待删除的“职业”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost("DelOccupation")]
         public JObject DelOccupation([FromBody] JObject req)
         {

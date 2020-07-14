@@ -64,7 +64,7 @@ LIMIT ?p1,10"
         }
 
         /// <summary>
-        /// 获取人员信息，[人员信息录入]菜单
+        /// 获取人员信息，初始化[人员信息录入]菜单
         /// </summary>
         /// <returns>JSON形式的某位个人信息，包括个人信息，</returns>
         [HttpGet]
@@ -161,7 +161,8 @@ order by ResultTime desc limit 1"
             // 随访信息
             res["followup"] = db.GetArray(
                 @"select 
-IFNULL(Time,'') as Time
+IFNULL(t_followup.ID,'') as ID
+,IFNULL(Time,'') as Time
 ,IFNULL(PersonList,'') as PersonList
 ,IFNULL(Abstract,'') as Abstract
 ,IFNULL(Detail,'') as Detail from t_followup
@@ -267,7 +268,7 @@ where PatientID=?p1", id);
         }
 
         /// <summary>
-        /// 转诊
+        /// TODO: 转诊
         /// </summary>
         /// <param name="req">在请求body中JSON形式的转诊信息</param>
         /// <returns>JSON形式的响应状态信息</returns>

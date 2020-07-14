@@ -31,9 +31,9 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取列表
+        /// 获取“身份证件类型”列表
         /// </summary>
-        /// <returns></returns>
+        /// <returns>JSON对象，包含所有可用的“身份证件类型”数组</returns>
         [HttpGet]
         [Route("GetIdCategoryList")]
         public JObject GetIdCategoryList()
@@ -52,9 +52,10 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取区域信息
+        /// 获取“身份证件类型”信息
         /// </summary>
-        /// <returns></returns>
+        /// <param name="id">指定id</param>
+        /// <returns>JSON对象，包含相应的“身份证件类型”信息</returns>
         [HttpGet]
         [Route("GetIdCategory")]
         public JObject GetIdCategory(int id)
@@ -73,6 +74,11 @@ namespace health.Controllers
             return res;
         }
 
+        /// <summary>
+        /// 修改“身份证件类型”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待修改的“身份证件类型”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("SetIdCategory")]
         public JObject SetIdCategory([FromBody] JObject req)
@@ -124,6 +130,13 @@ namespace health.Controllers
             return res;
         }
 
+
+
+        /// <summary>
+        /// 删除“身份证件类型”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待删除的“身份证件类型”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("DelIdCategory")]
         public JObject DelIdCategory([FromBody] JObject req)

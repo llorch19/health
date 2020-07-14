@@ -8,6 +8,10 @@ namespace health.BaseData
     [ApiController]
     public class AddressCategoryController : ControllerBase
     {
+        /// <summary>
+        /// 获取“地址类型”列表
+        /// </summary>
+        /// <returns>JSON对象，包含所有可用的“地址类型”数组</returns>
         [HttpGet("GetAddressCategoryList")]
         public JObject GetAddressCategoryList()
         {
@@ -22,6 +26,11 @@ namespace health.BaseData
             return res;
         }
 
+        /// <summary>
+        /// 获取“地址类型”信息
+        /// </summary>
+        /// <param name="id">指定id</param>
+        /// <returns>JSON对象，包含相应的“地址类型”信息</returns>
         [HttpGet("GetAddressCategory")]
         public JObject GetAddressCategory(int id)
         {
@@ -41,6 +50,11 @@ namespace health.BaseData
             return res;
         }
 
+        /// <summary>
+        /// 修改“地址类型”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待修改的“地址类型”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost("SetAddressCategory")]
         public JObject SetAddressCategory([FromBody] JObject req)
         {
@@ -94,6 +108,11 @@ namespace health.BaseData
         }
 
 
+        /// <summary>
+        /// 删除“地址类型”
+        /// </summary>
+        /// <param name="req">JSON对象，包含待删除的“地址类型”信息</param>
+        /// <returns>响应状态信息</returns>
         [HttpPost("DelAddressCategory")]
         public JObject DelAddressCategory([FromBody] JObject req)
         {
