@@ -34,6 +34,7 @@ namespace health.Controllers
             JObject res = new JObject();
             JArray list = db.GetArray(@"select
 IFNULL(t_messagesent.ID,'') as ID
+,IFNULL(t_user.ID,'') as PublishUserID
 ,IFNULL(t_user.FamilyName,'') as Publish 
 ,IFNULL(t_messagesent.Title,'') as Title
 ,IFNULL(Content,'') as Content
@@ -75,6 +76,7 @@ LIMIT ?p1,10
             dbfactory db = new dbfactory();
             JObject res =  db.GetOne(@"select
 IFNULL(t_messagesent.ID,'') as ID
+,IFNULL(t_user.ID,'') as PublishUserID
 ,IFNULL(t_user.FamilyName,'') as Publish 
 ,IFNULL(t_messagesent.Title,'') as Title
 ,IFNULL(Content,'') as Content
@@ -120,6 +122,8 @@ WHERE t_messagesent.ID=?p1
                 int id = req["id"].ToObject<int>();
                 if (id == 0)
                 {
+                    req.Remove("publish");
+                    req["OrgnizationID"] = null;
                     var dict = req.ToObject<Dictionary<string, object>>();
                     var rows = db.Insert("t_messagesent", dict);
                     if (rows > 0)
