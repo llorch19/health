@@ -212,20 +212,8 @@ WHERE t_messagesent.ID = ?p1
                 int id = req["id"].ToObject<int>();
                 if (id == 0)
                 {
-                    req.Remove("publish");
-                    req["OrgnizationID"] = null;
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    var rows = db.Insert("t_messagesent", dict);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "新增成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "无法新增数据";
-                    }
+                    res["status"] = 201;
+                    res["msg"] = "无法新增数据";
                 }
                 else if (id > 0)
                 {
