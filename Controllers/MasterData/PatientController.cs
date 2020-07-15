@@ -50,7 +50,7 @@ from t_patient
 LEFT JOIN data_gender
 on t_patient.GenderID=data_gender.ID
 LEFT JOIN t_orgnization
-ON t_patient.OrgnizationID=t_orgnization.ID
+ON t_patient.HeadOrgnizationID=t_orgnization.ID
 LEFT JOIN t_attandent
 ON t_patient.ID=t_attandent.PatientID
 LIMIT ?p1,10"
@@ -86,7 +86,7 @@ IFNULL(t_patient.ID,'') as ID
 ,IFNULL(GuardianName,'') as GuardianName,IFNULL(GuardianContact,'') as GuardianContact
 from t_patient 
 LEFT JOIN t_orgnization
-ON t_patient.OrgnizationID=t_orgnization.ID
+ON t_patient.HeadOrgnizationID=t_orgnization.ID
 LEFT JOIN data_gender
 ON t_patient.GenderID=data_gender.ID
 LEFT JOIN data_occupation
