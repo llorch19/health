@@ -273,11 +273,10 @@
             <param name="req">JSON对象，包含待删除的“治疗方案”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.MessageController.GetMessageList(System.Int32)">
+        <member name="M:health.Controllers.MessageController.GetMessageList">
             <summary>
             获取“公告”列表，[科普公告]菜单
             </summary>
-            <param name="pageIndex">页码</param>
             <returns>JSON对象，包含相应的公告数组</returns>
         </member>
         <member name="M:health.Controllers.MessageController.GetMessage(System.Int32)">
@@ -300,6 +299,33 @@
             </summary>
             <param name="req">在请求body中JSON形式的“公告”信息</param>
             <returns>响应状态信息</returns>
+        </member>
+        <member name="M:health.Controllers.OptionController.GetOptionList(System.String)">
+            <summary>
+            获取“参数”列表
+            </summary>
+            <param name="section">节名</param>
+            <returns>JSON数组形式的“参数”信息</returns>
+        </member>
+        <member name="M:health.Controllers.OptionController.GetOption(System.Int32)">
+            <summary>
+            获取“参数”信息
+            </summary>
+            <returns>JSON形式的某个“参数”信息</returns>
+        </member>
+        <member name="M:health.Controllers.OptionController.SetOption(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            更改“参数”信息。如果id=0新增，如果id>0修改。
+            </summary>
+            <param name="req">在请求body中JSON形式的“参数”信息</param>
+            <returns>JSON形式的响应状态信息</returns>
+        </member>
+        <member name="M:health.Controllers.OptionController.DelOption(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            删除“参数”信息
+            </summary>
+            <param name="req">在请求body中JSON形式的“参数”信息</param>
+            <returns>JSON形式的响应状态信息</returns>
         </member>
         <member name="M:health.Controllers.OrgnizationController.GetOrgList(System.Int32)">
             <summary>

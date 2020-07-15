@@ -25,15 +25,14 @@ namespace health.Controllers
         /// <summary>
         /// 获取“公告”列表，[科普公告]菜单
         /// </summary>
-        /// <param name="pageIndex">页码</param>
         /// <returns>JSON对象，包含相应的公告数组</returns>
         [HttpGet]
         [Route("GetMessageList")]
-        public JObject GetMessageList(int pageIndex)
+        public JObject GetMessageList()
         {
             dbfactory db = new dbfactory();
             JObject res = new JObject();
-            JArray list = db.GetArray(@"select
+            JArray list = db.GetArray(@"SELECT
 IFNULL(t_messagesent.ID,'') as ID
 ,IFNULL(t_user.ID,'') as PublishUserID
 ,IFNULL(t_user.FamilyName,'') as Publish 
@@ -45,12 +44,11 @@ IFNULL(t_messagesent.ID,'') as ID
 ,IFNULL(IsClose,'') as IsClose
 ,IFNULL(ReaderType,'') as ReaderType
 ,IFNULL(t_messagesent.Description,'') as Description
-from t_messagesent 
+FROM t_messagesent 
 LEFT JOIN t_user
 ON t_user.ID=t_messagesent.PublishUserID
-LIMIT ?p1,10
-",
-            pageIndex);
+WHERE OutdateTime > NOW()
+");
             if (list.HasValues)
             {
                 res["status"] = 200;
