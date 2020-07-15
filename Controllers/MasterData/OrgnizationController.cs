@@ -79,7 +79,10 @@ namespace health.Controllers
                   from t_orgnization where id=?p1"
                 , id);
             if (res["id"] != null)
+            {
                 res["status"] = 200;
+                res["msg"] = "读取成功";
+            }
             else
             {
                 res["status"] = 201;

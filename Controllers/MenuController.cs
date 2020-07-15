@@ -74,7 +74,66 @@
         'icon': 'notification',
         'label': '通知',
         'children': [],
-    }]
+    }, {'id': 10,
+        'name': 'argsetting',
+        'icon': 'tool',
+        'label': '参数设置',
+        'children': [
+            {
+                'id': 11,
+                'name': 'AddressCategory',
+                'label': '地址类型',
+                'pid': 10,
+            },{
+                'id': 12,
+                'name': 'Area',
+                'label': '区域类型',
+                'pid': 10,
+            },{
+                'id': 13,
+                'name': 'DetectionResultType',
+                'label': '感染类型',
+                'pid': 10,
+            },
+            {
+                'id': 14,
+                'name': 'Gender',
+                'label': '性别类型',
+                'pid': 10,
+            },
+            {
+                'id': 15,
+                'name': 'IdCategory',
+                'label': '证件类型',
+                'pid': 10,
+            },
+            {
+                'id': 16,
+                'name': 'MedicationDosageForm',
+                'label': '药物剂量',
+                'pid': 10,
+            },
+            {
+                'id': 17,
+                'name': 'MedicationFreqCategory',
+                'label': '药物频率',
+                'pid': 10,
+            },
+            {
+                'id': 18,
+                'name': 'MedicationPathway',
+                'label': '药物途径',
+                'pid': 10,
+            },
+            {
+                'id': 19,
+                'name': 'Menu',
+                'label': '菜单',
+                'pid': 10,
+             }
+         ]
+         }
+            ]
 })
  * - 代码风格方面，单行的if和循环语句要删除前后大括号 @norway  2020-07-13 17:31
  * - 给菜单项添加一个seq字段，方便前端操作           @xuedi   2020-07-14 11:50

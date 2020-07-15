@@ -20,17 +20,18 @@ namespace health.Controllers
         /// <summary>
         /// 获取“区域”列表
         /// </summary>
-        /// <returns>JSON对象，包含指定id的下属“区域”数组</returns>
+        /// <param name="parentId">指定parentId</param>
+        /// <returns>JSON对象，包含指定parentId的下属“区域”数组</returns>
         [HttpGet]
         [Route("GetAreaList")]
-        public JObject GetAreaList(int id)
+        public JObject GetAreaList(int parentId)
         {
             JObject res = new JObject();
             res["status"] = 200;
             res["msg"] = "读取成功";
 
             dbfactory db = new dbfactory();
-            JArray rows = db.GetArray("select id,AreaCode,AreaName from data_area where parentID=?p1", id);
+            JArray rows = db.GetArray("select id,AreaCode,AreaName from data_area where parentID=?p1", parentId);
 
             res["list"] = rows;
             return res;
@@ -49,7 +50,10 @@ namespace health.Controllers
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,AreaCode,AreaName from data_area where id=?p1", id);
             if (res["id"] != null)
+            {
                 res["status"] = 200;
+                res["msg"] = "读取成功";
+            }
             else
             {
                 res["status"] = 201;

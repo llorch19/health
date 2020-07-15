@@ -1,21 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
-using util;
-using util.mysql;
 using Newtonsoft.Json.Linq;
-using IdentityModel.Client;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication;
+using System.Collections.Generic;
+using util.mysql;
 
 namespace health.Controllers
 {
@@ -65,7 +52,10 @@ namespace health.Controllers
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select ID,Code,OccupationName,OccupationRemarks from data_occupation where id=?p1", id);
             if (res["id"] != null)
+            {
                 res["status"] = 200;
+                res["msg"] = "读取成功";
+            }
             else
             {
                 res["status"] = 201;

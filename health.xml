@@ -35,7 +35,8 @@
             <summary>
             获取“区域”列表
             </summary>
-            <returns>JSON对象，包含指定id的下属“区域”数组</returns>
+            <param name="parentId">指定parentId</param>
+            <returns>JSON对象，包含指定parentId的下属“区域”数组</returns>
         </member>
         <member name="M:health.Controllers.AreaController.GetArea(System.Int32)">
             <summary>

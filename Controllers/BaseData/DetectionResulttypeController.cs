@@ -49,7 +49,10 @@ namespace health.Controllers
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select ID,ResultName from data_detectionresulttype where id=?p1", id);
             if (res["id"] != null)
+            {
                 res["status"] = 200;
+                res["msg"] = "读取成功";
+            }
             else
             {
                 res["status"] = 201;
