@@ -9,7 +9,6 @@ namespace health.Controllers
     [ApiController]
     public class AreaController : ControllerBase
     {
-
         private readonly ILogger<AreaController> _logger;
 
         public AreaController(ILogger<AreaController> logger)
