@@ -1,5 +1,5 @@
 ﻿/*
- * Title : “公告”控制器
+ * Title : “未读消息”控制器
  * Author: zudan
  * Date  : 2020-07-14
  * Description: 对个人信息的增删查改
@@ -14,40 +14,47 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
-    public class MessageController : ControllerBase
+    public class UnreadController : ControllerBase
     {
-        private readonly ILogger<MessageController> _logger;
-        public MessageController(ILogger<MessageController> logger)
+        private readonly ILogger<UnreadController> _logger;
+        public UnreadController(ILogger<UnreadController> logger)
         {
             _logger = logger;
         }
 
         /// <summary>
-        /// 获取“公告”列表，[科普公告]菜单
+        /// 获取“未读消息”列表，[科普公告]菜单
         /// </summary>
-        /// <returns>JSON对象，包含相应的公告数组</returns>
+        /// <returns>JSON对象，包含相应的“未读消息”数组</returns>
         [HttpGet]
-        [Route("GetMessageList")]
-        public JObject GetMessageList()
+        [Route("GetUnreadList")]
+        public JObject GetUnreadList(int userid)
         {
             dbfactory db = new dbfactory();
             JObject res = new JObject();
-            JArray list = db.GetArray(@"SELECT
-IFNULL(t_messagesent.ID,'') as ID
-,IFNULL(t_user.ID,'') as PublishUserID
-,IFNULL(t_user.FamilyName,'') as Publish 
-,IFNULL(t_messagesent.Title,'') as Title
-,IFNULL(Content,'') as Content
-,IFNULL(PublishTime,'') as PublishTime
-,IFNULL(OutdateTime,'') as OutdateTime
-,IFNULL(IsCancel,'') as IsCancel
-,IFNULL(IsClose,'') as IsClose
-,IFNULL(ReaderType,'') as ReaderType
-,IFNULL(t_messagesent.Description,'') as Description
-FROM t_messagesent 
+            JArray list = db.GetArray(@"
+-- Get Unread Messages By User Id
+SELECT 
+IFNULL(t_messagesent.ID,'') AS ID
+,IFNULL(t_user.ID,'') AS PublishUserID
+,IFNULL(t_user.FamilyName,'') AS Publish 
+,IFNULL(t_messagesent.Title,'') AS Title
+,IFNULL(Content,'') AS Content
+,IFNULL(PublishTime,'') AS PublishTime
+,IFNULL(OutdateTime,'') AS OutdateTime
+,IFNULL(IsCancel,'') AS IsCancel
+,IFNULL(IsClose,'') AS IsClose
+,IFNULL(ReaderType,'') AS ReaderType
+,IFNULL(t_messagesent.Description,'') AS Description 
+FROM t_messagesent
 LEFT JOIN t_user
 ON t_user.ID=t_messagesent.PublishUserID
-WHERE OutdateTime > NOW()
+WHERE t_messagesent.ID NOT IN(
+SELECT MessageID AS ID FROM t_messageread
+WHERE UserID=0)
+AND IsCancel=0
+AND IsClose=0
+AND OutdateTime > NOW()
 ");
             if (list.HasValues)
             {
@@ -65,13 +72,13 @@ WHERE OutdateTime > NOW()
 
 
         /// <summary>
-        /// 获取“公告”信息，点击[科普公告]中的一个栏目
+        /// 打开“未读消息”信息，点击[科普公告]中的一个“未读消息”
         /// </summary>
         /// <param name="id">指定的id</param>
-        /// <returns>JSON对象，包含相应的“公告”信息</returns>
+        /// <returns>JSON对象，包含相应的“未读消息”</returns>
         [HttpGet]
-        [Route("GetMessage")]
-        public JObject GetMessage(int id)
+        [Route("GetUnread")]
+        public JObject GetUnread(int id)
         {
             dbfactory db = new dbfactory();
             JObject res =  db.GetOne(@"select
@@ -112,8 +119,8 @@ WHERE t_messagesent.ID=?p1
         /// <param name="req">在请求body中JSON形式的“公告”信息</param>
         /// <returns>响应状态信息</returns>
         [HttpPost]
-        [Route("SetMessage")]
-        public JObject SetMessage([FromBody] JObject req)
+        [Route("SetUnread")]
+        public JObject SetUnread([FromBody] JObject req)
         {
             dbfactory db = new dbfactory();
             JObject res = new JObject();
@@ -173,8 +180,8 @@ WHERE t_messagesent.ID=?p1
         /// <param name="req">在请求body中JSON形式的“公告”信息</param>
         /// <returns>响应状态信息</returns>
         [HttpPost]
-        [Route("DelMessage")]
-        public JObject DelMessage([FromBody] JObject req)
+        [Route("DelUnread")]
+        public JObject DelUnread([FromBody] JObject req)
         {
             JObject res = new JObject();
             var dict = req.ToObject<Dictionary<string, object>>();

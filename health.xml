@@ -300,6 +300,33 @@
             <param name="req">在请求body中JSON形式的“公告”信息</param>
             <returns>响应状态信息</returns>
         </member>
+        <member name="M:health.Controllers.UnreadController.GetUnreadList(System.Int32)">
+            <summary>
+            获取“未读消息”列表，[科普公告]菜单
+            </summary>
+            <returns>JSON对象，包含相应的“未读消息”数组</returns>
+        </member>
+        <member name="M:health.Controllers.UnreadController.GetUnread(System.Int32)">
+            <summary>
+            打开“未读消息”信息，点击[科普公告]中的一个“未读消息”
+            </summary>
+            <param name="id">指定的id</param>
+            <returns>JSON对象，包含相应的“未读消息”</returns>
+        </member>
+        <member name="M:health.Controllers.UnreadController.SetUnread(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            更改“公告”信息。如果id=0新增，如果id>0修改。
+            </summary>
+            <param name="req">在请求body中JSON形式的“公告”信息</param>
+            <returns>响应状态信息</returns>
+        </member>
+        <member name="M:health.Controllers.UnreadController.DelUnread(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            删除“公告”。
+            </summary>
+            <param name="req">在请求body中JSON形式的“公告”信息</param>
+            <returns>响应状态信息</returns>
+        </member>
         <member name="M:health.Controllers.OptionController.GetOptionList(System.String)">
             <summary>
             获取“参数”列表
@@ -392,6 +419,20 @@
             </summary>
             <param name="pid">指定根菜单的id</param>
             <returns>JSON对象，递归地包含了相应的系统菜单</returns>
+        </member>
+        <member name="M:health.Controllers.MenuController.SetMenu(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            更改“菜单”信息。如果id=0新增，如果id>0修改。
+            </summary>
+            <param name="req">在请求body中JSON形式的“菜单”信息</param>
+            <returns>JSON形式的响应状态信息</returns>
+        </member>
+        <member name="M:health.Controllers.MenuController.DelMenu(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            删除“菜单”信息
+            </summary>
+            <param name="req">在请求body中JSON形式的“菜单”信息</param>
+            <returns>JSON形式的响应状态信息</returns>
         </member>
         <member name="M:health.Controllers.WeatherForecastController.GetAreaList(System.Int32)">
             <summary>

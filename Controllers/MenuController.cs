@@ -1,5 +1,5 @@
 ﻿/*
- * Title : 菜单获取控制器
+ * Title : “菜单”控制器
  * Author: zudan
  * Date  : 2020-07-13
  * Description: 获取菜单，需要在中间件判断用户组并加以过滤
@@ -141,6 +141,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.Linq;
 using util.mysql;
 
@@ -219,5 +220,89 @@ namespace health.Controllers
             }
         }
 
+        /// <summary>
+        /// 更改“菜单”信息。如果id=0新增，如果id>0修改。
+        /// </summary>
+        /// <param name="req">在请求body中JSON形式的“菜单”信息</param>
+        /// <returns>JSON形式的响应状态信息</returns>
+        [HttpPost]
+        [Route("SetMenu")]
+        public JObject SetMenu([FromBody] JObject req)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = new JObject();
+            if (req["id"] != null)
+            {
+                req.Remove("children");
+                int id = req["id"].ToObject<int>();
+                if (id == 0)
+                {
+                    var dict = req.ToObject<Dictionary<string, object>>();
+                    var rows = db.Insert("t_menu", dict);
+                    if (rows > 0)
+                    {
+                        res["status"] = 200;
+                        res["msg"] = "新增成功";
+                    }
+                    else
+                    {
+                        res["status"] = 201;
+                        res["msg"] = "无法新增数据";
+                    }
+                }
+                else if (id > 0)
+                {
+                    var dict = req.ToObject<Dictionary<string, object>>();
+                    dict.Remove("id");
+                    var keys = new Dictionary<string, object>();
+                    keys["id"] = req["id"];
+                    var rows = db.Update("t_menu", dict, keys);
+                    if (rows > 0)
+                    {
+                        res["status"] = 200;
+                        res["msg"] = "修改成功";
+                    }
+                    else
+                    {
+                        res["status"] = 201;
+                        res["msg"] = "修改失败";
+                    }
+                }
+            }
+            else
+            {
+                res["status"] = 201;
+                res["msg"] = "非法的请求";
+            }
+            return res;
+        }
+
+        /// <summary>
+        /// 删除“菜单”信息
+        /// </summary>
+        /// <param name="req">在请求body中JSON形式的“菜单”信息</param>
+        /// <returns>JSON形式的响应状态信息</returns>
+        [HttpPost]
+        [Route("DelMenu")]
+        public JObject DelMenu([FromBody] JObject req)
+        {
+            JObject res = new JObject();
+            req.Remove("children");
+            var dict = req.ToObject<Dictionary<string, object>>();
+            dbfactory db = new dbfactory();
+            var count = db.del("t_option", dict);
+            if (count > 0)
+            {
+                res["status"] = 200;
+                res["msg"] = "操作成功";
+                return res;
+            }
+            else
+            {
+                res["status"] = 201;
+                res["msg"] = "操作失败";
+                return res;
+            }
+        }
     }
 }
