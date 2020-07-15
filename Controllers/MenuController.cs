@@ -290,7 +290,7 @@ namespace health.Controllers
             req.Remove("children");
             var dict = req.ToObject<Dictionary<string, object>>();
             dbfactory db = new dbfactory();
-            var count = db.del("t_option", dict);
+            var count = db.del("t_menu", dict);
             if (count > 0)
             {
                 res["status"] = 200;
