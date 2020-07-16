@@ -221,7 +221,7 @@ WHERE t_messagesent.ID = ?p1
                     dict.Remove("id");
                     var keys = new Dictionary<string, object>();
                     keys["id"] = req["id"];
-                    var rows = db.Update("t_messagesent", dict, keys);
+                    var rows = db.Update("t_messageread", dict, keys);
                     if (rows > 0)
                     {
                         res["status"] = 200;
@@ -257,7 +257,7 @@ WHERE t_messagesent.ID = ?p1
             JObject res = new JObject();
             var dict = req.ToObject<Dictionary<string, object>>();
             dbfactory db = new dbfactory();
-            var count = db.del("t_messagesent", dict);
+            var count = db.del("t_messageread", dict);
             if (count > 0)
             {
                 res["status"] = 200;

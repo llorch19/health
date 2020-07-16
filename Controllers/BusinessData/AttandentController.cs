@@ -71,7 +71,53 @@ namespace health.Controllers
         [Route("SetAttandent")]
         public JObject SetAttandent([FromBody] JObject req)
         {
-            throw new NotImplementedException();
+            dbfactory db = new dbfactory();
+            JObject res = new JObject();
+            if (req["id"] != null)
+            {
+                int id = req["id"].ToObject<int>();
+                if (id == 0)
+                {
+                    req.Remove("publish");
+                    req["OrgnizationID"] = null;
+                    var dict = req.ToObject<Dictionary<string, object>>();
+                    var rows = db.Insert("t_attandent", dict);
+                    if (rows > 0)
+                    {
+                        res["status"] = 200;
+                        res["msg"] = "新增成功";
+                    }
+                    else
+                    {
+                        res["status"] = 201;
+                        res["msg"] = "无法新增数据";
+                    }
+                }
+                else if (id > 0)
+                {
+                    var dict = req.ToObject<Dictionary<string, object>>();
+                    dict.Remove("id");
+                    var keys = new Dictionary<string, object>();
+                    keys["id"] = req["id"];
+                    var rows = db.Update("t_attandent", dict, keys);
+                    if (rows > 0)
+                    {
+                        res["status"] = 200;
+                        res["msg"] = "修改成功";
+                    }
+                    else
+                    {
+                        res["status"] = 201;
+                        res["msg"] = "修改失败";
+                    }
+                }
+            }
+            else
+            {
+                res["status"] = 201;
+                res["msg"] = "非法的请求";
+            }
+            return res;
         }
 
 
@@ -86,7 +132,22 @@ namespace health.Controllers
         [Route("DelAttandent")]
         public JObject DelAttandent([FromBody] JObject req)
         {
-            throw new NotImplementedException();
+            JObject res = new JObject();
+            var dict = req.ToObject<Dictionary<string, object>>();
+            dbfactory db = new dbfactory();
+            var count = db.del("t_attandent", dict);
+            if (count > 0)
+            {
+                res["status"] = 200;
+                res["msg"] = "操作成功";
+                return res;
+            }
+            else
+            {
+                res["status"] = 201;
+                res["msg"] = "操作失败";
+                return res;
+            }
         }
     }
 }
