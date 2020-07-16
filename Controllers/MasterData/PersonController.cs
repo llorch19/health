@@ -17,10 +17,10 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
-    public class PatientController : ControllerBase
+    public class PersonController : ControllerBase
     {
-        private readonly ILogger<PatientController> _logger;
-        public PatientController(ILogger<PatientController> logger)
+        private readonly ILogger<PersonController> _logger;
+        public PersonController(ILogger<PersonController> logger)
         {
             _logger = logger;
         }
@@ -34,7 +34,7 @@ namespace health.Controllers
         public JObject GetPersonList(int pageIndex)
         {
             JObject res = new JObject();
-           
+
             dbfactory db = new dbfactory();
             JArray rows = db.GetArray(
                 @"select 
@@ -112,7 +112,7 @@ LEFT JOIN data_detectionresulttype
 ON t_detectionrecord.DiagnoticsTypeID=data_detectionresulttype.ID
 where IsReexam = 0
 and PatientID=?p1"
-                ,id);
+                , id);
 
             res["check"] = db.GetOne(@"select 
 IFNULL(t_detectionrecord.ID,'') as ID
@@ -162,7 +162,7 @@ ON t_detectionrecord.ChosenTreatID = c.ID
 where  t_detectionrecord.IsReexam = 1
 and t_detectionrecorditem.PatientID = ?p1
 order by ResultTime desc limit 1"
-                    ,id);
+                    , id);
 
             // 随访信息
             res["followup"] = db.GetArray(

@@ -96,7 +96,7 @@ WHERE one.ProvinceID=?p1
 AND one.CityID=?p2
 AND one.CountyID=?p3
 "
-                , provinceid,cityid,countyid);
+                , provinceid, cityid, countyid);
 
             res["list"] = rows;
             return res;

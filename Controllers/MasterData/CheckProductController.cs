@@ -27,16 +27,15 @@ namespace health.Controllers
         /// <summary>
         /// 获取机构的“检测产品”列表
         /// </summary>
-        /// <param name="orgid">检索指定机构的id</param>
         /// <returns>JSON对象，包含相应的“检测产品”数组</returns>
         [HttpGet]
         [Route("GetCheckProductList")]
-        public JObject GetCheckProductList(int orgid)
+        public JObject GetCheckProductList()
         {
             throw new NotImplementedException();
         }
 
-       
+
 
 
         /// <summary>
