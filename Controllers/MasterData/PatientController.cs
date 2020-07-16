@@ -84,6 +84,12 @@ IFNULL(t_patient.ID,'') as ID
 ,IFNULL(WorkUnitName,'') as WorkUnitName,IFNULL(data_occupation.OccupationName,'') as OccupationName,IFNULL(Detainees,'') as Detainees,IFNULL(data_addresscategory.AddressCategory,'') as AddressCategory
 ,IFNULL(t_patient.Address,'') as Address
 ,IFNULL(GuardianName,'') as GuardianName,IFNULL(GuardianContact,'') as GuardianContact
+,IFNULL(t_patient.ProvinceID,'') as ProvinceID
+,IFNULL(t_patient.ProvinceAddr,'') as ProvinceAddr
+,IFNULL(t_patient.CityID,'') as CityID
+,IFNULL(t_patient.CityAddr,'') as CityAddr
+,IFNULL(t_patient.CountyID,'') as CountyID
+,IFNULL(t_patient.CountyAddr,'') as CountyAddr
 from t_patient 
 LEFT JOIN t_orgnization
 ON t_patient.HeadOrgnizationID=t_orgnization.ID

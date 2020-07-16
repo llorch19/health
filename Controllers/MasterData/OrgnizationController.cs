@@ -58,6 +58,38 @@ namespace health.Controllers
         }
 
         /// <summary>
+        /// 获取机构列表
+        /// </summary>
+        /// <returns>JSON数组形式的机构信息</returns>
+        [HttpGet]
+        [Route("GetOrgListv2")]
+        public JObject GetOrgList(int provinceid,int cityid,int countyid)
+        {
+            JObject res = new JObject();
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+
+            dbfactory db = new dbfactory();
+            JArray rows = db.GetArray(
+                @"select ID
+                ,IFNULL(OrgName,'') as OrgName
+                ,IFNULL(OrgCode,'') as OrgCode
+                ,IFNULL(CertCode,'') as CertCode
+                ,IFNULL(LegalName,'') as LegalName
+                ,IFNULL(LegalIDCode,'') as LegalIDCode
+                ,IFNULL(Address,'') as Address
+                ,IFNULL(Tel,'') as Tel
+                ,IFNULL(Coordinates,'') as Coordinates
+                from t_orgnization where ProvinceID=?p1 
+                and CityID=?p2
+                and CountyID=?p3"
+                , provinceid,cityid,countyid);
+
+            res["list"] = rows;
+            return res;
+        }
+
+        /// <summary>
         /// 获取机构信息
         /// </summary>
         /// <returns>JSON形式的某个机构信息</returns>
@@ -76,7 +108,13 @@ namespace health.Controllers
                 ,IFNULL(Address,'') as Address
                 ,IFNULL(Tel,'') as Tel
                 ,IFNULL(Coordinates,'') as Coordinates
-                  from t_orgnization where id=?p1"
+				,IFNULL(ProvinceID,'') as ProvinceID
+				,IFNULL(ProvinceAddr,'') as ProvinceAddr
+				,IFNULL(CityID,'') as CityID
+				,IFNULL(CityAddr,'') as CityAddr
+				,IFNULL(CountyID,'') as CountyID
+				,IFNULL(CountyAddr,'') as CountyAddr
+                 from t_orgnization where id=?p1"
                 , id);
             if (res["id"] != null)
             {
