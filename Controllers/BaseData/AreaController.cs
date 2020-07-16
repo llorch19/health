@@ -1,3 +1,12 @@
+/*
+ * Title : “菜单”控制器
+ * Author: zudan
+ * Date  : 2020-07-13
+ * Description: 获取菜单，需要在中间件判断用户组并加以过滤
+ * Comments
+ * - Area 应该返回增加时需要录入的全部字段。包括但不限于[AreaCodeV2]。    @xuedi    2020-07-16  08:17
+ * */
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -30,7 +39,7 @@ namespace health.Controllers
             res["msg"] = "读取成功";
 
             dbfactory db = new dbfactory();
-            JArray rows = db.GetArray("select id,AreaCode,AreaName from data_area where parentID=?p1", parentId);
+            JArray rows = db.GetArray("select id,AreaCode,AreaName,cs,AreaCodeV2 from data_area where parentID=?p1", parentId);
 
             res["list"] = rows;
             return res;
@@ -47,7 +56,7 @@ namespace health.Controllers
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
             dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,AreaCode,AreaName from data_area where id=?p1", id);
+            JObject res = db.GetOne("select id,AreaCode,AreaName,cs,AreaCodeV2 from data_area where id=?p1", id);
             if (res["id"] != null)
             {
                 res["status"] = 200;
