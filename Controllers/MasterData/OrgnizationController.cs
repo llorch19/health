@@ -1,11 +1,11 @@
 /*
- * Title : 机构信息控制器
+ * Title : “机构”控制器
  * Author: zudan
  * Date  : 2020-07-14
- * Description: 对机构信息的增删查改
+ * Description: 对“机构”信息的增删查改
  * Comments
  * - 多行，SQL字符串可以用@符号来写，这样可以有效减少+号的拼接。 @norway 2020-07-14 09:56
- * 
+ * - Org需要 ParentID以及 上级机构的名字 ParentName           @xuedi  2020-07-16 15:59
  * 
  */
 using Microsoft.AspNetCore.Mvc;
@@ -28,9 +28,9 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取机构列表
+        /// 获取“机构”列表
         /// </summary>
-        /// <returns>JSON数组形式的机构信息</returns>
+        /// <returns>JSON数组形式的“机构”信息</returns>
         [HttpGet]
         [Route("GetOrgList")]
         public JObject GetOrgList(int pageIndex)
@@ -41,16 +41,22 @@ namespace health.Controllers
 
             dbfactory db = new dbfactory();
             JArray rows = db.GetArray(
-                @"select ID
-                ,IFNULL(OrgName,'') as OrgName
-                ,IFNULL(OrgCode,'') as OrgCode
-                ,IFNULL(CertCode,'') as CertCode
-                ,IFNULL(LegalName,'') as LegalName
-                ,IFNULL(LegalIDCode,'') as LegalIDCode
-                ,IFNULL(Address,'') as Address
-                ,IFNULL(Tel,'') as Tel
-                ,IFNULL(Coordinates,'') as Coordinates
-                  from t_orgnization limit ?p1,10"
+                @"select 
+one.ID
+,IFNULL(one.OrgName,'') as OrgName
+,IFNULL(one.OrgCode,'') as OrgCode
+,IFNULL(one.CertCode,'') as CertCode
+,IFNULL(one.LegalName,'') as LegalName
+,IFNULL(one.LegalIDCode,'') as LegalIDCode
+,IFNULL(one.Address,'') as Address
+,IFNULL(one.Tel,'') as Tel
+,IFNULL(one.Coordinates,'') as Coordinates
+,IFNULL(one.ParentID,'') as ParentID
+,IFNULL(parent.OrgName,'') as ParentName
+FROM t_orgnization one 
+LEFT JOIN t_orgnization parent
+ON one.ParentID=parent.ID
+LIMIT ?p1,10"
                 , pageIndex);
 
             res["list"] = rows;
@@ -60,7 +66,7 @@ namespace health.Controllers
         /// <summary>
         /// 获取指定区县级行政地址下的“机构”列表
         /// </summary>
-        /// <returns>JSON数组形式的机构信息</returns>
+        /// <returns>JSON数组形式的“机构”信息</returns>
         [HttpGet]
         [Route("GetOrgListv2")]
         public JObject GetOrgList(int provinceid = 0, int cityid = 0, int countyid = 0)
@@ -71,18 +77,25 @@ namespace health.Controllers
 
             dbfactory db = new dbfactory();
             JArray rows = db.GetArray(
-                @"select ID
-                ,IFNULL(OrgName,'') as OrgName
-                ,IFNULL(OrgCode,'') as OrgCode
-                ,IFNULL(CertCode,'') as CertCode
-                ,IFNULL(LegalName,'') as LegalName
-                ,IFNULL(LegalIDCode,'') as LegalIDCode
-                ,IFNULL(Address,'') as Address
-                ,IFNULL(Tel,'') as Tel
-                ,IFNULL(Coordinates,'') as Coordinates
-                from t_orgnization where ProvinceID=?p1 
-                and CityID=?p2
-                and CountyID=?p3"
+                @"select 
+one.ID
+,IFNULL(one.OrgName,'') as OrgName
+,IFNULL(one.OrgCode,'') as OrgCode
+,IFNULL(one.CertCode,'') as CertCode
+,IFNULL(one.LegalName,'') as LegalName
+,IFNULL(one.LegalIDCode,'') as LegalIDCode
+,IFNULL(one.Address,'') as Address
+,IFNULL(one.Tel,'') as Tel
+,IFNULL(one.Coordinates,'') as Coordinates
+,IFNULL(one.ParentID,'') as ParentID
+,IFNULL(parent.OrgName,'') as ParentName
+FROM t_orgnization one 
+LEFT JOIN t_orgnization parent
+ON one.ParentID=parent.ID
+WHERE one.ProvinceID=?p1
+AND one.CityID=?p2
+AND one.CountyID=?p3
+"
                 , provinceid,cityid,countyid);
 
             res["list"] = rows;
@@ -90,31 +103,37 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取机构信息
+        /// 获取“机构”信息
         /// </summary>
-        /// <returns>JSON形式的某个机构信息</returns>
+        /// <returns>JSON形式的某个“机构”信息</returns>
         [HttpGet]
         [Route("GetOrg")]
         public JObject GetOrg(int id)
         {
             dbfactory db = new dbfactory();
             JObject res = db.GetOne(
-                @"select ID
-                ,IFNULL(OrgName,'') as OrgName
-                ,IFNULL(OrgCode,'') as OrgCode
-                ,IFNULL(CertCode,'') as CertCode
-                ,IFNULL(LegalName,'') as LegalName
-                ,IFNULL(LegalIDCode,'') as LegalIDCode
-                ,IFNULL(Address,'') as Address
-                ,IFNULL(Tel,'') as Tel
-                ,IFNULL(Coordinates,'') as Coordinates
-				,IFNULL(ProvinceID,'') as ProvinceID
-				,IFNULL(ProvinceAddr,'') as ProvinceAddr
-				,IFNULL(CityID,'') as CityID
-				,IFNULL(CityAddr,'') as CityAddr
-				,IFNULL(CountyID,'') as CountyID
-				,IFNULL(CountyAddr,'') as CountyAddr
-                 from t_orgnization where id=?p1"
+                @"select 
+one.ID
+,IFNULL(one.OrgName,'') as OrgName
+,IFNULL(one.OrgCode,'') as OrgCode
+,IFNULL(one.CertCode,'') as CertCode
+,IFNULL(one.LegalName,'') as LegalName
+,IFNULL(one.LegalIDCode,'') as LegalIDCode
+,IFNULL(one.Address,'') as Address
+,IFNULL(one.Tel,'') as Tel
+,IFNULL(one.Coordinates,'') as Coordinates
+,IFNULL(one.ParentID,'') as ParentID
+,IFNULL(parent.OrgName,'') as ParentName
+,IFNULL(one.ProvinceID,'') as ProvinceID
+,IFNULL(one.ProvinceAddr,'') as ProvinceAddr
+,IFNULL(one.CityID,'') as CityID
+,IFNULL(one.CityAddr,'') as CityAddr
+,IFNULL(one.CountyID,'') as CountyID
+,IFNULL(one.CountyAddr,'') as CountyAddr
+FROM t_orgnization one 
+LEFT JOIN t_orgnization parent
+ON one.ParentID=parent.ID
+WHERE one.id=?p1"
                 , id);
             if (res["id"] != null)
             {
@@ -130,9 +149,9 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 更改机构信息。如果id=0新增机构信息，如果id>0修改机构信息。
+        /// 更改“机构”信息。如果id=0新增，如果id>0修改。
         /// </summary>
-        /// <param name="req">在请求body中JSON形式的机构信息</param>
+        /// <param name="req">在请求body中JSON形式的“机构”信息</param>
         /// <returns>JSON形式的响应状态信息</returns>
         [HttpPost]
         [Route("SetOrg")]
@@ -142,6 +161,7 @@ namespace health.Controllers
             JObject res = new JObject();
             if (req["id"] != null)
             {
+                req.Remove("parentname");
                 int id = req["id"].ToObject<int>();
                 if (id == 0)
                 {
@@ -186,9 +206,9 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 删除机构信息
+        /// 删除“机构”信息
         /// </summary>
-        /// <param name="req">在请求body中JSON形式的机构信息</param>
+        /// <param name="req">在请求body中JSON形式的“机构”信息</param>
         /// <returns>JSON形式的响应状态信息</returns>
         [HttpPost]
         [Route("DelOrg")]
