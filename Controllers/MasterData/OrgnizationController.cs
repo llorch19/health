@@ -58,12 +58,12 @@ namespace health.Controllers
         }
 
         /// <summary>
-        /// 获取机构列表
+        /// 获取指定区县级行政地址下的“机构”列表
         /// </summary>
         /// <returns>JSON数组形式的机构信息</returns>
         [HttpGet]
         [Route("GetOrgListv2")]
-        public JObject GetOrgList(int provinceid,int cityid,int countyid)
+        public JObject GetOrgList(int provinceid = 0, int cityid = 0, int countyid = 0)
         {
             JObject res = new JObject();
             res["status"] = 200;
