@@ -19,9 +19,7 @@ namespace health.Controllers
     [ApiController]
     public class OrgnizationController : ControllerBase
     {
-
         private readonly ILogger<OrgnizationController> _logger;
-
         public OrgnizationController(ILogger<OrgnizationController> logger)
         {
             _logger = logger;
@@ -112,7 +110,7 @@ AND one.CountyID=?p3
         {
             dbfactory db = new dbfactory();
             JObject res = db.GetOne(
-                @"select 
+                @"SELECT 
 one.ID
 ,IFNULL(one.OrgName,'') as OrgName
 ,IFNULL(one.OrgCode,'') as OrgCode
@@ -125,14 +123,20 @@ one.ID
 ,IFNULL(one.ParentID,'') as ParentID
 ,IFNULL(parent.OrgName,'') as ParentName
 ,IFNULL(one.ProvinceID,'') as ProvinceID
-,IFNULL(one.ProvinceAddr,'') as ProvinceAddr
+,IFNULL(province.AreaName,'') as ProvinceAddr
 ,IFNULL(one.CityID,'') as CityID
-,IFNULL(one.CityAddr,'') as CityAddr
+,IFNULL(city.AreaName,'') as CityAddr
 ,IFNULL(one.CountyID,'') as CountyID
-,IFNULL(one.CountyAddr,'') as CountyAddr
+,IFNULL(county.AreaName,'') as CountyAddr
 FROM t_orgnization one 
 LEFT JOIN t_orgnization parent
 ON one.ParentID=parent.ID
+LEFT JOIN data_area province
+ON one.ProvinceID=province.ID
+LEFT JOIN data_area city
+ON one.CityID=city.ID
+LEFT JOIN data_area county
+ON one.CountyID=county.ID
 WHERE one.id=?p1"
                 , id);
             if (res["id"] != null)
