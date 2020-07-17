@@ -47,6 +47,7 @@ namespace health.Controllers
             JArray rows = db.GetArray(
                 @"SELECT 
 IFNULL(t_patient.ID,'') as ID
+,IFNULL(OrgnizationID,'') as OrgnizationID
 ,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
 ,IFNULL(OrgName,'') as OrgName
 ,IFNULL(OrgCode,'') as OrgCode
@@ -118,6 +119,7 @@ LIMIT ?p1,?p2"
              db.GetOne(
                 @"SELECT 
 IFNULL(t_patient.ID,'') as ID
+,IFNULL(OrgnizationID,'') as OrgnizationID
 ,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
 ,IFNULL(RegisterNO,'') as RegisterNO
 ,IFNULL(FamilyName,'') as FamilyName
@@ -143,6 +145,8 @@ where t_patient.ID=?p1"
                 , id);
             OrgnizationController org = new OrgnizationController(null);
             personinfo["primaryorg"] = org.GetOrgInfo(personinfo["primaryorgnizationid"].ToObject<int>());
+            personinfo["orgnization"] = org.GetOrgInfo(personinfo["orgnizationid"].ToObject<int>());
+
             GenderController gender = new GenderController(null);
             personinfo["gender"] = gender.GetGenderInfo(personinfo["genderid"].ToObject<int>());
             OccupationController occupation = new OccupationController(null);
@@ -257,6 +261,7 @@ where PatientID=?p1", id);
             JObject res = new JObject();
             if (req["id"] != null)
             {
+                req["orgnizationid"] = 1;  //TODO: 从中间件读取用户的组织id
                 int id = req["id"].ToObject<int>();
                 if (id == 0)
                 {
