@@ -6,6 +6,7 @@ using util.mysql;
 namespace health.BaseData
 {
     [ApiController]
+    [Route("api")]
     public class AddressCategoryController : ControllerBase
     {
         /// <summary>

@@ -15,6 +15,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class UnreadController : ControllerBase
     {
         private readonly ILogger<UnreadController> _logger;

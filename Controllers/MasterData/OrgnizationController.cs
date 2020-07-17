@@ -17,6 +17,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class OrgnizationController : ControllerBase
     {
         private readonly ILogger<OrgnizationController> _logger;

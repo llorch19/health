@@ -7,6 +7,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class DetectionResultTypeController : ControllerBase
     {
         private readonly ILogger<DetectionResultTypeController> _logger;
