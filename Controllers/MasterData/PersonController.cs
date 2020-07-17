@@ -47,7 +47,8 @@ namespace health.Controllers
             JArray rows = db.GetArray(
                 @"SELECT 
 IFNULL(t_patient.ID,'') as ID
-,IFNULL(OrgnizationID,'') as OrgnizationID
+,IFNULL(t_attandent.IsTransfer,'') as IsTransfer
+,IFNULL(t_patient.OrgnizationID,'') as OrgnizationID
 ,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
 ,IFNULL(OrgName,'') as OrgName
 ,IFNULL(OrgCode,'') as OrgCode
@@ -91,6 +92,8 @@ LEFT JOIN data_area City
 ON t_patient.CityID=City.ID
 LEFT JOIN data_area County
 ON t_patient.CountyID=County.ID
+LEFT JOIN t_attandent
+ON t_patient.ID=t_attandent.PatientID
 LIMIT ?p1,?p2"
                 , offset, pageSize);
 
@@ -119,7 +122,8 @@ LIMIT ?p1,?p2"
              db.GetOne(
                 @"SELECT 
 IFNULL(t_patient.ID,'') as ID
-,IFNULL(OrgnizationID,'') as OrgnizationID
+,IFNULL(t_attandent.IsTransfer,'') as IsTransfer
+,IFNULL(t_patient.OrgnizationID,'') as OrgnizationID
 ,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
 ,IFNULL(RegisterNO,'') as RegisterNO
 ,IFNULL(FamilyName,'') as FamilyName
@@ -141,6 +145,8 @@ IFNULL(t_patient.ID,'') as ID
 ,IFNULL(t_patient.CityID,'') as CityID
 ,IFNULL(t_patient.CountyID,'') as CountyID
 FROM t_patient 
+LEFT JOIN t_attandent
+ON t_patient.ID=t_attandent.PatientID
 where t_patient.ID=?p1"
                 , id);
             OrgnizationController org = new OrgnizationController(null);
