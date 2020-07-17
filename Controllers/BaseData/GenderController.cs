@@ -146,7 +146,7 @@ namespace health.Controllers
             }
         }
 
-
+        [NonAction]
         public JObject GetGenderInfo(int id)
         {
             dbfactory db = new dbfactory();

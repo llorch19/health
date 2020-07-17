@@ -134,6 +134,7 @@ namespace health.BaseData
             }
         }
 
+        [NonAction]
         public JObject GetAddressCategoryInfo(int id)
         {
             dbfactory db = new dbfactory();

@@ -149,6 +149,7 @@ namespace health.Controllers
             }
         }
 
+        [NonAction]
         public JObject GetIdCategoryInfo(int id)
         {
             dbfactory db = new dbfactory();

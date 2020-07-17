@@ -145,7 +145,7 @@ namespace health.Controllers
             }
         }
 
-
+        [NonAction]
         public JObject GetResultTypeInfo(int id)
         {
             dbfactory db = new dbfactory();

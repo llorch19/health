@@ -10,6 +10,7 @@
  * - GetList 需要附带返回Person列表的总条数。                                   @xuedi  2020-07-17  10:47
  * 
  */
+using health.BaseData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -46,12 +47,27 @@ namespace health.Controllers
                 @"SELECT 
 IFNULL(t_patient.ID,'') as ID
 ,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
-,IFNULL(OrgName,'') as OrgName,IFNULL(OrgCode,'') as OrgCode,IFNULL(RegisterNO,'') as RegisterNO
-,IFNULL(FamilyName,'') as FamilyName,IFNULL(t_patient.Tel,'') as Tel,IFNULL(t_patient.IDCardNO,'') as IDCardNO,IFNULL(GenderName,'') as GenderName
-,IFNULL(t_patient.Birthday,'') as Birthday,IFNULL(t_patient.Nation,'') as Nation,IFNULL(DomicileType,'') as DomicileType,IFNULL(t_patient.DomicileDetail,'') as DomicileDetail
-,IFNULL(WorkUnitName,'') as WorkUnitName,IFNULL(data_occupation.OccupationName,'') as OccupationName,IFNULL(Detainees,'') as Detainees,IFNULL(data_addresscategory.AddressCategory,'') as AddressCategory
+,IFNULL(OrgName,'') as OrgName
+,IFNULL(OrgCode,'') as OrgCode
+,IFNULL(RegisterNO,'') as RegisterNO
+,IFNULL(FamilyName,'') as FamilyName
+,IFNULL(t_patient.Tel,'') as Tel
+,IFNULL(t_patient.IDCardNO,'') as IDCardNO
+,IFNULL(GenderID,'') as GenderID
+,IFNULL(GenderName,'') as GenderName
+,IFNULL(t_patient.Birthday,'') as Birthday
+,IFNULL(t_patient.Nation,'') as Nation
+,IFNULL(DomicileType,'') as DomicileType
+,IFNULL(t_patient.DomicileDetail,'') as DomicileDetail
+,IFNULL(WorkUnitName,'') as WorkUnitName
+,IFNULL(OccupationCategoryID,'') as OccupationCategoryID
+,IFNULL(data_occupation.OccupationName,'') as OccupationName
+,IFNULL(Detainees,'') as Detainees
+,IFNULL(AddressCategoryID,'') as AddressCategoryID
+,IFNULL(data_addresscategory.AddressCategory,'') as AddressCategory
 ,IFNULL(t_patient.Address,'') as Address
-,IFNULL(GuardianName,'') as GuardianName,IFNULL(GuardianContact,'') as GuardianContact
+,IFNULL(GuardianName,'') as GuardianName
+,IFNULL(GuardianContact,'') as GuardianContact
 ,IFNULL(t_patient.ProvinceID,'') as ProvinceID
 ,IFNULL(Province.AreaName,'') as Province
 ,IFNULL(t_patient.CityID,'') as CityID
@@ -103,27 +119,35 @@ LIMIT ?p1,?p2"
 IFNULL(t_patient.ID,'') as ID
 ,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
 ,IFNULL(RegisterNO,'') as RegisterNO
-,IFNULL(FamilyName,'') as FamilyName,IFNULL(t_patient.Tel,'') as Tel,IFNULL(t_patient.IDCardNO,'') as IDCardNO,IFNULL(GenderName,'') as GenderName
-,IFNULL(t_patient.Birthday,'') as Birthday,IFNULL(t_patient.Nation,'') as Nation,IFNULL(DomicileType,'') as DomicileType,IFNULL(t_patient.DomicileDetail,'') as DomicileDetail
-,IFNULL(WorkUnitName,'') as WorkUnitName,IFNULL(data_occupation.OccupationName,'') as OccupationName,IFNULL(Detainees,'') as Detainees,IFNULL(data_addresscategory.AddressCategory,'') as AddressCategory
+,IFNULL(FamilyName,'') as FamilyName
+,IFNULL(t_patient.Tel,'') as Tel
+,IFNULL(t_patient.IDCardNO,'') as IDCardNO
+,IFNULL(GenderID,'') as GenderID
+,IFNULL(t_patient.Birthday,'') as Birthday
+,IFNULL(t_patient.Nation,'') as Nation
+,IFNULL(DomicileType,'') as DomicileType
+,IFNULL(t_patient.DomicileDetail,'') as DomicileDetail
+,IFNULL(WorkUnitName,'') as WorkUnitName
+,IFNULL(OccupationCategoryID,'') as OccupationCategoryID
+,IFNULL(Detainees,'') as Detainees
+,IFNULL(AddressCategoryID,'') as AddressCategoryID
 ,IFNULL(t_patient.Address,'') as Address
-,IFNULL(GuardianName,'') as GuardianName,IFNULL(GuardianContact,'') as GuardianContact
+,IFNULL(GuardianName,'') as GuardianName
+,IFNULL(GuardianContact,'') as GuardianContact
 ,IFNULL(t_patient.ProvinceID,'') as ProvinceID
 ,IFNULL(t_patient.CityID,'') as CityID
 ,IFNULL(t_patient.CountyID,'') as CountyID
 FROM t_patient 
-LEFT JOIN t_orgnization
-ON t_patient.HeadOrgnizationID=t_orgnization.ID
-LEFT JOIN data_gender
-ON t_patient.GenderID=data_gender.ID
-LEFT JOIN data_occupation
-ON t_patient.OccupationCategoryID=data_occupation.ID
-LEFT JOIN data_addresscategory
-ON t_patient.AddressCategoryID=data_addresscategory.ID
 where t_patient.ID=?p1"
                 , id);
             OrgnizationController org = new OrgnizationController(null);
             personinfo["primaryorg"] = org.GetOrgInfo(personinfo["primaryorgnizationid"].ToObject<int>());
+            GenderController gender = new GenderController(null);
+            personinfo["gender"] = gender.GetGenderInfo(personinfo["genderid"].ToObject<int>());
+            OccupationController occupation = new OccupationController(null);
+            personinfo["occupation"] = occupation.GetOccupationInfo(personinfo["occupationcategoryid"].ToObject<int>());
+            AddressCategoryController addresscategory = new AddressCategoryController();
+            personinfo["addresscategory"] = addresscategory.GetAddressCategoryInfo(personinfo["addresscategoryid"].ToObject<int>());
 
             personinfo["province"] = conf.GetAreaInfo(personinfo["provinceid"].ToObject<int>());
             personinfo["city"] = conf.GetAreaInfo(personinfo["cityid"].ToObject<int>());
