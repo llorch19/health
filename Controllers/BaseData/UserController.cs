@@ -56,7 +56,7 @@ namespace health.Controllers.BaseData
         {
             JObject res = new JObject();
             
-            string sql = "SELECT id,ChineseName,Username,Email,PhoneNumber,ProvinceID,CityID,CountyID,GroupId,OrgnizationID from t_user where id=?p1";
+            string sql = "SELECT id,ChineseName,Username,Email,PhoneNumber,ProvinceID,CityID,CountyID,GroupId,OrgnizationID,IsActive from t_user where id=?p1";
             res = db.GetOne(sql, id);
             if(res["id"] != null)
             {
@@ -65,6 +65,7 @@ namespace health.Controllers.BaseData
                 res["City"] = conf.GetAreaInfo(res["CityID"].ToObject<int>());
                 res["County"] = conf.GetAreaInfo(res["CountyID"].ToObject<int>());
                 res["UserGroup"] = conf.GetUserGroup(res["GroupId"].ToObject<int>());
+                res["org"] = conf.GetUserGroup(res["orgnizationid"].ToObject<int>());
                 res["status"] = 200;
             }
             else
@@ -86,13 +87,15 @@ namespace health.Controllers.BaseData
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
             //req.ToObject<Dictionary<string, object>>();
-            dict.Add("ChineseName", req["ChineseName"].ToString());
-            dict.Add("Email", req["Email"].ToString());
-            dict.Add("PhoneNumber", req["PhoneNumber"].ToString());
-            dict.Add("ProvinceID", req["ProvinceID"].ToObject<int>());
-            dict.Add("CityID", req["CityID"].ToObject<int>());
-            dict.Add("CountyID", req["CountyID"].ToObject<int>());
-            dict.Add("GroupId", req["GroupId"].ToObject<int>());
+            dict.Add("ChineseName", req["chinesename"].ToString());
+            dict.Add("Email", req["email"].ToString());
+            dict.Add("PhoneNumber", req["phonenumber"].ToString());
+            dict.Add("ProvinceID", req["provinceid"].ToObject<int>());
+            dict.Add("CityID", req["cityid"].ToObject<int>());
+            dict.Add("CountyID", req["countyid"].ToObject<int>());
+            dict.Add("GroupId", req["groupid"].ToObject<int>());
+            dict.Add("OrgnizationID", req["orgid"].ToObject<int>());
+            dict.Add("IsActive", req["isactive"].ToObject<int>());
             if (id > 0)
             {
                 Dictionary<string, object> condi = new Dictionary<string, object>();
@@ -102,7 +105,7 @@ namespace health.Controllers.BaseData
             }
             else
             {
-                dict.Add("Username", req["Username"].ToString());
+                dict.Add("Username", req["username"].ToString());
                 dict["PasswordHash"] = util.Security.String2MD5(dict["pass"].ToString());
                 id = db.Insert("t_user", dict);
             }
@@ -134,6 +137,20 @@ left JOIN data_area t3 on t1.CityID=t3.id
 left JOIN data_area t4 on t1.CountyID=t4.id
 inner join t_user_group t5 on t1.GroupId=t5.id
 order by t1.id desc LIMIT {0},{1}", offset, pagesize));
+            return res;
+        }
+        /// <summary>
+        /// 机构列表
+        /// </summary>
+        /// <param name="cname"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("OrgList")]
+        public JObject GetOrgList(string cname="")
+        {
+            JObject res = new JObject();
+            res["status"] = 200;
+            res["list"] = db.GetArray("SELECT id,OrgName text FROM t_orgnization where isActive = 1 and IsDeleted=0");
             return res;
         }
     }

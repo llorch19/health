@@ -81,5 +81,11 @@ namespace health.common
             JObject res = db.GetOne("select id,AreaName text from data_area where id=?p1", id);
             return res;
         }
+        public JObject GetOrg(int id)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne("SELECT id,OrgName text FROM t_orgnization where id=?p1", id);
+            return res;
+        }
     }
 }
