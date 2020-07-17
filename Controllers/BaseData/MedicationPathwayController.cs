@@ -146,5 +146,13 @@ namespace health.Controllers
             }
         }
 
+
+        [NonAction]
+        public JObject GetPathwayInfo(int id)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne("select id,Name text from data_medicationpathway where id=?p1", id);
+            return res;
+        }
     }
 }

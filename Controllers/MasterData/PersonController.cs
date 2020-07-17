@@ -45,6 +45,7 @@ namespace health.Controllers
             JArray rows = db.GetArray(
                 @"SELECT 
 IFNULL(t_patient.ID,'') as ID
+,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
 ,IFNULL(OrgName,'') as OrgName,IFNULL(OrgCode,'') as OrgCode,IFNULL(RegisterNO,'') as RegisterNO
 ,IFNULL(FamilyName,'') as FamilyName,IFNULL(t_patient.Tel,'') as Tel,IFNULL(t_patient.IDCardNO,'') as IDCardNO,IFNULL(GenderName,'') as GenderName
 ,IFNULL(t_patient.Birthday,'') as Birthday,IFNULL(t_patient.Nation,'') as Nation,IFNULL(DomicileType,'') as DomicileType,IFNULL(t_patient.DomicileDetail,'') as DomicileDetail
@@ -59,7 +60,7 @@ IFNULL(t_patient.ID,'') as ID
 ,IFNULL(County.AreaName,'') as County
 FROM t_patient 
 LEFT JOIN t_orgnization
-ON t_patient.HeadOrgnizationID=t_orgnization.ID
+ON t_patient.PrimaryOrgnizationID=t_orgnization.ID
 LEFT JOIN data_gender
 ON t_patient.GenderID=data_gender.ID
 LEFT JOIN data_occupation
@@ -100,7 +101,8 @@ LIMIT ?p1,?p2"
              db.GetOne(
                 @"SELECT 
 IFNULL(t_patient.ID,'') as ID
-,IFNULL(OrgName,'') as OrgName,IFNULL(OrgCode,'') as OrgCode,IFNULL(RegisterNO,'') as RegisterNO
+,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
+,IFNULL(RegisterNO,'') as RegisterNO
 ,IFNULL(FamilyName,'') as FamilyName,IFNULL(t_patient.Tel,'') as Tel,IFNULL(t_patient.IDCardNO,'') as IDCardNO,IFNULL(GenderName,'') as GenderName
 ,IFNULL(t_patient.Birthday,'') as Birthday,IFNULL(t_patient.Nation,'') as Nation,IFNULL(DomicileType,'') as DomicileType,IFNULL(t_patient.DomicileDetail,'') as DomicileDetail
 ,IFNULL(WorkUnitName,'') as WorkUnitName,IFNULL(data_occupation.OccupationName,'') as OccupationName,IFNULL(Detainees,'') as Detainees,IFNULL(data_addresscategory.AddressCategory,'') as AddressCategory
@@ -120,6 +122,9 @@ LEFT JOIN data_addresscategory
 ON t_patient.AddressCategoryID=data_addresscategory.ID
 where t_patient.ID=?p1"
                 , id);
+            OrgnizationController org = new OrgnizationController(null);
+            personinfo["primaryorg"] = org.GetOrgInfo(personinfo["primaryorgnizationid"].ToObject<int>());
+
             personinfo["province"] = conf.GetAreaInfo(personinfo["provinceid"].ToObject<int>());
             personinfo["city"] = conf.GetAreaInfo(personinfo["cityid"].ToObject<int>());
             personinfo["county"] = conf.GetAreaInfo(personinfo["countyid"].ToObject<int>());
@@ -309,6 +314,14 @@ where PatientID=?p1", id);
             JObject res = new JObject();
             res["status"] = 201;
             res["msg"] = "功能正在开发中";
+            return res;
+        }
+
+        [NonAction]
+        public JObject GetPersonInfo(int id)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne("select id,FamilyName text,IDCardNO code from t_patient where id=?p1", id);
             return res;
         }
     }

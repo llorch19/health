@@ -145,5 +145,13 @@ namespace health.Controllers
                 return res;
             }
         }
+
+
+        public JObject GetGenderInfo(int id)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne("select id,GenderName text from data_gender where id=?p1", id);
+            return res;
+        }
     }
 }

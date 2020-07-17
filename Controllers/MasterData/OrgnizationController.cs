@@ -31,15 +31,19 @@ namespace health.Controllers
         /// <returns>JSON数组形式的“机构”信息</returns>
         [HttpGet]
         [Route("GetOrgList")]
-        public JObject GetOrgList(int pageIndex)
+        public JObject GetOrgList(int pageSize, int pageIndex)
         {
+            int offset = 0;
+            if (pageIndex > 0)
+                offset = pageSize * (pageIndex - 1);
+
             JObject res = new JObject();
             res["status"] = 200;
             res["msg"] = "读取成功";
 
             dbfactory db = new dbfactory();
             JArray rows = db.GetArray(
-                @"select 
+                @"SELECT 
 one.ID
 ,IFNULL(one.OrgName,'') as OrgName
 ,IFNULL(one.OrgCode,'') as OrgCode
@@ -50,12 +54,24 @@ one.ID
 ,IFNULL(one.Tel,'') as Tel
 ,IFNULL(one.Coordinates,'') as Coordinates
 ,IFNULL(one.ParentID,'') as ParentID
-,IFNULL(parent.OrgName,'') as ParentName
+,IFNULL(parent.OrgName,'') as Parent
+,IFNULL(one.ProvinceID,'') as ProvinceID
+,IFNULL(province.AreaName,'') as Province
+,IFNULL(one.CityID,'') as CityID
+,IFNULL(city.AreaName,'') as City
+,IFNULL(one.CountyID,'') as CountyID
+,IFNULL(county.AreaName,'') as County
 FROM t_orgnization one 
 LEFT JOIN t_orgnization parent
 ON one.ParentID=parent.ID
-LIMIT ?p1,10"
-                , pageIndex);
+LEFT JOIN data_area province
+ON one.ProvinceID=province.ID
+LEFT JOIN data_area city
+ON one.CityID=city.ID
+LEFT JOIN data_area county
+ON one.CountyID=county.ID
+LIMIT ?p1,?p2"
+                , offset, pageSize);
 
             res["list"] = rows;
             return res;
@@ -75,7 +91,7 @@ LIMIT ?p1,10"
 
             dbfactory db = new dbfactory();
             JArray rows = db.GetArray(
-                @"select 
+                @"SELECT 
 one.ID
 ,IFNULL(one.OrgName,'') as OrgName
 ,IFNULL(one.OrgCode,'') as OrgCode
@@ -86,10 +102,22 @@ one.ID
 ,IFNULL(one.Tel,'') as Tel
 ,IFNULL(one.Coordinates,'') as Coordinates
 ,IFNULL(one.ParentID,'') as ParentID
-,IFNULL(parent.OrgName,'') as ParentName
+,IFNULL(parent.OrgName,'') as Parent
+,IFNULL(one.ProvinceID,'') as ProvinceID
+,IFNULL(province.AreaName,'') as Province
+,IFNULL(one.CityID,'') as CityID
+,IFNULL(city.AreaName,'') as City
+,IFNULL(one.CountyID,'') as CountyID
+,IFNULL(county.AreaName,'') as County
 FROM t_orgnization one 
 LEFT JOIN t_orgnization parent
 ON one.ParentID=parent.ID
+LEFT JOIN data_area province
+ON one.ProvinceID=province.ID
+LEFT JOIN data_area city
+ON one.CityID=city.ID
+LEFT JOIN data_area county
+ON one.CountyID=county.ID
 WHERE one.ProvinceID=?p1
 AND one.CityID=?p2
 AND one.CountyID=?p3
@@ -108,37 +136,33 @@ AND one.CountyID=?p3
         [Route("GetOrg")]
         public JObject GetOrg(int id)
         {
+
             dbfactory db = new dbfactory();
             JObject res = db.GetOne(
                 @"SELECT 
-one.ID
-,IFNULL(one.OrgName,'') as OrgName
-,IFNULL(one.OrgCode,'') as OrgCode
-,IFNULL(one.CertCode,'') as CertCode
-,IFNULL(one.LegalName,'') as LegalName
-,IFNULL(one.LegalIDCode,'') as LegalIDCode
-,IFNULL(one.Address,'') as Address
-,IFNULL(one.Tel,'') as Tel
-,IFNULL(one.Coordinates,'') as Coordinates
-,IFNULL(one.ParentID,'') as ParentID
-,IFNULL(parent.OrgName,'') as ParentName
-,IFNULL(one.ProvinceID,'') as ProvinceID
-,IFNULL(province.AreaName,'') as ProvinceAddr
-,IFNULL(one.CityID,'') as CityID
-,IFNULL(city.AreaName,'') as CityAddr
-,IFNULL(one.CountyID,'') as CountyID
-,IFNULL(county.AreaName,'') as CountyAddr
-FROM t_orgnization one 
-LEFT JOIN t_orgnization parent
-ON one.ParentID=parent.ID
-LEFT JOIN data_area province
-ON one.ProvinceID=province.ID
-LEFT JOIN data_area city
-ON one.CityID=city.ID
-LEFT JOIN data_area county
-ON one.CountyID=county.ID
-WHERE one.id=?p1"
+ID
+,IFNULL(OrgName,'') as OrgName
+,IFNULL(OrgCode,'') as OrgCode
+,IFNULL(CertCode,'') as CertCode
+,IFNULL(LegalName,'') as LegalName
+,IFNULL(LegalIDCode,'') as LegalIDCode
+,IFNULL(Address,'') as Address
+,IFNULL(Tel,'') as Tel
+,IFNULL(Coordinates,'') as Coordinates
+,IFNULL(ParentID,'') as ParentID
+,IFNULL(ProvinceID,'') as ProvinceID
+,IFNULL(CityID,'') as CityID
+,IFNULL(CountyID,'') as CountyID
+FROM t_orgnization 
+WHERE ID=?p1"
                 , id);
+
+            AreaController area = new AreaController(null);
+            res["province"] = area.GetAreaInfo(res["provinceid"].ToObject<int>());
+            res["city"] = area.GetAreaInfo(res["cityid"].ToObject<int>());
+            res["county"] = area.GetAreaInfo(res["countyid"].ToObject<int>());
+            res["parent"] = this.GetOrgInfo(res["parentid"].ToObject<int>());
+
             if (res["id"] != null)
             {
                 res["status"] = 200;
@@ -237,6 +261,14 @@ WHERE one.id=?p1"
                 res["msg"] = "操作失败";
                 return res;
             }
+        }
+
+        [NonAction]
+        public JObject GetOrgInfo(int id)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne("select id,OrgName text,OrgCode code from t_orgnization where id=?p1", id);
+            return res;
         }
     }
 }

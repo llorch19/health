@@ -133,5 +133,12 @@ namespace health.BaseData
                 return res;
             }
         }
+
+        public JObject GetAddressCategoryInfo(int id)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne("select id,AddressCategory text from data_addresscategory where id=?p1", id);
+            return res;
+        }
     }
 }

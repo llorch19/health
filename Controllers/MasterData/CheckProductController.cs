@@ -158,5 +158,15 @@ WHERE ID=?p1", id);
                 return res;
             }
         }
+
+
+
+        [NonAction]
+        public JObject GetCheckProductInfo(int id)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne("select id,Name text from t_detectionproduct where id=?p1", id);
+            return res;
+        }
     }
 }

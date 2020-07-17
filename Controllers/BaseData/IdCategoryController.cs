@@ -148,5 +148,12 @@ namespace health.Controllers
                 return res;
             }
         }
+
+        public JObject GetIdCategoryInfo(int id)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne("select id,Name text from data_idcategory where id=?p1", id);
+            return res;
+        }
     }
 }
