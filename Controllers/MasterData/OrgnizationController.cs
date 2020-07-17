@@ -6,7 +6,7 @@
  * Comments
  * - 多行，SQL字符串可以用@符号来写，这样可以有效减少+号的拼接。 @norway 2020-07-14 09:56
  * - Org需要 ParentID以及 上级机构的名字 ParentName           @xuedi  2020-07-16 15:59
- * 
+ * - Post Org不提交ProvinceAddr,CityAddr,CountyAddr          @xuedi,norway 2020-07-17  09:10
  */
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -161,6 +161,9 @@ WHERE one.id=?p1"
             JObject res = new JObject();
             if (req["id"] != null)
             {
+                //req.Remove("provinceaddr");
+                //req.Remove("cityaddr");
+                //req.Remove("countyaddr");
                 req.Remove("parentname");
                 int id = req["id"].ToObject<int>();
                 if (id == 0)
