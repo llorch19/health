@@ -8,7 +8,7 @@
  * - Post提交值将同时包含：个人信息、检查诊断信息、复查信息、推荐疫苗信息和随访信息 @xuedi  2020-07-14 09:08
  * - 使用JObject["personinfo"]=db.GetOne() 这种形式逐个添加所需信息             @norway 2020-07-14 10:24
  * - GetList 需要附带返回Person列表的总条数。                                   @xuedi  2020-07-17  10:47
- * 
+ * - Post提交值将只包含：个人信息。检测及随访的针对各自的接口进行POST。            @xuedi  2020-07-17  17:21
  */
 using health.BaseData;
 using Microsoft.AspNetCore.Mvc;
@@ -265,6 +265,7 @@ where PatientID=?p1", id);
                 int id = req["id"].ToObject<int>();
                 if (id == 0)
                 {
+                    req["registerno"] = req["idcardno"];
                     var dict = req.ToObject<Dictionary<string, object>>();
                     var rows = db.Insert("t_orgnization", dict);
                     if (rows > 0)
