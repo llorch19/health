@@ -6,6 +6,7 @@ using util.mysql;
 namespace health.BaseData
 {
     [ApiController]
+    [Route("api")]
     public class AddressCategoryController : ControllerBase
     {
         /// <summary>
@@ -132,6 +133,14 @@ namespace health.BaseData
                 res["msg"] = "操作失败";
                 return res;
             }
+        }
+
+        [NonAction]
+        public JObject GetAddressCategoryInfo(int id)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne("select id,AddressCategory text from data_addresscategory where id=?p1", id);
+            return res;
         }
     }
 }

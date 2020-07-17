@@ -7,6 +7,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class MedicationFreqCategoryController : ControllerBase
     {
 
@@ -146,5 +147,13 @@ namespace health.Controllers
             }
         }
 
+
+        [NonAction]
+        public JObject GetFreqInfo(int id)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne("select id,ValueMessage text from data_medicationfreqcategory where id=?p1", id);
+            return res;
+        }
     }
 }

@@ -7,6 +7,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class GenderController : ControllerBase
     {
         private readonly ILogger<GenderController> _logger;
@@ -144,6 +145,14 @@ namespace health.Controllers
                 res["msg"] = "操作失败";
                 return res;
             }
+        }
+
+        [NonAction]
+        public JObject GetGenderInfo(int id)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne("select id,GenderName text from data_gender where id=?p1", id);
+            return res;
         }
     }
 }

@@ -148,6 +148,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class MenuController : ControllerBase
     {
         private readonly ILogger<MenuController> _logger;

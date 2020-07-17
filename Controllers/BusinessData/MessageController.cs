@@ -14,6 +14,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class MessageController : ControllerBase
     {
         private readonly ILogger<MessageController> _logger;
@@ -74,7 +75,7 @@ WHERE OutdateTime > NOW()
         public JObject GetMessage(int id)
         {
             dbfactory db = new dbfactory();
-            JObject res =  db.GetOne(@"select
+            JObject res = db.GetOne(@"select
 IFNULL(t_messagesent.ID,'') as ID
 ,IFNULL(t_user.ID,'') as PublishUserID
 ,IFNULL(t_user.FamilyName,'') as Publish 
@@ -92,7 +93,7 @@ ON t_user.ID=t_messagesent.PublishUserID
 WHERE t_messagesent.ID=?p1
 "
                     , id);
-            if (res["id"]!=null)
+            if (res["id"] != null)
             {
                 res["status"] = 200;
                 res["msg"] = "获取数据成功";

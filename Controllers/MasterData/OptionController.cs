@@ -15,6 +15,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class OptionController : ControllerBase
     {
 
@@ -32,7 +33,7 @@ namespace health.Controllers
         /// <returns>JSON数组形式的“参数”信息</returns>
         [HttpGet]
         [Route("GetOptionList")]
-        public JObject GetOptionList(string section=null)
+        public JObject GetOptionList(string section = null)
         {
             JObject res = new JObject();
             res["status"] = 200;

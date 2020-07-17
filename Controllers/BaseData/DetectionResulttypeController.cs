@@ -7,6 +7,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class DetectionResultTypeController : ControllerBase
     {
         private readonly ILogger<DetectionResultTypeController> _logger;
@@ -145,5 +146,12 @@ namespace health.Controllers
             }
         }
 
+        [NonAction]
+        public JObject GetResultTypeInfo(int id)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne("select id,ResultName text from data_detectionresulttype where id=?p1", id);
+            return res;
+        }
     }
 }

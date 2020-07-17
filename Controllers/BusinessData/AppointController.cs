@@ -16,6 +16,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class AppointController : ControllerBase
     {
         private readonly ILogger<AppointController> _logger;
@@ -58,7 +59,29 @@ namespace health.Controllers
         [Route("GetAppoint")]
         public JObject GetAppoint(int id)
         {
-            throw new NotImplementedException();
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne(@"SELECT   
+IFNULL(ID,'') AS ID
+,IFNULL(`Name`,'') AS `Name`
+,IFNULL(CommonName,'') AS CommonName
+,IFNULL(Specification,'') AS Specification
+,IFNULL(ESC,'') AS ESC
+,IFNULL(ProductionDate,'') AS ProductionDate
+,IFNULL(ExpiryDate,'') AS ExpiryDate
+,IFNULL(Manufacturer,'') AS Manufacturer
+FROM t_medication
+WHERE ID=?p1", id);
+            if (res["id"] != null)
+            {
+                res["status"] = 200;
+                res["msg"] = "读取成功";
+            }
+            else
+            {
+                res["status"] = 201;
+                res["msg"] = "无法读取相应的数据";
+            }
+            return res;
         }
 
 

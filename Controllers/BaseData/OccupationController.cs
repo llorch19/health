@@ -7,6 +7,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class OccupationController : ControllerBase
     {
 
@@ -146,5 +147,13 @@ namespace health.Controllers
             }
         }
 
+
+        [NonAction]
+        public JObject GetOccupationInfo(int id)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne("select id,OccupationName text from data_occupation where id=?p1", id);
+            return res;
+        }
     }
 }

@@ -4,7 +4,7 @@
 
 set -x
 EXEC=dotnet
-PORT=5005
+PORT=25000
 IDIR=$(dirname $(realpath "$0"))
 IPROJ=$(basename ${IDIR})
 

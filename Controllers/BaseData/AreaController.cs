@@ -16,6 +16,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class AreaController : ControllerBase
     {
         private readonly ILogger<AreaController> _logger;
@@ -152,6 +153,15 @@ namespace health.Controllers
                 res["msg"] = "操作失败";
                 return res;
             }
+        }
+
+
+        [NonAction]
+        public JObject GetAreaInfo(int id)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne("select id,AreaName text from data_area where id=?p1", id);
+            return res;
         }
     }
 }

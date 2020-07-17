@@ -15,6 +15,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class UnreadController : ControllerBase
     {
         private readonly ILogger<UnreadController> _logger;
@@ -80,14 +81,14 @@ AND OutdateTime > NOW()
         /// <returns>JSON对象，包含相应的“未读消息”</returns>
         [HttpGet]
         [Route("GetUnread")]
-        public JObject GetUnread(int msgid,int userid)
+        public JObject GetUnread(int msgid, int userid)
         {
             dbfactory db = new dbfactory();
             JObject res = new JObject();
 
 
-            JObject msg = db.GetOne("select * from t_messagesent where id=?p1",msgid);
-            if (msg["id"]==null)
+            JObject msg = db.GetOne("select * from t_messagesent where id=?p1", msgid);
+            if (msg["id"] == null)
             {
                 res["status"] = 201;
                 res["msg"] = "没有获取到相应的数据";
@@ -100,8 +101,8 @@ AND OutdateTime > NOW()
                 JObject read = db.GetOne(@"select * 
 from t_messageread 
 where messageid=?p1 
-and patientid=?p2",msgid,userid);
-                if (read["id"]==null)
+and patientid=?p2", msgid, userid);
+                if (read["id"] == null)
                 {
                     var newRead = new Dictionary<string, object>();
                     newRead["MessageID"] = msgid;
@@ -129,7 +130,7 @@ where MessageID=?p1 and PatientID=?p2", msgid, userid);
 from t_messageread 
 where messageid=?p1 
 and userid=?p2", msgid, userid);
-                if (read["id"]==null)
+                if (read["id"] == null)
                 {
                     var newRead = new Dictionary<string, object>();
                     newRead["MessageID"] = msgid;
@@ -139,7 +140,7 @@ and userid=?p2", msgid, userid);
                     newRead["CreatedTime"] = DateTime.Now;
                     db.Insert("t_messageread", newRead);
                 }
-               
+
                 res["readinfo"] = db.GetOne(@"SELECT 
 IFNULL(ID,'') AS ID
 ,IFNULL(MessageID,'') AS MessageID
@@ -151,16 +152,16 @@ FROM t_messageread
 where MessageID=?p1 and UserID=?p2", msgid, userid);
             }
 
-            
-
-            
-
-          
-            
 
 
 
-            res["messageinfo"] =  db.GetOne(@"SELECT 
+
+
+
+
+
+
+            res["messageinfo"] = db.GetOne(@"SELECT 
 IFNULL(t_messagesent.ID,'') AS ID
 ,IFNULL(t_user.ID,'') AS PublishUserID
 ,IFNULL(t_user.FamilyName,'') AS Publish 
@@ -178,7 +179,7 @@ ON t_user.ID=t_messagesent.PublishUserID
 WHERE t_messagesent.ID = ?p1
 "
                     , msgid);
-            
+
             if (res.HasValues)
             {
                 res["status"] = 200;
