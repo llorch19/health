@@ -73,7 +73,7 @@ namespace health.Controllers
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
             dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,AreaCode,AreaName,cs,AreaCodeV2 from data_area where id=?p1", id);
+            JObject res = db.GetOne("select id,AreaCode,AreaName,parentID,cs,AreaCodeV2 from data_area where id=?p1", id);
             if (res["id"] != null)
             {
                 res["status"] = 200;
