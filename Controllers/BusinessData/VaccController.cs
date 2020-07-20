@@ -36,19 +36,99 @@ namespace health.Controllers
         [Route("GetOrgVaccList")]
         public JObject GetOrgVaccList(int orgid)
         {
-            throw new NotImplementedException();
+            JObject res = new JObject();
+            res["list"] = db.GetArray(@"
+SELECT 
+t_vacc.ID
+,PatientID
+,t_patient.FamilyName AS Person
+,t_vacc.OrgnizationID
+,t_orgnization.OrgName AS Orgnization
+,OperationUserID
+,t_user.ChineseName AS Operator
+,MedicationID
+,t_medication.`Name` AS Medication
+,MedicationDosageFormID
+,data_medicationdosageform.`Name` AS Dosage
+,MedicationPathwayID
+,data_medicationpathway.`Name` AS Pathway
+,Ftime
+,OperationTime
+,LeaveTime
+,NextTime
+,Fstatus
+,TempratureP
+,TempratureN
+,Effect
+FROM t_vacc
+LEFT JOIN t_patient
+ON t_vacc.PatientID=t_patient.ID
+LEFT JOIN t_orgnization
+ON t_vacc.OrgnizationID=t_orgnization.ID
+LEFT JOIN t_user
+ON t_vacc.OperationUserID=t_user.ID
+LEFT JOIN t_medication
+ON t_vacc.MedicationID=t_medication.ID
+LEFT JOIN data_medicationdosageform
+ON t_vacc.MedicationDosageFormID=data_medicationdosageform.ID
+LEFT JOIN data_medicationpathway
+ON t_vacc.MedicationPathwayID=data_medicationpathway.ID
+WHERE t_vacc.OrgnizationID=?p1", orgid);
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
         }
 
         /// <summary>
         /// 获取个人的“接种记录”历史
         /// </summary>
-        /// <param name="userid">检索指定个人的id</param>
+        /// <param name="personid">检索指定个人的id</param>
         /// <returns>JSON对象，包含相应的“接种记录”数组</returns>
         [HttpGet]
         [Route("GetPersonVaccList")]
-        public JObject GetPersonVaccList(int userid)
+        public JObject GetPersonVaccList(int personid)
         {
-            throw new NotImplementedException();
+            JObject res = new JObject();
+            res["list"] = db.GetArray(@"
+SELECT 
+t_vacc.ID
+,PatientID
+,t_patient.FamilyName AS Person
+,t_vacc.OrgnizationID
+,t_orgnization.OrgName AS Orgnization
+,OperationUserID
+,t_user.ChineseName AS Operator
+,MedicationID
+,t_medication.`Name` AS Medication
+,MedicationDosageFormID
+,data_medicationdosageform.`Name` AS Dosage
+,MedicationPathwayID
+,data_medicationpathway.`Name` AS Pathway
+,Ftime
+,OperationTime
+,LeaveTime
+,NextTime
+,Fstatus
+,TempratureP
+,TempratureN
+,Effect
+FROM t_vacc
+LEFT JOIN t_patient
+ON t_vacc.PatientID=t_patient.ID
+LEFT JOIN t_orgnization
+ON t_vacc.OrgnizationID=t_orgnization.ID
+LEFT JOIN t_user
+ON t_vacc.OperationUserID=t_user.ID
+LEFT JOIN t_medication
+ON t_vacc.MedicationID=t_medication.ID
+LEFT JOIN data_medicationdosageform
+ON t_vacc.MedicationDosageFormID=data_medicationdosageform.ID
+LEFT JOIN data_medicationpathway
+ON t_vacc.MedicationPathwayID=data_medicationpathway.ID
+WHERE t_vacc.PatientID=?p1", personid);
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
         }
 
 
@@ -74,7 +154,7 @@ ID
 ,OperationTime
 ,LeaveTime
 ,NextTime
-,Status
+,Fstatus
 ,TempratureP
 ,TempratureN
 ,Effect
@@ -109,52 +189,38 @@ WHERE ID=?p1", id);
         [Route("SetVacc")]
         public JObject SetVacc([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
-            JObject res = new JObject();
-            if (req["id"] != null)
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["PatientID"] = req["patientid"]?.ToObject<int>();
+            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
+            dict["OperationUserID"] = req["operationuserid"]?.ToObject<int>();
+            dict["MedicationID"] = req["medicationid"]?.ToObject<int>();
+            dict["MedicationDosageFormID"] = req["medicationdosageformid"]?.ToObject<int>();
+            dict["MedicationPathwayID"] = req["medicationpathwayid"]?.ToObject<int>();
+            dict["OperationTime"] = req["operationtime"]?.ToObject<DateTime>();
+            dict["LeaveTime"] = req["leavetime"]?.ToObject<DateTime>();
+            dict["NextTime"] = req["nexttime"]?.ToObject<DateTime>();
+            dict["Fstatus"] = req["fstatus"]?.ToObject<string>();
+            dict["Ftime"] = req["ftime"]?.ToObject<int>();
+
+            if (req["id"]?.ToObject<int>() > 0)
             {
-                int id = req["id"].ToObject<int>();
-                if (id == 0)
-                {
-                    req.Remove("publish");
-                    req["OrgnizationID"] = null;
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    var rows = db.Insert("t_vacc", dict);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "新增成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "无法新增数据";
-                    }
-                }
-                else if (id > 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    dict.Remove("id");
-                    var keys = new Dictionary<string, object>();
-                    keys["id"] = req["id"];
-                    var rows = db.Update("t_vacc", dict, keys);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "修改成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "修改失败";
-                    }
-                }
+                Dictionary<string, object> condi = new Dictionary<string, object>();
+                condi["id"] = req["id"];
+                dict["LastUpdatedBy"] = HttpContext.User.ToString();
+                dict["LastUpdatedTime"] = DateTime.Now;
+                var tmp = this.db.Update("t_vacc", dict, condi);
             }
             else
             {
-                res["status"] = 201;
-                res["msg"] = "非法的请求";
+                dict["CreatedBy"] = HttpContext.User.ToString();
+                dict["CreatedTime"] = DateTime.Now;
+                this.db.Insert("t_vacc", dict);
             }
+
+            JObject res = new JObject();
+            res["status"] = 200;
+            res["msg"] = "提交成功";
+            res["id"] = req["id"];
             return res;
         }
 
