@@ -20,6 +20,7 @@ namespace health.Controllers
     public class MedicationController : ControllerBase
     {
         private readonly ILogger<MedicationController> _logger;
+        dbfactory db = new dbfactory();
         public MedicationController(ILogger<MedicationController> logger)
         {
             _logger = logger;
@@ -59,7 +60,6 @@ namespace health.Controllers
         [Route("GetMedication")]
         public JObject GetMedication(int id)
         {
-            dbfactory db = new dbfactory();
             JObject res = db.GetOne(@"SELECT   
 IFNULL(ID,'') AS ID
 ,IFNULL(`Name`,'') AS `Name`
@@ -94,7 +94,6 @@ WHERE ID=?p1",id);
         [Route("SetMedication")]
         public JObject SetMedication([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
             JObject res = new JObject();
             if (req["id"] != null)
             {
@@ -157,7 +156,6 @@ WHERE ID=?p1",id);
         {
             JObject res = new JObject();
             var dict = req.ToObject<Dictionary<string, object>>();
-            dbfactory db = new dbfactory();
             var count = db.del("t_medication", dict);
             if (count > 0)
             {
@@ -171,6 +169,14 @@ WHERE ID=?p1",id);
                 res["msg"] = "操作失败";
                 return res;
             }
+        }
+
+
+        [NonAction]
+        public JObject GetMedicationInfo(int id)
+        {
+            JObject res = db.GetOne("SELECT id,Name text,ESC code FROM t_medication where id=?p1", id);
+            return res;
         }
     }
 }

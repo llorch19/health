@@ -48,7 +48,6 @@ namespace health.Controllers
 
             JObject res = new JObject();
 
-            dbfactory db = new dbfactory();
             JArray rows = db.GetArray(
                 @"SELECT 
 IFNULL(t_patient.ID,'') as ID
@@ -118,7 +117,6 @@ LIMIT ?p1,?p2"
         [Route("GetPerson")]
         public JObject GetPerson(int id)
         {
-            dbfactory db = new dbfactory();
             common.BaseConfig conf = new common.BaseConfig();
             JObject res = new JObject();
 
@@ -332,7 +330,6 @@ where PatientID=?p1", id);
         {
             JObject res = new JObject();
             var dict = req.ToObject<Dictionary<string, object>>();
-            dbfactory db = new dbfactory();
             var count = db.del("t_orgnization", dict);
             if (count > 0)
             {
@@ -375,8 +372,15 @@ where PatientID=?p1", id);
         [NonAction]
         public JObject GetPersonInfo(int id)
         {
-            dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,FamilyName text,IDCardNO code from t_patient where id=?p1", id);
+            return res;
+        }
+
+
+        [NonAction]
+        public JObject GetUserInfo(int id)
+        {
+            JObject res = db.GetOne("select id,ChineseName text,IDCardNO code from t_user where id=?p1", id);
             return res;
         }
     }

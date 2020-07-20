@@ -5,6 +5,7 @@
  * Description: 对“接种记录”信息的增删查改
  * Comments
  */
+using health.Controllers.BaseData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -20,6 +21,7 @@ namespace health.Controllers
     public class VaccController : ControllerBase
     {
         private readonly ILogger<VaccController> _logger;
+        dbfactory db = new dbfactory();
         public VaccController(ILogger<VaccController> logger)
         {
             _logger = logger;
@@ -59,7 +61,42 @@ namespace health.Controllers
         [Route("GetVacc")]
         public JObject GetVacc(int id)
         {
-            throw new NotImplementedException();
+            JObject res = db.GetOne(@"
+SELECT 
+ID
+,PatientID
+,OrgnizationID
+,OperationUserID
+,MedicationID
+,MedicationDosageFormID
+,MedicationPathwayID
+,Ftime
+,OperationTime
+,LeaveTime
+,NextTime
+,Status
+,TempratureP
+,TempratureN
+,Effect
+FROM t_vacc
+WHERE ID=?p1", id);
+            PersonController person = new PersonController(null,null);
+            res["person"] = person
+                .GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
+            res["org"] = new OrgnizationController(null)
+                .GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
+            res["operator"] = person
+                .GetUserInfo(res["operationuserid"]?.ToObject<int>() ?? 0);
+            res["medication"] = new MedicationController(null)
+                .GetMedicationInfo(res["medicationid"]?.ToObject<int>() ?? 0);
+            res["dosage"] = new MedicationDosageFormController(null)
+                .GetDosageInfo(res["medicationdosageformid"]?.ToObject<int>() ?? 0);
+            res["pathway"] = new MedicationPathwayController(null)
+                .GetPathwayInfo(res["medicationpathwayid"]?.ToObject<int>() ?? 0);
+
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
         }
 
 
