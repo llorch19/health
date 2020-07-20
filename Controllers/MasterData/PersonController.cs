@@ -47,7 +47,7 @@ namespace health.Controllers
             JArray rows = db.GetArray(
                 @"SELECT 
 IFNULL(t_patient.ID,'') as ID
-,IFNULL(t_attandent.IsTransfer,'') as IsTransfer
+,IFNULL(t_attandent.IsReferral,'') as IsReferral
 ,IFNULL(t_patient.OrgnizationID,'') as OrgnizationID
 ,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
 ,IFNULL(OrgName,'') as OrgName
@@ -122,7 +122,7 @@ LIMIT ?p1,?p2"
              db.GetOne(
                 @"SELECT 
 IFNULL(t_patient.ID,'') as ID
-,IFNULL(t_attandent.IsTransfer,'') as IsTransfer
+,IFNULL(t_attandent.IsReferral,'') as IsReferral
 ,IFNULL(t_patient.OrgnizationID,'') as OrgnizationID
 ,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
 ,IFNULL(RegisterNO,'') as RegisterNO
