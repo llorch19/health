@@ -7,7 +7,9 @@
  * - 多行，SQL字符串可以用@符号来写，这样可以有效减少+号的拼接。 @norway 2020-07-14 09:56
  * - Org需要 ParentID以及 上级机构的名字 ParentName           @xuedi  2020-07-16 15:59
  * - Post Org不提交ProvinceAddr,CityAddr,CountyAddr          @xuedi,norway 2020-07-17  09:10
- */
+ * - 个人档案中读取组织机构时，需要读取id,text(OrgName),code(OrgCode),register(CertCode) @xuedi  2020-07-20  09:20
+ * 
+ * */
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -268,7 +270,7 @@ WHERE ID=?p1"
         public JObject GetOrgInfo(int id)
         {
             dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,OrgName text,OrgCode code from t_orgnization where id=?p1", id);
+            JObject res = db.GetOne("select id,OrgName text,OrgCode code,CertCode register from t_orgnization where id=?p1", id);
             return res;
         }
     }
