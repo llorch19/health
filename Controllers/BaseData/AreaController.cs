@@ -5,6 +5,7 @@
  * Description: 获取菜单，需要在中间件判断用户组并加以过滤
  * Comments
  * - Area 应该返回增加时需要录入的全部字段。包括但不限于[AreaCodeV2]。    @xuedi    2020-07-16  08:17
+ * - 新增AreaList接口返回地域的树形结构。     @xuedi  2020-07-20  10:25
  * */
 
 using Microsoft.AspNetCore.Mvc;
@@ -43,6 +44,23 @@ namespace health.Controllers
             JArray rows = db.GetArray("select id,AreaCode,AreaName,cs,AreaCodeV2 from data_area where parentID=?p1", parentId);
 
             res["list"] = rows;
+            return res;
+        }
+
+        /// <summary>
+        /// 获取层级的“区域”列表
+        /// </summary>
+        /// <returns>JSON对象，包含层级的区域列表</returns>
+        [HttpGet]
+        [Route("AreaList")]
+        public JObject GetBaseData()
+        {
+            dbfactory db = new dbfactory();
+            JObject res = new JObject();
+            res["status"] = 200;
+            common.BaseConfig _area = new common.BaseConfig();
+            res["AreaList"] = _area.GetAreaTree();
+            res["UserGroup"] = db.GetArray("SELECT id,cname text FROM t_user_group where isActive = 1");
             return res;
         }
 

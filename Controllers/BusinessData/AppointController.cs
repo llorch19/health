@@ -34,19 +34,101 @@ namespace health.Controllers
         [Route("GetOrgAppointList")]
         public JObject GetOrgAppointList(int orgid)
         {
-            throw new NotImplementedException();
+            dbfactory db = new dbfactory();
+            JObject res = new JObject();
+            JArray list = db.GetArray(@"SELECT   
+IFNULL(t_appoint.ID,'') AS ID
+,IFNULL(t_appoint.OrgnizationID,'') AS OrgnizationID
+,IFNULL(t_orgnization.OrgName,'') AS OrgName
+,IFNULL(PatientID,'') AS PersonID
+,IFNULL(t_patient.FamilyName,'') AS PersonName
+,IFNULL(`Name`,'') AS `Name`
+,IFNULL(Code,'') AS Code
+,IFNULL(Vaccine,'') AS Vaccine
+,IFNULL(VaccinationDateStart,'') AS VaccinationDateStart
+,IFNULL(VaccinationDateEnd,'') AS VaccinationDateEnd
+,IFNULL(InjectionTimes,'') AS InjectionTimes
+,IFNULL(t_appoint.IDCardNO,'') AS IDCardNO
+,IFNULL(t_appoint.Tel,'') AS Tel
+,IFNULL(BirthDate,'') AS BirthDate
+,IFNULL(Status,'') AS Status
+,IFNULL(AppointmentCreatedTime,'') AS AppointmentCreatedTime
+,IFNULL(IsCancel,'') AS IsCancel
+,IFNULL(CancelTime,'') AS CancelTime
+,IFNULL(IsComplete,'') AS IsComplete
+,IFNULL(CompleteTime,'') AS CompleteTime
+,IFNULL(t_appoint.Description,'') AS Description
+FROM t_appoint
+LEFT JOIN t_orgnization
+ON t_appoint.OrgnizationID=t_orgnization.ID
+LEFT JOIN t_patient
+ON t_appoint.PatientID=t_patient.ID
+WHERE t_appoint.OrgnizationID=?p1", orgid);
+            if (list.HasValues)
+            {
+                res["status"] = 200;
+                res["msg"] = "读取成功";
+                res["list"] = list;
+            }
+            else
+            {
+                res["status"] = 201;
+                res["msg"] = "无法读取相应的数据";
+            }
+            return res;
         }
 
         /// <summary>
         /// 获取个人的“预约”历史
         /// </summary>
-        /// <param name="userid">检索指定个人的id</param>
+        /// <param name="personid">检索指定个人的id</param>
         /// <returns>JSON对象，包含相应的“预约”数组</returns>
         [HttpGet]
         [Route("GetPersonAppointList")]
-        public JObject GetPersonAppointList(int userid)
+        public JObject GetPersonAppointList(int personid)
         {
-            throw new NotImplementedException();
+            dbfactory db = new dbfactory();
+            JObject res = new JObject();
+            JArray list = db.GetArray(@"SELECT   
+IFNULL(t_appoint.ID,'') AS ID
+,IFNULL(t_appoint.OrgnizationID,'') AS OrgnizationID
+,IFNULL(t_orgnization.OrgName,'') AS OrgName
+,IFNULL(PatientID,'') AS PersonID
+,IFNULL(t_patient.FamilyName,'') AS PersonName
+,IFNULL(`Name`,'') AS `Name`
+,IFNULL(Code,'') AS Code
+,IFNULL(Vaccine,'') AS Vaccine
+,IFNULL(VaccinationDateStart,'') AS VaccinationDateStart
+,IFNULL(VaccinationDateEnd,'') AS VaccinationDateEnd
+,IFNULL(InjectionTimes,'') AS InjectionTimes
+,IFNULL(t_appoint.IDCardNO,'') AS IDCardNO
+,IFNULL(t_appoint.Tel,'') AS Tel
+,IFNULL(BirthDate,'') AS BirthDate
+,IFNULL(Status,'') AS Status
+,IFNULL(AppointmentCreatedTime,'') AS AppointmentCreatedTime
+,IFNULL(IsCancel,'') AS IsCancel
+,IFNULL(CancelTime,'') AS CancelTime
+,IFNULL(IsComplete,'') AS IsComplete
+,IFNULL(CompleteTime,'') AS CompleteTime
+,IFNULL(t_appoint.Description,'') AS Description
+FROM t_appoint
+LEFT JOIN t_orgnization
+ON t_appoint.OrgnizationID=t_orgnization.ID
+LEFT JOIN t_patient
+ON t_appoint.PatientID=t_patient.ID
+WHERE t_appoint.PatientID=?p1",personid);
+            if (list.HasValues)
+            {
+                res["status"] = 200;
+                res["msg"] = "读取成功";
+                res["list"] = list;
+            }
+            else
+            {
+                res["status"] = 201;
+                res["msg"] = "无法读取相应的数据";
+            }
+            return res;
         }
 
 
@@ -62,17 +144,32 @@ namespace health.Controllers
             dbfactory db = new dbfactory();
             JObject res = db.GetOne(@"SELECT   
 IFNULL(ID,'') AS ID
+,IFNULL(OrgnizationID,'') AS OrgnizationID
+,IFNULL(PatientID,'') AS PatientID
 ,IFNULL(`Name`,'') AS `Name`
-,IFNULL(CommonName,'') AS CommonName
-,IFNULL(Specification,'') AS Specification
-,IFNULL(ESC,'') AS ESC
-,IFNULL(ProductionDate,'') AS ProductionDate
-,IFNULL(ExpiryDate,'') AS ExpiryDate
-,IFNULL(Manufacturer,'') AS Manufacturer
-FROM t_medication
+,IFNULL(Code,'') AS Code
+,IFNULL(Vaccine,'') AS Vaccine
+,IFNULL(VaccinationDateStart,'') AS VaccinationDateStart
+,IFNULL(VaccinationDateEnd,'') AS VaccinationDateEnd
+,IFNULL(InjectionTimes,'') AS InjectionTimes
+,IFNULL(IDCardNO,'') AS IDCardNO
+,IFNULL(Tel,'') AS Tel
+,IFNULL(BirthDate,'') AS BirthDate
+,IFNULL(Status,'') AS Status
+,IFNULL(AppointmentCreatedTime,'') AS AppointmentCreatedTime
+,IFNULL(IsCancel,'') AS IsCancel
+,IFNULL(CancelTime,'') AS CancelTime
+,IFNULL(IsComplete,'') AS IsComplete
+,IFNULL(CompleteTime,'') AS CompleteTime
+,IFNULL(Description,'') AS Description
+FROM t_appoint
 WHERE ID=?p1", id);
             if (res["id"] != null)
             {
+                res["orgnization"] = new OrgnizationController(null)
+                    .GetOrgInfo(res["orgnizationid"].ToObject<int>());
+                res["person"] = new PersonController(null)
+                    .GetPersonInfo(res["patientid"].ToObject<int>());
                 res["status"] = 200;
                 res["msg"] = "读取成功";
             }

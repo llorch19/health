@@ -10,6 +10,7 @@ using System.Text;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.OpenApi.Models;
 using System.IO;
+using health.common;
 
 namespace health
 {
@@ -77,6 +78,8 @@ namespace health
                 var xmlPath = Path.Combine(basePath, "health.xml");
                 c.IncludeXmlComments(xmlPath);
             });
+
+            services.AddSingleton<IdGenerator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
