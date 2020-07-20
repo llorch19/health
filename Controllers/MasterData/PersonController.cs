@@ -157,7 +157,7 @@ where t_patient.ID=?p1"
             personinfo["gender"] = gender.GetGenderInfo(personinfo["genderid"].ToObject<int>());
             OccupationController occupation = new OccupationController(null);
             personinfo["occupation"] = occupation.GetOccupationInfo(personinfo["occupationcategoryid"].ToObject<int>());
-            AddressCategoryController addresscategory = new AddressCategoryController();
+            AddressCategoryController addresscategory = new AddressCategoryController(null);
             personinfo["addresscategory"] = addresscategory.GetAddressCategoryInfo(personinfo["addresscategoryid"].ToObject<int>());
 
             personinfo["province"] = conf.GetAreaInfo(personinfo["provinceid"].ToObject<int>());

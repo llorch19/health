@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using util.mysql;
 
@@ -9,6 +11,13 @@ namespace health.BaseData
     [Route("api")]
     public class AddressCategoryController : ControllerBase
     {
+        private readonly ILogger<AddressCategoryController> _logger;
+        dbfactory db = new dbfactory();
+        public AddressCategoryController(ILogger<AddressCategoryController> logger)
+        {
+            _logger = logger;
+        }
+
         /// <summary>
         /// 获取“地址类型”列表
         /// </summary>
@@ -19,11 +28,7 @@ namespace health.BaseData
             JObject res = new JObject();
             res["status"] = 200;
             res["msg"] = "读取成功";
-
-            dbfactory db = new dbfactory();
-            JArray rows = db.GetArray("select ID,Code,AddressCategory from data_addresscategory");
-
-            res["list"] = rows;
+            res["list"] = db.GetArray("select ID,Code,AddressCategory from data_addresscategory");
             return res;
         }
 
@@ -35,7 +40,6 @@ namespace health.BaseData
         [HttpGet("GetAddressCategory")]
         public JObject GetAddressCategory(int id)
         {
-            dbfactory db = new dbfactory();
             JObject res = db.GetOne("select ID,Code,AddressCategory from data_addresscategory where id=?p1", id);
             if (res["id"] != null)
             {
@@ -59,53 +63,31 @@ namespace health.BaseData
         [HttpPost("SetAddressCategory")]
         public JObject SetAddressCategory([FromBody] JObject req)
         {
-            JObject res = new JObject();
-            dbfactory db = new dbfactory();
-            if (req["id"] == null)
-            {
-                res["status"] = 201;
-                res["msg"] = "无法添加或修改数据";
-                return res;
-            }
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["Code"] = req["code"].ToObject<string>();
+            dict["AddressCategory"] = req["addresscategory"].ToObject<string>();
+           
 
-            if (req["id"].ToObject<int>() == 0)
+            if (req["id"].ToObject<int>()>0)
             {
-                var dict = req.ToObject<Dictionary<string, object>>();
-                dict.Remove("id");
-                var newID = db.Insert("data_addresscategory", dict);
-                if (newID > 0)
-                {
-                    res["status"] = 200;
-                    res["msg"] = "操作成功";
-                    return res;
-                }
-                else
-                {
-                    res["status"] = 201;
-                    res["msg"] = "操作失败";
-                    return res;
-                }
+                dict["LastUpdatedBy"] = HttpContext.User.ToString();
+                dict["LastUpdatedTime"] = DateTime.Now;
+                Dictionary<string, object> condi = new Dictionary<string, object>();
+                condi["id"] = req["id"];
+                var tmp=this.db.Update("data_addresscategory",dict,condi);
             }
             else
             {
-                var dict = req.ToObject<Dictionary<string, object>>();
-                dict.Remove("id");
-                var keys = new Dictionary<string, object>();
-                keys["id"] = req["id"];
-                var rows = db.Update("data_addresscategory", dict, keys);
-                if (rows > 0)
-                {
-                    res["status"] = 200;
-                    res["msg"] = "修改成功";
-                    return res;
-                }
-                else
-                {
-                    res["status"] = 201;
-                    res["msg"] = "修改失败";
-                    return res;
-                }
+                dict["CreatedBy"] = HttpContext.User.ToString();
+                dict["CreatedTime"] = DateTime.Now;
+                this.db.Insert("data_addresscategory",dict);
             }
+
+            JObject res = new JObject();
+            res["status"] = 200;
+            res["msg"] = "提交成功";
+            res["id"] = req["id"];
+            return res;
         }
 
 
