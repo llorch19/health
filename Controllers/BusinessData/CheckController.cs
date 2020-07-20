@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using util.mysql;
 
 namespace health.Controllers
@@ -20,6 +21,7 @@ namespace health.Controllers
     public class CheckController : ControllerBase
     {
         private readonly ILogger<CheckController> _logger;
+        dbfactory db = new dbfactory();
         public CheckController(ILogger<CheckController> logger)
         {
             _logger = logger;
@@ -59,7 +61,38 @@ namespace health.Controllers
         [Route("GetCheck")]
         public JObject GetCheck(int id)
         {
-            throw new NotImplementedException();
+            JObject res = db.GetOne(@"
+SELECT 
+ID
+,CheckType
+,PatientID
+,OrgnizationID
+,RecommendedTreatID
+,ChosenTreatID
+,IsReexam
+,GenderID
+,SubmitBy
+,SubmitTime
+,OrgCode
+,ClinicalNO
+,PatientName
+FROM 
+t_detectionrecord
+WHERE ID=?p1",id);
+            res["person"] = new PersonController(null, null)
+                .GetPersonInfo(res["patientid"]?.ToObject<int>()??0);
+            res["submitby"] = new PersonController(null, null)
+                .GetUserInfo(res["SubmitBy"]?.ToObject<int>() ?? 0);
+            res["orgnization"] = new OrgnizationController(null)
+                .GetOrgInfo(res["orgnizationid"]?.ToObject<int>()??0);
+            res["recommend"] = new TreatmentOptionController(null)
+                .GetTreatOptionInfo(res["recommendedtreatid"]?.ToObject<int>() ?? 0);
+            res["chosen"] = new TreatmentOptionController(null)
+                .GetTreatOptionInfo(res["chosentreatid"]?.ToObject<int>() ?? 0);
+            res["gender"] = new GenderController(null)
+                .GetGenderInfo(res["genderid"]?.ToObject<int>() ?? 0);
+            res["items"] = GetCheckItems(res["id"]?.ToObject<int>() ?? 0);
+            return res;
         }
 
 
@@ -72,7 +105,6 @@ namespace health.Controllers
         [Route("SetCheck")]
         public JObject SetCheck([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
             JObject res = new JObject();
             if (req["id"] != null)
             {
@@ -135,7 +167,6 @@ namespace health.Controllers
         {
             JObject res = new JObject();
             var dict = req.ToObject<Dictionary<string, object>>();
-            dbfactory db = new dbfactory();
             var count = db.del("t_detectionrecord", dict);
             if (count > 0)
             {
@@ -149,6 +180,48 @@ namespace health.Controllers
                 res["msg"] = "操作失败";
                 return res;
             }
+        }
+
+
+        [NonAction]
+        public JArray GetCheckItems(int checkid)
+        {
+            JArray res= db.GetArray(@"
+SELECT 
+ID
+,PatientID AS PersonID
+,OrgnizationID AS OrgnizationID
+,DetectionProductID
+,DetectionResultTypeID
+,ESC
+,Name
+,Result
+,ResultUnit
+,ResultTime
+,Sugguest
+,ReferenceValue
+,SubmitBy
+,SubmitTime
+,Injecter
+,InjectTime
+,Observer
+,ObserveTime
+FROM t_detectionrecorditem
+WHERE DetectionRecordID=?p1",checkid);
+            foreach (JToken item in res)
+            {
+                item["person"] = new PersonController(null, null)
+                    .GetPersonInfo(item["personid"]?.ToObject<int>() ?? 0);
+                item["orgnization"] = new OrgnizationController(null)
+                    .GetOrgInfo(item["orgnizationid"]?.ToObject<int>() ?? 0);
+                item["product"] = new CheckProductController(null)
+                    .GetCheckProductInfo(item["detectionproductid"]?.ToObject<int>() ?? 0);
+                item["result"] = new DetectionResultTypeController(null)
+                    .GetResultTypeInfo(item["detectionresulttypeid"]?.ToObject<int>() ?? 0);
+                //item["tester"]
+            }
+
+            return res;
         }
     }
 }

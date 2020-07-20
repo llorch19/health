@@ -238,7 +238,6 @@ WHERE ID=?p1", id);
         {
             JObject res = new JObject();
             var dict = req.ToObject<Dictionary<string, object>>();
-            dbfactory db = new dbfactory();
             var count = db.del("t_vacc", dict);
             if (count > 0)
             {
