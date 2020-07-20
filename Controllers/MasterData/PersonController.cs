@@ -363,6 +363,15 @@ where PatientID=?p1", id);
             return res;
         }
 
+
+        [HttpGet]
+        [Route("GetId")]
+        public string GetId()
+        {
+            return idGenerator.GetNextId("TST");
+        }
+
+
         [NonAction]
         public JObject GetPersonInfo(int id)
         {

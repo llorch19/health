@@ -28,7 +28,7 @@ namespace health.common
                 {
                     if (cacheDateTime.Date != DateTime.Today.Date)
                     {
-                        serialNumber = 0;
+                        serialNumber = 1;
                         cacheDateTime = DateTime.Today.Date;
                     }
                     else
@@ -37,7 +37,7 @@ namespace health.common
                     }
                     StringBuilder builder = new StringBuilder();
                     builder.Append(prefix);
-                    builder.Append(cacheDateTime.ToString());
+                    builder.Append(cacheDateTime.ToString("%yMM"));
                     builder.Append(serialNumber.ToString("D6"));
                     return builder.ToString();
                 }
