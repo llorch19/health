@@ -59,7 +59,48 @@ namespace health.Controllers
         [Route("GetAttandent")]
         public JObject GetAttandent(int id)
         {
-            throw new NotImplementedException();
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne(@"SELECT 
+IFNULL(ID, '') AS ID
+, IFNULL(PatientID, '') AS PersonID
+, IFNUll(OrgnizationID, '') AS OrgnizationID
+, IFNULL(SrcOrgID, '') AS SrcOrgID
+, IFNULL(DesOrgID, '') AS DesOrgID
+, IFNULL(AdmissionTime, '') AS AdmissionTime
+, IFNULL(AdmissionType, '') AS AdmissionType
+, IFNULL(IsDischarged, '') AS IsDischarged
+, IFNULL(DischargeTime, '') AS DischargeTime
+, IFNULL(IsReferral, '') AS IsReferral
+, IFNULL(DesStatus, '') AS DesStatus
+, IFNULL(DesTime, '') AS DesTime
+, IFNULL(IsReferralCancel, '') AS IsReferralCancel
+, IFNULL(IsReferralFinish, '') AS IsReferralFinish
+FROM
+t_attandent
+WHERE ID=?p1", id);
+
+            if (res["id"]!=null)
+            {
+               
+                res["person"] = new PersonController(null)
+                               .GetPersonInfo(res["personid"].ToObject<int>());
+                OrgnizationController org = new OrgnizationController(null);
+                res["orgnization"] = org
+                    .GetOrgInfo(res["orgnizationid"].ToObject<int>());
+                res["srcorg"] = org
+                   .GetOrgInfo(res["srcorgid"].ToObject<int>());
+                res["desorg"] = org
+                   .GetOrgInfo(res["desorgid"].ToObject<int>());
+                res["status"] = 200;
+                res["msg"] = "读取成功";
+            }
+            else
+            {
+                res["status"] = 201;
+                res["msg"] = "无法读取相应的数据";
+            }
+           
+            return res;
         }
 
 
@@ -79,7 +120,6 @@ namespace health.Controllers
                 int id = req["id"].ToObject<int>();
                 if (id == 0)
                 {
-                    req.Remove("publish");
                     req["OrgnizationID"] = null;
                     var dict = req.ToObject<Dictionary<string, object>>();
                     var rows = db.Insert("t_attandent", dict);
