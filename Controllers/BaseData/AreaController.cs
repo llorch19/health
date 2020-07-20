@@ -40,7 +40,7 @@ namespace health.Controllers
             JObject res = new JObject();
             res["status"] = 200;
             res["msg"] = "读取成功";
-            res["list"] = db.GetArray("select id,AreaCode,AreaName,cs,AreaCodeV2 from data_area where parentID=?p1", parentId);
+            res["list"] = db.GetArray("select id,AreaCode,AreaName,parentID,cs,AreaCodeV2 from data_area where parentID=?p1", parentId);
 
             return res;
         }

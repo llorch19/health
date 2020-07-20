@@ -13,6 +13,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using util.mysql;
 
@@ -23,6 +24,7 @@ namespace health.Controllers
     public class OrgnizationController : ControllerBase
     {
         private readonly ILogger<OrgnizationController> _logger;
+        dbfactory db = new dbfactory();
         public OrgnizationController(ILogger<OrgnizationController> logger)
         {
             _logger = logger;
@@ -188,54 +190,39 @@ WHERE ID=?p1"
         [Route("SetOrg")]
         public JObject SetOrg([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
-            JObject res = new JObject();
-            if (req["id"] != null)
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["OrgName"] = req["orgname"]?.ToObject<string>();
+            dict["OrgCode"] = req["orgcode"]?.ToObject<string>();
+            dict["CertCode"] = req["certcode"]?.ToObject<string>();
+            dict["LegalName"] = req["legalname"]?.ToObject<string>();
+            dict["LegalIdCode"] = req["legalidcode"]?.ToObject<string>();
+            dict["Address"] = req["address"]?.ToObject<string>();
+            dict["Tel"] = req["tel"]?.ToObject<string>();
+            dict["Coordinates"] = req["coordinates"]?.ToObject<string>();
+            dict["ParentID"] = req["parentid"]?.ToObject<int>();
+            dict["ProvinceID"] = req["provinceid"]?.ToObject<int>();
+            dict["CityID"] = req["cityid"]?.ToObject<int>();
+            dict["CountyID"] = req["countyid"]?.ToObject<int>();
+
+            if (req["id"]?.ToObject<int>() > 0)
             {
-                //req.Remove("provinceaddr");
-                //req.Remove("cityaddr");
-                //req.Remove("countyaddr");
-                req.Remove("parentname");
-                int id = req["id"].ToObject<int>();
-                if (id == 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    var rows = db.Insert("t_orgnization", dict);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "新增成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "无法新增数据";
-                    }
-                }
-                else if (id > 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    dict.Remove("id");
-                    var keys = new Dictionary<string, object>();
-                    keys["id"] = req["id"];
-                    var rows = db.Update("t_orgnization", dict, keys);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "修改成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "修改失败";
-                    }
-                }
+                Dictionary<string, object> condi = new Dictionary<string, object>();
+                condi["id"] = req["id"];
+                dict["LastUpdatedBy"] = HttpContext.User.ToString();
+                dict["LastUpdatedTime"] = DateTime.Now;
+                var tmp = this.db.Update("t_orgnization", dict, condi);
             }
             else
             {
-                res["status"] = 201;
-                res["msg"] = "非法的请求";
+                dict["CreatedBy"] = HttpContext.User.ToString();
+                dict["CreatedTime"] = DateTime.Now;
+                this.db.Insert("t_orgnization", dict);
             }
+
+            JObject res = new JObject();
+            res["status"] = 200;
+            res["msg"] = "提交成功";
+            res["id"] = req["id"];
             return res;
         }
 
