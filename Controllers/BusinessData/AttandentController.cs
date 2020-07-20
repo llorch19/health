@@ -8,6 +8,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ namespace health.Controllers
     public class AttandentController : ControllerBase
     {
         private readonly ILogger<AttandentController> _logger;
+        dbfactory db = new dbfactory();
         public AttandentController(ILogger<AttandentController> logger)
         {
             _logger = logger;
@@ -34,24 +36,86 @@ namespace health.Controllers
         [Route("GetOrgAttandentList")]
         public JObject GetOrgAttandentList(int orgid)
         {
-            throw new NotImplementedException();
+            JObject res = new JObject();
+            res["list"] = db.GetArray(@"SELECT 
+IFNULL(t_attandent.ID, '') AS ID
+, IFNULL(PatientID, '') AS PersonID
+, IFNUll(t_attandent.OrgnizationID, '') AS OrgnizationID
+, IFNULL(t_orgnization.OrgName,'') AS OrgName
+, IFNULL(SrcOrgID, '') AS SrcOrgID
+, IFNULL(src.OrgName,'') AS SrcOrgName
+, IFNULL(DesOrgID, '') AS DesOrgID
+, IFNULL(des.OrgName,'') AS DesOrgName
+, IFNULL(AdmissionTime, '') AS AdmissionTime
+, IFNULL(AdmissionType, '') AS AdmissionType
+, IFNULL(IsDischarged, '') AS IsDischarged
+, IFNULL(DischargeTime, '') AS DischargeTime
+, IFNULL(IsReferral, '') AS IsReferral
+, IFNULL(DesStatus, '') AS DesStatus
+, IFNULL(DesTime, '') AS DesTime
+, IFNULL(IsReferralCancel, '') AS IsReferralCancel
+, IFNULL(IsReferralFinish, '') AS IsReferralFinish
+FROM t_attandent
+LEFT JOIN t_patient
+ON t_attandent.PatientID=t_patient.ID
+LEFT JOIN t_orgnization
+ON t_attandent.OrgnizationID=t_orgnization.ID
+LEFT JOIN t_orgnization src
+ON t_attandent.SrcOrgID=src.ID
+LEFT JOIN t_orgnization des
+ON t_attandent.DesOrgID=des.id
+WHERE t_attandent.OrgnizationID=?p1", orgid);
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
         }
 
         /// <summary>
         /// 获取个人的“就诊”历史
         /// </summary>
-        /// <param name="userid">检索指定个人的id</param>
+        /// <param name="personid">检索指定个人的id</param>
         /// <returns>JSON对象，包含相应的“就诊”数组</returns>
         [HttpGet]
         [Route("GetPersonAttandentList")]
-        public JObject GetPersonAttandentList(int userid)
+        public JObject GetPersonAttandentList(int personid)
         {
-            throw new NotImplementedException();
+            JObject res = new JObject();
+            res["list"] = db.GetArray(@"SELECT 
+IFNULL(t_attandent.ID, '') AS ID
+, IFNULL(PatientID, '') AS PersonID
+, IFNUll(t_attandent.OrgnizationID, '') AS OrgnizationID
+, IFNULL(t_orgnization.OrgName,'') AS OrgName
+, IFNULL(SrcOrgID, '') AS SrcOrgID
+, IFNULL(src.OrgName,'') AS SrcOrgName
+, IFNULL(DesOrgID, '') AS DesOrgID
+, IFNULL(des.OrgName,'') AS DesOrgName
+, IFNULL(AdmissionTime, '') AS AdmissionTime
+, IFNULL(AdmissionType, '') AS AdmissionType
+, IFNULL(IsDischarged, '') AS IsDischarged
+, IFNULL(DischargeTime, '') AS DischargeTime
+, IFNULL(IsReferral, '') AS IsReferral
+, IFNULL(DesStatus, '') AS DesStatus
+, IFNULL(DesTime, '') AS DesTime
+, IFNULL(IsReferralCancel, '') AS IsReferralCancel
+, IFNULL(IsReferralFinish, '') AS IsReferralFinish
+FROM t_attandent
+LEFT JOIN t_patient
+ON t_attandent.PatientID=t_patient.ID
+LEFT JOIN t_orgnization
+ON t_attandent.OrgnizationID=t_orgnization.ID
+LEFT JOIN t_orgnization src
+ON t_attandent.SrcOrgID=src.ID
+LEFT JOIN t_orgnization des
+ON t_attandent.DesOrgID=des.id
+WHERE t_attandent.PatientID=?p1", personid);
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
         }
 
 
         /// <summary>
-        /// 获取“就诊”信息，点击[科普公告]中的一个项目
+        /// 获取“就诊”信息
         /// </summary>
         /// <param name="id">指定的id</param>
         /// <returns>JSON对象，包含相应的“就诊”信息</returns>
@@ -113,51 +177,40 @@ WHERE ID=?p1", id);
         [Route("SetAttandent")]
         public JObject SetAttandent([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
-            JObject res = new JObject();
-            if (req["id"] != null)
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["PatientID"] = req["personid"]?.ToObject<int>();
+            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
+            dict["SrcOrgID"] = req["srcorgid"]?.ToObject<int>();
+            dict["DesOrgID"] = req["desorgid"]?.ToObject<int>();
+            dict["AdmissionTime"] = req["admissiontime"]?.ToObject<DateTime>();
+            dict["AdmissionType"] = req["admissiontype"]?.ToObject<string>();
+            dict["IsDischarged"] = req["isdischarged"]?.ToObject<int>();
+            dict["DisChargeTime"] = req["dischargetime"]?.ToObject<DateTime>();
+            dict["IsReferral"] = req["isreferral"]?.ToObject<int>();
+            dict["DesStatus"] = req["desstatus"]?.ToObject<string>();
+            dict["DesTime"] = req["destime"]?.ToObject<DateTime>();
+            dict["IsReferralCancel"] = req["isreferralcancel"]?.ToObject<int>();
+            dict["IsReferralFinish"] = req["isreferralfinish"]?.ToObject<int>();
+
+            if (req["id"]?.ToObject<int>() > 0)
             {
-                int id = req["id"].ToObject<int>();
-                if (id == 0)
-                {
-                    req["OrgnizationID"] = null;
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    var rows = db.Insert("t_attandent", dict);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "新增成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "无法新增数据";
-                    }
-                }
-                else if (id > 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    dict.Remove("id");
-                    var keys = new Dictionary<string, object>();
-                    keys["id"] = req["id"];
-                    var rows = db.Update("t_attandent", dict, keys);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "修改成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "修改失败";
-                    }
-                }
+                Dictionary<string, object> condi = new Dictionary<string, object>();
+                condi["id"] = req["id"];
+                dict["LastUpdatedBy"] = HttpContext.User.ToString();
+                dict["LastUpdatedTime"] = DateTime.Now;
+                var tmp = this.db.Update("t_attandent", dict, condi);
             }
             else
             {
-                res["status"] = 201;
-                res["msg"] = "非法的请求";
+                dict["CreatedBy"] = HttpContext.User.ToString();
+                dict["CreatedTime"] = DateTime.Now;
+                this.db.Insert("t_attandent", dict);
             }
+
+            JObject res = new JObject();
+            res["status"] = 200;
+            res["msg"] = "提交成功";
+            res["id"] = req["id"];
             return res;
         }
 

@@ -11,6 +11,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.OpenApi.Models;
 using System.IO;
 using health.common;
+using Microsoft.Extensions.Hosting;
 
 namespace health
 {
@@ -85,10 +86,10 @@ namespace health
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //if (env.IsDevelopment())
-            //{
-            //    app.UseDeveloperExceptionPage();
-            //}
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
