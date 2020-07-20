@@ -168,7 +168,7 @@ WHERE ID=?p1", id);
             {
                 res["orgnization"] = new OrgnizationController(null)
                     .GetOrgInfo(res["orgnizationid"].ToObject<int>());
-                res["person"] = new PersonController(null)
+                res["person"] = new PersonController(null,null)
                     .GetPersonInfo(res["patientid"].ToObject<int>());
                 res["status"] = 200;
                 res["msg"] = "读取成功";

@@ -11,9 +11,11 @@
  * - Post提交值将只包含：个人信息。检测及随访的针对各自的接口进行POST。            @xuedi  2020-07-17  17:21
  */
 using health.BaseData;
+using health.common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using util.mysql;
 
@@ -24,9 +26,12 @@ namespace health.Controllers
     public class PersonController : ControllerBase
     {
         private readonly ILogger<PersonController> _logger;
-        public PersonController(ILogger<PersonController> logger)
+        dbfactory db = new dbfactory();
+        IdGenerator idGenerator;
+        public PersonController(ILogger<PersonController> logger, IdGenerator generator)
         {
             _logger = logger;
+            idGenerator = generator;
         }
 
         /// <summary>
@@ -35,7 +40,7 @@ namespace health.Controllers
         /// <returns>JSON数组形式的个人信息</returns>
         [HttpGet]
         [Route("GetPersonList")]
-        public JObject GetPersonList(int pageSize,int pageIndex)
+        public JObject GetPersonList(int pageSize, int pageIndex)
         {
             int offset = 0;
             if (pageIndex > 0)
@@ -118,7 +123,7 @@ LIMIT ?p1,?p2"
             JObject res = new JObject();
 
             // 个人信息
-            JObject personinfo=
+            JObject personinfo =
              db.GetOne(
                 @"SELECT 
 IFNULL(t_patient.ID,'') as ID
@@ -263,52 +268,56 @@ where PatientID=?p1", id);
         [Route("SetPerson")]
         public JObject SetPerson([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
-            JObject res = new JObject();
-            if (req["id"] != null)
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
+            dict["PrimaryOrgnizationID"] = req["primaryorgnizationid"]?.ToObject<int>();
+            dict["Tel"] = req["tel"]?.ToObject<string>();
+            dict["IDCardNO"] = req["idcardno"]?.ToObject<string>();
+            dict["GenderID"] = req["genderid"]?.ToObject<int>();
+            dict["FamilyName"] = req["familyname"]?.ToObject<string>();
+            DateTime dt;
+            if (DateTime.TryParse(req["birthday"].ToObject<string>(),out dt))
             {
-                req["orgnizationid"] = 1;  //TODO: 从中间件读取用户的组织id
-                int id = req["id"].ToObject<int>();
-                if (id == 0)
-                {
-                    req["registerno"] = req["idcardno"];
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    var rows = db.Insert("t_orgnization", dict);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "新增成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "无法新增数据";
-                    }
-                }
-                else if (id > 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    dict.Remove("id");
-                    var keys = new Dictionary<string, object>();
-                    keys["id"] = req["id"];
-                    var rows = db.Update("t_orgnization", dict, keys);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "修改成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "修改失败";
-                    }
-                }
+                dict["Birthday"] = dt ;
+            }
+            
+            
+            dict["Nation"] = req["nation"]?.ToObject<string>();
+            dict["DomicileType"] = req["domiciletype"]?.ToObject<string>();
+            dict["DomicileType"] = req["domiciletype"]?.ToObject<string>();
+            dict["DomicileDetail"] = req["domiciledetail"]?.ToObject<string>();
+            dict["WorkUnitName"] = req["workunitname"]?.ToObject<string>();
+            dict["OccupationCategoryID"] = req["occupationcategoryid"]?.ToObject<int>();
+            dict["Detainees"] = req["detainees"]?.ToObject<string>();
+            dict["AddressCategoryID"] = req["addresscategoryid"]?.ToObject<int>();
+            dict["Address"] = req["address"]?.ToObject<string>();
+            dict["GuardianName"] = req["guardianname"]?.ToObject<string>();
+            dict["GuardianContact"] = req["guardiancontact"]?.ToObject<string>();
+            dict["ProvinceID"] = req["ProvinceID"]?.ToObject<int>();
+            dict["CityID"] = req["CityID"]?.ToObject<int>();
+            dict["CountyID"] = req["CountyID"]?.ToObject<int>();
+
+
+
+            if (req["id"]?.ToObject<int>() > 0)
+            {
+                Dictionary<string, object> condi = new Dictionary<string, object>();
+                condi["id"] = req["id"];
+                dict["LastUpdatedBy"] = HttpContext.User.ToString();
+                dict["LastUpdatedTime"] = DateTime.Now;
+                var tmp = this.db.Update("t_patient", dict, condi);
             }
             else
             {
-                res["status"] = 201;
-                res["msg"] = "非法的请求";
+                dict["CreatedBy"] = HttpContext.User.ToString();
+                dict["CreatedTime"] = DateTime.Now;
+                this.db.Insert("t_patient", dict);
             }
+
+            JObject res = new JObject();
+            res["status"] = 200;
+            res["msg"] = "提交成功";
+            res["id"] = req["id"];
             return res;
         }
 

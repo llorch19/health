@@ -64,8 +64,8 @@ namespace health.BaseData
         public JObject SetAddressCategory([FromBody] JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Code"] = req["code"].ToObject<string>();
-            dict["AddressCategory"] = req["addresscategory"].ToObject<string>();
+            dict["Code"] = req["code"]?.ToObject<string>();
+            dict["AddressCategory"] = req["addresscategory"]?.ToObject<string>();
            
 
             if (req["id"].ToObject<int>()>0)

@@ -82,7 +82,7 @@ WHERE ID=?p1", id);
             if (res["id"]!=null)
             {
                
-                res["person"] = new PersonController(null)
+                res["person"] = new PersonController(null,null)
                                .GetPersonInfo(res["personid"].ToObject<int>());
                 OrgnizationController org = new OrgnizationController(null);
                 res["orgnization"] = org
