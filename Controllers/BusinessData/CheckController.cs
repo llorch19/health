@@ -41,25 +41,24 @@ namespace health.Controllers
 SELECT 
 t_detectionrecord.ID
 ,CheckType
-,PatientID
-,t_patient.FamilyName AS PatientName
+,PatientID AS PersonID
+,t_patient.FamilyName AS PersonName
 ,t_detectionrecord.OrgnizationID
 ,t_orgnization.OrgName AS OrgName
 ,RecommendedTreatID
 ,recom.`Name` AS Recommend
 ,ChosenTreatID
 ,chosen.`Name` AS Chosen
-,PatientTel
+,t_patient.Tel AS PersonTel
 ,IsReexam
 ,t_detectionrecord.GenderID
 ,data_gender.GenderName 
 ,SubmitBy
 ,submit.ChineseName AS Submitter
 ,SubmitTime
-,t_detectionrecord.OrgCode
+,t_orgnization.OrgCode
 ,DetectionNO
 ,ClinicalNO
-,PatientName
 ,Pics
 ,Pdf
 ,DiagnoticsTypeID
@@ -109,25 +108,24 @@ WHERE t_detectionrecord.OrgnizationID=?p1
 SELECT 
 t_detectionrecord.ID
 ,CheckType
-,PatientID
-,t_patient.FamilyName AS PatientName
+,PatientID AS PersonID
+,t_patient.FamilyName AS PersonName
 ,t_detectionrecord.OrgnizationID
 ,t_orgnization.OrgName AS OrgName
 ,RecommendedTreatID
 ,recom.`Name` AS Recommend
 ,ChosenTreatID
 ,chosen.`Name` AS Chosen
-,PatientTel
+,t_patient.Tel AS PersonTel
 ,IsReexam
 ,t_detectionrecord.GenderID
 ,data_gender.GenderName 
 ,SubmitBy
 ,submit.ChineseName AS Submitter
 ,SubmitTime
-,t_detectionrecord.OrgCode
+,t_orgnization.OrgCode
 ,DetectionNO
 ,ClinicalNO
-,PatientName
 ,Pics
 ,Pdf
 ,DiagnoticsTypeID
@@ -181,15 +179,12 @@ ID
 ,OrgnizationID
 ,RecommendedTreatID
 ,ChosenTreatID
-,PatientTel
 ,IsReexam
 ,GenderID
 ,SubmitBy
 ,SubmitTime
-,OrgCode
 ,DetectionNO
 ,ClinicalNO
-,PatientName
 ,Pics
 ,Pdf
 ,DiagnoticsTypeID
@@ -227,51 +222,55 @@ WHERE ID=?p1",id);
         [Route("SetCheck")]
         public JObject SetCheck([FromBody] JObject req)
         {
-            JObject res = new JObject();
-            if (req["id"] != null)
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["PatientID"] = req["patientid"]?.ToObject<int>();
+            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
+            dict["RecommendedTreatID"] = req["recommendedtreatid"]?.ToObject<int>();
+            dict["ChosenTreatID"] = req["chosentreatid"]?.ToObject<int>();
+            dict["IsReexam"] = req["isreexam"]?.ToObject<int>();
+            dict["GenderID"] = req["genderid"]?.ToObject<int>();
+            dict["DetectionNO"] = req["detectionno"]?.ToObject<string>();
+            dict["ClinicalNO"] = req["clinicalno"]?.ToObject<string>();
+            dict["DepartmentName"] = req["departmentname"]?.ToObject<string>();
+            dict["InpatientArea"] = req["inpatientarea"]?.ToObject<string>();
+            dict["SickbedNO"] = req["sickbedno"]?.ToObject<string>();
+            dict["SampleID"] = req["sampleid"]?.ToObject<string>();
+            dict["SampleType"] = req["sampletype"]?.ToObject<string>();
+            dict["SampleStatus"] = req["samplestatus"]?.ToObject<string>();
+            dict["SubmitBy"] = req["submitby"]?.ToObject<string>();
+            dict["SubmitTime"] = req["submittime"]?.ToObject<DateTime>();
+            dict["ObjectiveResult"] = req["objectiveresult"]?.ToObject<string>();
+            dict["SubjectiveResult"] = req["subjectiveresult"]?.ToObject<string>();
+            dict["Pics"] = req["pics"]?.ToObject<string>();
+            dict["Pdf"] = req["pdf"]?.ToObject<string>();
+            dict["DiagnoticsTypeID"] = req["diagnoticstypeid"]?.ToObject<int>();
+            dict["DiagnoticsTime"] = req["diagnoticstime"]?.ToObject<DateTime>();
+            dict["DiagnoticsBy"] = req["diagnoticsby"]?.ToObject<int>();
+            dict["ReportTime"] = req["reporttime"]?.ToObject<DateTime>();
+            dict["ReportBy"] = req["reportby"]?.ToObject<string>();
+            dict["Reference"] = req["reference"]?.ToObject<string>();
+            // TODO: ADD CheckItem HERE
+
+
+            if (req["id"]?.ToObject<int>() > 0)
             {
-                int id = req["id"].ToObject<int>();
-                if (id == 0)
-                {
-                    req.Remove("publish");
-                    req["OrgnizationID"] = null;
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    var rows = db.Insert("t_detectionrecord", dict);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "新增成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "无法新增数据";
-                    }
-                }
-                else if (id > 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    dict.Remove("id");
-                    var keys = new Dictionary<string, object>();
-                    keys["id"] = req["id"];
-                    var rows = db.Update("t_detectionrecord", dict, keys);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "修改成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "修改失败";
-                    }
-                }
+                Dictionary<string, object> condi = new Dictionary<string, object>();
+                condi["id"] = req["id"];
+                dict["LastUpdatedBy"] = HttpContext.User.ToString();
+                dict["LastUpdatedTime"] = DateTime.Now;
+                var tmp = this.db.Update("t_attandent", dict, condi);
             }
             else
             {
-                res["status"] = 201;
-                res["msg"] = "非法的请求";
+                dict["CreatedBy"] = HttpContext.User.ToString();
+                dict["CreatedTime"] = DateTime.Now;
+                this.db.Insert("t_attandent", dict);
             }
+
+            JObject res = new JObject();
+            res["status"] = 200;
+            res["msg"] = "提交成功";
+            res["id"] = req["id"];
             return res;
         }
 

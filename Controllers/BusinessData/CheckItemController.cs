@@ -262,7 +262,23 @@ WHERE ID=?p1", id);
             for (int i = 0; i < items.Length; i++)
             {
                 Dictionary<string, object> dict = new Dictionary<string, object>();
-                dict[""] = items[i][""]?.ToObject<int>();
+                dict["PatientID"] = items[i]["patientid"]?.ToObject<int>();
+                dict["OrgnizationID"] = items[i]["orgnizationid"]?.ToObject<int>();
+                dict["DetectionProductID"] = items[i]["detectionproductid"]?.ToObject<int>();
+                dict["DetectionRecordID"] = items[i]["detectionrecordid"]?.ToObject<int>();
+                dict["DetectionResultTypeID"] = items[i]["detectionresulttypeid"]?.ToObject<int>();
+                dict["Result"] = items[i]["result"]?.ToObject<int>();
+                dict["ResultUnit"] = items[i]["resultunit"]?.ToObject<int>();
+                dict["ResultTime"] = items[i]["resulttime"]?.ToObject<int>();
+                dict["Sugguest"] = items[i]["sugguest"]?.ToObject<int>();
+                dict["ReferenceValue"] = items[i]["referencevalue"]?.ToObject<int>();
+                dict["ReferenceDescription"] = items[i]["referencedescription"]?.ToObject<int>();
+                dict["SubmitBy"] = items[i]["submitby"]?.ToObject<int>();
+                dict["SubmitTime"] = items[i]["submittime"]?.ToObject<int>();
+                dict["Injecter"] = items[i]["injecter"]?.ToObject<int>();
+                dict["InjectTime"] = items[i]["injecttime"]?.ToObject<int>();
+                dict["Observer"] = items[i]["observer"]?.ToObject<int>();
+                dict["ObserveTime"] = items[i]["observetime"]?.ToObject<int>();
 
                 if (items[i]["id"]?.ToObject<int>()>0)
                 {

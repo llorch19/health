@@ -16,10 +16,11 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class UnreadController : ControllerBase
+    public class ReadMessageController : ControllerBase
     {
-        private readonly ILogger<UnreadController> _logger;
-        public UnreadController(ILogger<UnreadController> logger)
+        private readonly ILogger<ReadMessageController> _logger;
+        dbfactory db = new dbfactory();
+        public ReadMessageController(ILogger<ReadMessageController> logger)
         {
             _logger = logger;
         }
@@ -29,10 +30,9 @@ namespace health.Controllers
         /// </summary>
         /// <returns>JSON对象，包含相应的“未读消息”数组</returns>
         [HttpGet]
-        [Route("GetUnreadList")]
-        public JObject GetUnreadList(int userid)
+        [Route("Get[controller]List")]
+        public JObject GetList(int userid)
         {
-            dbfactory db = new dbfactory();
             JObject res = new JObject();
             JArray list = db.GetArray(@"
 -- Get Unread Messages By User Id
@@ -80,22 +80,18 @@ AND OutdateTime > NOW()
         /// <param name="userid">指定用户的id</param>
         /// <returns>JSON对象，包含相应的“未读消息”</returns>
         [HttpGet]
-        [Route("GetUnread")]
-        public JObject GetUnread(int msgid, int userid)
+        [Route("Get[controller]")]
+        public JObject Get(int msgid, int userid)
         {
-            dbfactory db = new dbfactory();
-            JObject res = new JObject();
-
-
-            JObject msg = db.GetOne("select * from t_messagesent where id=?p1", msgid);
-            if (msg["id"] == null)
+            JObject res = db.GetOne("select * from t_messagesent where id=?p1", msgid);
+            if (res["id"] == null)
             {
                 res["status"] = 201;
                 res["msg"] = "没有获取到相应的数据";
                 return res;
             }
 
-            if (msg["readertype"].ToObject<string>() == "个人")
+            if (res["readertype"].ToObject<string>() == "个人")
             {
                 // 个人用户
                 JObject read = db.GetOne(@"select * 
@@ -200,46 +196,36 @@ WHERE t_messagesent.ID = ?p1
         /// <param name="req">在请求body中JSON形式的“未读消息”信息</param>
         /// <returns>响应状态信息</returns>
         [HttpPost]
-        [Route("SetUnread")]
-        public JObject SetUnread([FromBody] JObject req)
+        [Route("Set[controller]")]
+        public JObject Set([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
-            JObject res = new JObject();
-            if (req["id"] != null)
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["MessageID"] = req["messageid"]?.ToObject<int>();
+            dict["UserID"] = req["userid"]?.ToObject<int>();
+            dict["PatientID"] = req["patientid"]?.ToObject<int>();
+            dict["OpenTime"] = req["opentime"]?.ToObject<DateTime>();
+            dict["FinishTime"] = req["finishtime"]?.ToObject<DateTime>();
+            dict["IsRead"] = req["isread"]?.ToObject<int>();
+
+            if (req["id"]?.ToObject<int>() > 0)
             {
-                req.Remove("personid");
-                req.Remove("patientid");
-                req.Remove("userid");
-                int id = req["id"].ToObject<int>();
-                if (id == 0)
-                {
-                    res["status"] = 201;
-                    res["msg"] = "无法新增数据";
-                }
-                else if (id > 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    dict.Remove("id");
-                    var keys = new Dictionary<string, object>();
-                    keys["id"] = req["id"];
-                    var rows = db.Update("t_messageread", dict, keys);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "修改成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "修改失败";
-                    }
-                }
+                Dictionary<string, object> condi = new Dictionary<string, object>();
+                condi["id"] = req["id"];
+                dict["LastUpdatedBy"] = HttpContext.User.ToString();
+                dict["LastUpdatedTime"] = DateTime.Now;
+                var tmp = this.db.Update("t_attandent", dict, condi);
             }
             else
             {
-                res["status"] = 201;
-                res["msg"] = "非法的请求";
+                dict["CreatedBy"] = HttpContext.User.ToString();
+                dict["CreatedTime"] = DateTime.Now;
+                this.db.Insert("t_attandent", dict);
             }
+
+            JObject res = new JObject();
+            res["status"] = 200;
+            res["msg"] = "提交成功";
+            res["id"] = req["id"];
             return res;
         }
 
@@ -252,8 +238,8 @@ WHERE t_messagesent.ID = ?p1
         /// <param name="req">在请求body中JSON形式的“未读消息”信息</param>
         /// <returns>响应状态信息</returns>
         [HttpPost]
-        [Route("DelUnread")]
-        public JObject DelUnread([FromBody] JObject req)
+        [Route("Del[controller]")]
+        public JObject Del([FromBody] JObject req)
         {
             JObject res = new JObject();
             var dict = req.ToObject<Dictionary<string, object>>();

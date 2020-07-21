@@ -52,8 +52,6 @@ t_treatitem.ID
 ,data_medicationdosageform.`Name` AS DosageName
 ,MedicationPathwayID
 ,data_medicationpathway.`Name` AS PathwayName
-,t_treatitem.AgeY
-,t_treatitem.AgeM
 ,ICDCode
 ,Type
 ,SingleDoseAmount
@@ -112,8 +110,6 @@ t_treatitem.ID
 ,data_medicationdosageform.`Name` AS DosageName
 ,MedicationPathwayID
 ,data_medicationpathway.`Name` AS PathwayName
-,t_treatitem.AgeY
-,t_treatitem.AgeM
 ,ICDCode
 ,Type
 ,SingleDoseAmount
@@ -164,8 +160,6 @@ ID
 ,MedicationFreqCategoryID
 ,MedicationDosageFormID
 ,MedicationPathwayID
-,AgeY
-,AgeM
 ,ICDCode
 ,Type
 ,SingleDoseAmount
@@ -201,7 +195,29 @@ WHERE ID=?p1
             for (int i = 0; i < items.Length; i++)
             {
                 Dictionary<string, object> dict = new Dictionary<string, object>();
-                dict[""] = items[i][""]?.ToObject<int>();
+                dict["TreatID"] = items[i]["treatid"]?.ToObject<int>();
+                dict["PatientID"] = items[i]["patientid"]?.ToObject<int>();
+                dict["GenderID"] = items[i]["genderid"]?.ToObject<int>();
+                dict["MedicationFreqCategoryID"] = items[i]["medicationfreqcategoryid"]?.ToObject<int>();
+                dict["MedicationDosageFormID"] = items[i]["medicationdosageformid"]?.ToObject<int>();
+                dict["MedicationPathwayID"] = items[i]["medicationpathwayid"]?.ToObject<int>();
+                dict["MedicationID"] = items[i]["medicationid"]?.ToObject<int>();
+                dict["ICDCode"] = items[i]["icdcode"]?.ToObject<int>();
+                dict["Type"] = items[i]["type"]?.ToObject<int>();
+                dict["SingleDoseAmount"] = items[i]["singledoseamount"]?.ToObject<int>();
+                dict["SingleDoseUnit"] = items[i]["singledoseunit"]?.ToObject<int>();
+                dict["TotalDoseAmount"] = items[i]["totaldoseamount"]?.ToObject<int>();
+                dict["Prescriber"] = items[i]["prescriber"]?.ToObject<int>();
+                dict["PrescribeTime"] = items[i]["prescribetime"]?.ToObject<int>();
+                dict["ReviewPharmacist"] = items[i]["reviewpharmacist"]?.ToObject<int>();
+                dict["ReviewTime"] = items[i]["reviewtime"]?.ToObject<int>();
+                dict["AllocationPharmacist"] = items[i]["allocationpharmacist"]?.ToObject<int>();
+                dict["AllocationTime"] = items[i]["allocationtime"]?.ToObject<int>();
+                dict["VerifyPharmacist"] = items[i]["verifypharmacist"]?.ToObject<int>();
+                dict["VerifyTime"] = items[i]["verifytime"]?.ToObject<int>();
+                dict["DispensePharmacist"] = items[i]["dispensepharmacist"]?.ToObject<int>();
+                dict["DispenseTime"] = items[i]["dispensetime"]?.ToObject<int>();
+                dict["Remarks"] = items[i]["remarks"]?.ToObject<int>();
 
                 if (items[i]["id"]?.ToObject<int>() > 0)
                 {

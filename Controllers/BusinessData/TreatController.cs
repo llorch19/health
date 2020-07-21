@@ -48,8 +48,6 @@ t_treat.ID
 ,t_patient.IDCardNO AS PersonIDCard
 ,t_treat.GenderID
 ,data_gender.GenderName
-,t_treat.AgeY
-,t_treat.AgeM
 ,DiseaseCode
 ,TreatName
 ,DrugGroupNumber
@@ -98,8 +96,6 @@ t_treat.ID
 ,t_patient.IDCardNO AS PersonIDCard
 ,t_treat.GenderID
 ,data_gender.GenderName
-,t_treat.AgeY
-,t_treat.AgeM
 ,DiseaseCode
 ,TreatName
 ,DrugGroupNumber
@@ -143,8 +139,6 @@ ID
 ,PrescriptionCode
 ,PatientID
 ,GenderID
-,AgeY
-,AgeM
 ,DiseaseCode
 ,TreatName
 ,DrugGroupNumber
@@ -191,52 +185,43 @@ WHERE ID=?p1
         [Route("SetTreat")]
         public JObject SetTreat([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
-            JObject res = new JObject();
-            if (req["id"] != null)
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
+            dict["PrescriptionCode"] = req["prescriptioncode"]?.ToObject<string>();
+            dict["PatientID"] = req["patientid"]?.ToObject<int>();
+            dict["GenderID"] = req["genderid"]?.ToObject<int>();
+            dict["DiseaseCode"] = req["diseasecode"]?.ToObject<string>();
+            dict["TreatName"] = req["treatname"]?.ToObject<string>();
+            dict["DrugGroupNumber"] = req["druggroupnumber"]?.ToObject<int>();
+            dict["Tstatus"] = req["tstatus"]?.ToObject<string>();
+            dict["Prescriber"] = req["prescriber"]?.ToObject<int>();
+            dict["PrescribeTime"] = req["prescribetime"]?.ToObject<DateTime>();
+            dict["PrescribeDepartment"] = req["prescribedepartment"]?.ToObject<string>();
+            dict["IsCancel"] = req["iscancel"]?.ToObject<int>();
+            dict["CancelTime"] = req["canceltime"]?.ToObject<DateTime>();
+            dict["CompleteTime"] = req["completetime"]?.ToObject<DateTime>();
+            // TODO: 在这里添加add item逻辑
+
+
+            if (req["id"]?.ToObject<int>() > 0)
             {
-                int id = req["id"].ToObject<int>();
-                if (id == 0)
-                {
-                    req.Remove("publish");
-                    req["OrgnizationID"] = null;
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    var rows = db.Insert("t_treat", dict);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "新增成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "无法新增数据";
-                    }
-                }
-                else if (id > 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    dict.Remove("id");
-                    var keys = new Dictionary<string, object>();
-                    keys["id"] = req["id"];
-                    var rows = db.Update("t_treat", dict, keys);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "修改成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "修改失败";
-                    }
-                }
+                Dictionary<string, object> condi = new Dictionary<string, object>();
+                condi["id"] = req["id"];
+                dict["LastUpdatedBy"] = HttpContext.User.ToString();
+                dict["LastUpdatedTime"] = DateTime.Now;
+                var tmp = this.db.Update("t_attandent", dict, condi);
             }
             else
             {
-                res["status"] = 201;
-                res["msg"] = "非法的请求";
+                dict["CreatedBy"] = HttpContext.User.ToString();
+                dict["CreatedTime"] = DateTime.Now;
+                this.db.Insert("t_attandent", dict);
             }
+
+            JObject res = new JObject();
+            res["status"] = 200;
+            res["msg"] = "提交成功";
+            res["id"] = req["id"];
             return res;
         }
 

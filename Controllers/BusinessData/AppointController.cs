@@ -20,6 +20,7 @@ namespace health.Controllers
     public class AppointController : ControllerBase
     {
         private readonly ILogger<AppointController> _logger;
+        dbfactory db = new dbfactory();
         public AppointController(ILogger<AppointController> logger)
         {
             _logger = logger;
@@ -34,7 +35,6 @@ namespace health.Controllers
         [Route("GetOrgAppointList")]
         public JObject GetOrgAppointList(int orgid)
         {
-            dbfactory db = new dbfactory();
             JObject res = new JObject();
             JArray list = db.GetArray(@"SELECT   
 IFNULL(t_appoint.ID,'') AS ID
@@ -51,7 +51,7 @@ IFNULL(t_appoint.ID,'') AS ID
 ,IFNULL(t_appoint.IDCardNO,'') AS IDCardNO
 ,IFNULL(t_appoint.Tel,'') AS Tel
 ,IFNULL(BirthDate,'') AS BirthDate
-,IFNULL(Status,'') AS Status
+,IFNULL(Tstatus,'') AS Tstatus
 ,IFNULL(AppointmentCreatedTime,'') AS AppointmentCreatedTime
 ,IFNULL(IsCancel,'') AS IsCancel
 ,IFNULL(CancelTime,'') AS CancelTime
@@ -87,7 +87,6 @@ WHERE t_appoint.OrgnizationID=?p1", orgid);
         [Route("GetPersonAppointList")]
         public JObject GetPersonAppointList(int personid)
         {
-            dbfactory db = new dbfactory();
             JObject res = new JObject();
             JArray list = db.GetArray(@"SELECT   
 IFNULL(t_appoint.ID,'') AS ID
@@ -104,7 +103,7 @@ IFNULL(t_appoint.ID,'') AS ID
 ,IFNULL(t_appoint.IDCardNO,'') AS IDCardNO
 ,IFNULL(t_appoint.Tel,'') AS Tel
 ,IFNULL(BirthDate,'') AS BirthDate
-,IFNULL(Status,'') AS Status
+,IFNULL(Tstatus,'') AS Tstatus
 ,IFNULL(AppointmentCreatedTime,'') AS AppointmentCreatedTime
 ,IFNULL(IsCancel,'') AS IsCancel
 ,IFNULL(CancelTime,'') AS CancelTime
@@ -116,7 +115,7 @@ LEFT JOIN t_orgnization
 ON t_appoint.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_patient
 ON t_appoint.PatientID=t_patient.ID
-WHERE t_appoint.PatientID=?p1",personid);
+WHERE t_appoint.PatientID=?p1", personid);
             if (list.HasValues)
             {
                 res["status"] = 200;
@@ -141,7 +140,6 @@ WHERE t_appoint.PatientID=?p1",personid);
         [Route("GetAppoint")]
         public JObject GetAppoint(int id)
         {
-            dbfactory db = new dbfactory();
             JObject res = db.GetOne(@"SELECT   
 IFNULL(ID,'') AS ID
 ,IFNULL(OrgnizationID,'') AS OrgnizationID
@@ -155,7 +153,7 @@ IFNULL(ID,'') AS ID
 ,IFNULL(IDCardNO,'') AS IDCardNO
 ,IFNULL(Tel,'') AS Tel
 ,IFNULL(BirthDate,'') AS BirthDate
-,IFNULL(Status,'') AS Status
+,IFNULL(Tstatus,'') AS Tstatus
 ,IFNULL(AppointmentCreatedTime,'') AS AppointmentCreatedTime
 ,IFNULL(IsCancel,'') AS IsCancel
 ,IFNULL(CancelTime,'') AS CancelTime
@@ -191,52 +189,44 @@ WHERE ID=?p1", id);
         [Route("SetAppoint")]
         public JObject SetAppoint([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
-            JObject res = new JObject();
-            if (req["id"] != null)
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
+            dict["PatientID"] = req["patientid"]?.ToObject<int>();
+            dict["Name"] = req["name"]?.ToObject<string>();
+            dict["Code"] = req["code"]?.ToObject<string>();
+            dict["Vaccine"] = req["vaccine"]?.ToObject<string>();
+            dict["VaccinationDateStart"] = req["vaccinationdatestart"]?.ToObject<DateTime>();
+            dict["VaccinationDateEnd"] = req["vaccinationdateend"]?.ToObject<DateTime>();
+            dict["InjectionTimes"] = req["injectiontimes"]?.ToObject<int>();
+            dict["IDCardNO"] = req["idcardno"]?.ToObject<string>();
+            dict["Tel"] = req["tel"]?.ToObject<string>();
+            dict["BirthDate"] = req["birthdate"]?.ToObject<DateTime>();
+            dict["Tstatus"] = req["tstatus"]?.ToObject<string>();
+            dict["AppointmentCreatedTime"] = req["appointmentcreatedtime"]?.ToObject<DateTime>();
+            dict["IsCancel"] = req["iscancel"]?.ToObject<int>();
+            dict["CancelTime"] = req["canceltime"]?.ToObject<DateTime>();
+            dict["IsComplete"] = req["iscomplete"]?.ToObject<int>();
+            dict["CompleteTime"] = req["completetime"]?.ToObject<DateTime>();
+
+            if (req["id"]?.ToObject<int>() > 0)
             {
-                int id = req["id"].ToObject<int>();
-                if (id == 0)
-                {
-                    req.Remove("publish");
-                    req["OrgnizationID"] = null;
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    var rows = db.Insert("t_messagesent", dict);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "新增成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "无法新增数据";
-                    }
-                }
-                else if (id > 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    dict.Remove("id");
-                    var keys = new Dictionary<string, object>();
-                    keys["id"] = req["id"];
-                    var rows = db.Update("t_appoint", dict, keys);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "修改成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "修改失败";
-                    }
-                }
+                Dictionary<string, object> condi = new Dictionary<string, object>();
+                condi["id"] = req["id"];
+                dict["LastUpdatedBy"] = HttpContext.User.ToString();
+                dict["LastUpdatedTime"] = DateTime.Now;
+                var tmp = this.db.Update("t_medication", dict, condi);
             }
             else
             {
-                res["status"] = 201;
-                res["msg"] = "非法的请求";
+                dict["CreatedBy"] = HttpContext.User.ToString();
+                dict["CreatedTime"] = DateTime.Now;
+                this.db.Insert("t_medication", dict);
             }
+
+            JObject res = new JObject();
+            res["status"] = 200;
+            res["msg"] = "提交成功";
+            res["id"] = req["id"];
             return res;
         }
 
@@ -254,7 +244,6 @@ WHERE ID=?p1", id);
         {
             JObject res = new JObject();
             var dict = req.ToObject<Dictionary<string, object>>();
-            dbfactory db = new dbfactory();
             var count = db.del("t_appoint", dict);
             if (count > 0)
             {
