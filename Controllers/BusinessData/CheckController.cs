@@ -254,13 +254,13 @@ WHERE ID=?p1",id);
             {
                 Dictionary<string, object> condi = new Dictionary<string, object>();
                 condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = HttpContext.User.ToString();
+                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update("t_detectionrecord", dict, condi);
             }
             else
             {
-                dict["CreatedBy"] = HttpContext.User.ToString();
+                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
                 this.db.Insert("t_detectionrecord", dict);
             }

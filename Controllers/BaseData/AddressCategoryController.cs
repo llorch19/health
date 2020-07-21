@@ -70,7 +70,7 @@ namespace health.BaseData
 
             if (req["id"].ToObject<int>()>0)
             {
-                dict["LastUpdatedBy"] = HttpContext.User.ToString();
+                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 Dictionary<string, object> condi = new Dictionary<string, object>();
                 condi["id"] = req["id"];
@@ -78,7 +78,7 @@ namespace health.BaseData
             }
             else
             {
-                dict["CreatedBy"] = HttpContext.User.ToString();
+                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
                 this.db.Insert("data_addresscategory",dict);
             }
