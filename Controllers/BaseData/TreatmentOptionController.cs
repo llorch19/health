@@ -26,10 +26,8 @@ namespace health.Controllers
         /// <returns>JSON对象，包含所有可用的“治疗方案”数组</returns>
         [HttpGet]
         [Route("GetTreatmentOptionList")]
-        public JObject GetTreatmentOptionList(int id)
+        public JObject GetTreatmentOptionList()
         {
-            //int id = 0;
-            //int.TryParse(HttpContext.Request.Query["id"],out id);
             JObject res = new JObject();
             res["status"] = 200;
             res["msg"] = "读取成功";

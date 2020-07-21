@@ -25,7 +25,7 @@ namespace health.Controllers
         /// <returns>JSON对象，包含所有可用的“用药频次”数组</returns>
         [HttpGet]
         [Route("GetMedicationFreqCategoryList")]
-        public JObject GetMedicationFreqCategoryList(int id)
+        public JObject GetMedicationFreqCategoryList()
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);

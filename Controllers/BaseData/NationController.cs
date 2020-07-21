@@ -34,7 +34,7 @@ namespace health.Controllers
         /// <returns>JSON对象，包含所有可用的“民族”数组</returns>
         [HttpGet]
         [Route("GetNationList")]
-        public JObject GetNationList(int id)
+        public JObject GetNationList()
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);

@@ -124,7 +124,7 @@ WHERE t_treat.PatientID=?p1
 
 
         /// <summary>
-        /// 获取“用药记录”信息，点击[科普公告]中的一个项目
+        /// 获取“用药记录”信息
         /// </summary>
         /// <param name="id">指定的id</param>
         /// <returns>JSON对象，包含相应的“用药记录”信息</returns>

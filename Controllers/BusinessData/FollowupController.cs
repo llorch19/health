@@ -96,7 +96,7 @@ WHERE t_followup.PatientID=?p1",personid);
 
 
         /// <summary>
-        /// 获取“随访”信息，点击[科普公告]中的一个项目
+        /// 获取“随访”信息
         /// </summary>
         /// <param name="id">指定的id</param>
         /// <returns>JSON对象，包含相应的“随访”信息</returns>
@@ -136,7 +136,7 @@ WHERE ID=?p1
         public JObject SetFollowup([FromBody] JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["ParentID"] = req["parentid"]?.ToObject<int>();
+            dict["PatientID"] = req["patientid"]?.ToObject<int>();
             dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
             dict["Time"] = req["time"]?.ToObject<DateTime>();
             dict["PersonList"] = req["personlist"]?.ToObject<string>();

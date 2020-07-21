@@ -25,7 +25,7 @@ namespace health.Controllers
         /// <returns>JSON对象，包含所有可用的“用药途径”数组</returns>
         [HttpGet]
         [Route("Get[controller]List")]
-        public JObject GetMedicationPathwayList(int id)
+        public JObject GetMedicationPathwayList()
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);

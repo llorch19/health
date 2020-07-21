@@ -25,7 +25,7 @@ namespace health.Controllers
         /// <returns>JSON对象，包含所有可用的“职业”数组</returns>
         [HttpGet]
         [Route("GetOccupationList")]
-        public JObject GetOccupationList(int id)
+        public JObject GetOccupationList()
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
