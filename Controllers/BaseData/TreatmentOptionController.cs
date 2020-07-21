@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using util.mysql;
 
 namespace health.Controllers
@@ -12,7 +14,7 @@ namespace health.Controllers
     {
 
         private readonly ILogger<TreatmentOptionController> _logger;
-
+        dbfactory db = new dbfactory();
         public TreatmentOptionController(ILogger<TreatmentOptionController> logger)
         {
             _logger = logger;
@@ -32,7 +34,6 @@ namespace health.Controllers
             res["status"] = 200;
             res["msg"] = "读取成功";
 
-            dbfactory db = new dbfactory();
             JArray rows = db.GetArray("select ID,Name,Introduction from data_treatmentoption");
 
             res["list"] = rows;
@@ -50,7 +51,6 @@ namespace health.Controllers
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
-            dbfactory db = new dbfactory();
             JObject res = db.GetOne("select ID,Name,Introduction from data_treatmentoption where id=?p1", id);
             if (res["id"] != null)
             {
@@ -73,50 +73,30 @@ namespace health.Controllers
         [HttpPost("SetTreatmentOption")]
         public JObject SetTreatmentOption([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
-            JObject res = new JObject();
-            if (req["id"] != null)
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["Introduction"] = req["introduction"]?.ToObject<string>();
+            dict["Name"] = req["name"]?.ToObject<string>();
+
+
+            if (req["id"].ToObject<int>() > 0)
             {
-                int id = req["id"].ToObject<int>();
-                if (id == 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    var rows = db.Insert("data_treatmentoption", dict);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "新增成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "无法新增数据";
-                    }
-                }
-                else if (id > 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    dict.Remove("id");
-                    var keys = new Dictionary<string, object>();
-                    keys["id"] = req["id"];
-                    var rows = db.Update("data_treatmentoption", dict, keys);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "修改成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "修改失败";
-                    }
-                }
+                dict["LastUpdatedBy"] = HttpContext.Connection.RemoteIpAddress.ToString();
+                dict["LastUpdatedTime"] = DateTime.Now;
+                Dictionary<string, object> condi = new Dictionary<string, object>();
+                condi["id"] = req["id"];
+                var tmp = this.db.Update("data_nation", dict, condi);
             }
             else
             {
-                res["status"] = 201;
-                res["msg"] = "非法的请求";
+                dict["CreatedBy"] = HttpContext.Connection.RemoteIpAddress.ToString();
+                dict["CreatedTime"] = DateTime.Now;
+                this.db.Insert("data_nation", dict);
             }
+
+            JObject res = new JObject();
+            res["status"] = 200;
+            res["msg"] = "提交成功";
+            res["id"] = req["id"];
             return res;
         }
 
@@ -131,7 +111,6 @@ namespace health.Controllers
         {
             JObject res = new JObject();
             var dict = req.ToObject<Dictionary<string, object>>();
-            dbfactory db = new dbfactory();
             var count = db.del("data_treatmentoption", dict);
             if (count > 0)
             {
@@ -150,7 +129,6 @@ namespace health.Controllers
         [NonAction]
         public JObject GetTreatOptionInfo(int id)
         {
-            dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,Name text from data_treatmentoption where id=?p1", id);
             return res;
         }

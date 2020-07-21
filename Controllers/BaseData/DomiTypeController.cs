@@ -10,6 +10,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using util.mysql;
 
@@ -21,7 +22,7 @@ namespace health.Controllers
     {
 
         private readonly ILogger<DomiTypeController> _logger;
-
+        dbfactory db = new dbfactory();
         public DomiTypeController(ILogger<DomiTypeController> logger)
         {
             _logger = logger;
@@ -33,7 +34,7 @@ namespace health.Controllers
         /// <returns>JSON对象，包含所有可用的“户籍类型”数组</returns>
         [HttpGet]
         [Route("GetDomiTypeList")]
-        public JObject GetDomiTypeList(int id)
+        public JObject GetDomiTypeList()
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
@@ -57,9 +58,6 @@ namespace health.Controllers
         [Route("GetDomiType")]
         public JObject GetDomiType(int id)
         {
-            //int id = 0;
-            //int.TryParse(HttpContext.Request.Query["id"],out id);
-            dbfactory db = new dbfactory();
             JObject res = db.GetOne("select ID,Name from data_domitype where id=?p1", id);
             if (res["id"] != null)
             {
@@ -83,50 +81,30 @@ namespace health.Controllers
         [HttpPost("SetDomiType")]
         public JObject SetDomiType([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
-            JObject res = new JObject();
-            if (req["id"] != null)
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["ID"] = req["id"]?.ToObject<string>();
+            dict["Name"] = req["name"]?.ToObject<string>();
+
+
+            if (req["id"].ToObject<int>() > 0)
             {
-                int id = req["id"].ToObject<int>();
-                if (id == 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    var rows = db.Insert("data_domitype", dict);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "新增成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "无法新增数据";
-                    }
-                }
-                else if (id > 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    dict.Remove("id");
-                    var keys = new Dictionary<string, object>();
-                    keys["id"] = req["id"];
-                    var rows = db.Update("data_domitype", dict, keys);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "修改成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "修改失败";
-                    }
-                }
+                dict["LastUpdatedBy"] = HttpContext.User.ToString();
+                dict["LastUpdatedTime"] = DateTime.Now;
+                Dictionary<string, object> condi = new Dictionary<string, object>();
+                condi["id"] = req["id"];
+                var tmp = this.db.Update("data_domitype", dict, condi);
             }
             else
             {
-                res["status"] = 201;
-                res["msg"] = "非法的请求";
+                dict["CreatedBy"] = HttpContext.User.ToString();
+                dict["CreatedTime"] = DateTime.Now;
+                this.db.Insert("data_domitype", dict);
             }
+
+            JObject res = new JObject();
+            res["status"] = 200;
+            res["msg"] = "提交成功";
+            res["id"] = req["id"];
             return res;
         }
 
@@ -141,7 +119,6 @@ namespace health.Controllers
         {
             JObject res = new JObject();
             var dict = req.ToObject<Dictionary<string, object>>();
-            dbfactory db = new dbfactory();
             var count = db.del("data_domitype", dict);
             if (count > 0)
             {
@@ -160,7 +137,6 @@ namespace health.Controllers
         [NonAction]
         public JObject GetDomiTypeInfo(int id)
         {
-            dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,Name text from data_domitype where id=?p1", id);
             return res;
         }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using util.mysql;
 
@@ -12,7 +13,7 @@ namespace health.Controllers
     {
 
         private readonly ILogger<MedicationFreqCategoryController> _logger;
-
+        dbfactory db = new dbfactory();
         public MedicationFreqCategoryController(ILogger<MedicationFreqCategoryController> logger)
         {
             _logger = logger;
@@ -73,50 +74,30 @@ namespace health.Controllers
         [HttpPost("SetMedicationFreqCategory")]
         public JObject SetMedicationFreqCategory([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
-            JObject res = new JObject();
-            if (req["id"] != null)
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["Code"] = req["code"]?.ToObject<string>();
+            dict["Value"] = req["value"]?.ToObject<string>();
+            dict["ValueMessage"] = req["valuemessage"]?.ToObject<string>();
+
+            if (req["id"].ToObject<int>() > 0)
             {
-                int id = req["id"].ToObject<int>();
-                if (id == 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    var rows = db.Insert("data_medicationfreqcategory", dict);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "新增成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "无法新增数据";
-                    }
-                }
-                else if (id > 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    dict.Remove("id");
-                    var keys = new Dictionary<string, object>();
-                    keys["id"] = req["id"];
-                    var rows = db.Update("data_medicationfreqcategory", dict, keys);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "修改成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "修改失败";
-                    }
-                }
+                dict["LastUpdatedBy"] = HttpContext.Connection.RemoteIpAddress.ToString();
+                dict["LastUpdatedTime"] = DateTime.Now;
+                Dictionary<string, object> condi = new Dictionary<string, object>();
+                condi["id"] = req["id"];
+                var tmp = this.db.Update("data_medicationfreqcategory", dict, condi);
             }
             else
             {
-                res["status"] = 201;
-                res["msg"] = "非法的请求";
+                dict["CreatedBy"] = HttpContext.Connection.RemoteIpAddress.ToString();
+                dict["CreatedTime"] = DateTime.Now;
+                this.db.Insert("data_medicationfreqcategory", dict);
             }
+
+            JObject res = new JObject();
+            res["status"] = 200;
+            res["msg"] = "提交成功";
+            res["id"] = req["id"];
             return res;
         }
 

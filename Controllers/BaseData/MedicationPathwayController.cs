@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using util.mysql;
 
@@ -12,7 +13,7 @@ namespace health.Controllers
     {
 
         private readonly ILogger<MedicationPathwayController> _logger;
-
+        dbfactory db = new dbfactory();
         public MedicationPathwayController(ILogger<MedicationPathwayController> logger)
         {
             _logger = logger;
@@ -23,7 +24,7 @@ namespace health.Controllers
         /// </summary>
         /// <returns>JSON对象，包含所有可用的“用药途径”数组</returns>
         [HttpGet]
-        [Route("GetMedicationPathwayList")]
+        [Route("Get[controller]List")]
         public JObject GetMedicationPathwayList(int id)
         {
             //int id = 0;
@@ -45,7 +46,7 @@ namespace health.Controllers
         /// <param name="id">指定id</param>
         /// <returns>JSON对象，包含相应的“用药途径”信息</returns>
         [HttpGet]
-        [Route("GetMedicationPathway")]
+        [Route("Get[controller]")]
         public JObject GetMedicationPathway(int id)
         {
             //int id = 0;
@@ -70,53 +71,33 @@ namespace health.Controllers
         /// </summary>
         /// <param name="req">JSON对象，包含待修改的“用药途径”信息</param>
         /// <returns>响应状态信息</returns>
-        [HttpPost("SetMedicationPathway")]
+        [HttpPost("Set[controller]")]
         public JObject SetMedicationPathway([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
-            JObject res = new JObject();
-            if (req["id"] != null)
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["Code"] = req["code"]?.ToObject<string>();
+            dict["Name"] = req["name"]?.ToObject<string>();
+            dict["Introduction"] = req["introduction"]?.ToObject<string>();
+
+            if (req["id"].ToObject<int>() > 0)
             {
-                int id = req["id"].ToObject<int>();
-                if (id == 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    var rows = db.Insert("data_medicationpathway", dict);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "新增成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "无法新增数据";
-                    }
-                }
-                else if (id > 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    dict.Remove("id");
-                    var keys = new Dictionary<string, object>();
-                    keys["id"] = req["id"];
-                    var rows = db.Update("data_medicationpathway", dict, keys);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "修改成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "修改失败";
-                    }
-                }
+                dict["LastUpdatedBy"] = HttpContext.Connection.RemoteIpAddress.ToString();
+                dict["LastUpdatedTime"] = DateTime.Now;
+                Dictionary<string, object> condi = new Dictionary<string, object>();
+                condi["id"] = req["id"];
+                var tmp = this.db.Update("data_idcategory", dict, condi);
             }
             else
             {
-                res["status"] = 201;
-                res["msg"] = "非法的请求";
+                dict["CreatedBy"] = HttpContext.Connection.RemoteIpAddress.ToString();
+                dict["CreatedTime"] = DateTime.Now;
+                this.db.Insert("data_idcategory", dict);
             }
+
+            JObject res = new JObject();
+            res["status"] = 200;
+            res["msg"] = "提交成功";
+            res["id"] = req["id"];
             return res;
         }
 
@@ -126,7 +107,7 @@ namespace health.Controllers
         /// </summary>
         /// <param name="req">JSON对象，包含待删除的“用药途径”信息</param>
         /// <returns>响应状态信息</returns>
-        [HttpPost("DelMedicationPathway")]
+        [HttpPost("Del[controller]")]
         public JObject DelMedicationPathway([FromBody] JObject req)
         {
             JObject res = new JObject();
