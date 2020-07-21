@@ -315,8 +315,6 @@ ID
 ,OrgnizationID AS OrgnizationID
 ,DetectionProductID
 ,DetectionResultTypeID
-,ESC
-,Name
 ,Result
 ,ResultUnit
 ,ResultTime
@@ -332,13 +330,18 @@ FROM t_detectionrecorditem
 WHERE DetectionRecordID=?p1",checkid);
             foreach (JToken item in res)
             {
-                item["person"] = new PersonController(null, null)
+                PersonController person = new PersonController(null, null);
+                item["person"] = person
                     .GetPersonInfo(item["personid"]?.ToObject<int>() ?? 0);
+                item["submit"] = person.GetUserInfo(item["submitby"]?.ToObject<int>() ?? 0);
+                item["inject"] = person.GetUserInfo(item["injecter"]?.ToObject<int>() ?? 0);
+                item["observe"] = person.GetUserInfo(item["observer"]?.ToObject<int>() ?? 0);
+
                 item["orgnization"] = new OrgnizationController(null)
                     .GetOrgInfo(item["orgnizationid"]?.ToObject<int>() ?? 0);
                 item["product"] = new CheckProductController(null)
                     .GetCheckProductInfo(item["detectionproductid"]?.ToObject<int>() ?? 0);
-                item["result"] = new DetectionResultTypeController(null)
+                item["cresult"] = new DetectionResultTypeController(null)
                     .GetResultTypeInfo(item["detectionresulttypeid"]?.ToObject<int>() ?? 0);
                 //item["tester"]
             }
