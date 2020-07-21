@@ -291,9 +291,9 @@ where PatientID=?p1", id);
             dict["Address"] = req["address"]?.ToObject<string>();
             dict["GuardianName"] = req["guardianname"]?.ToObject<string>();
             dict["GuardianContact"] = req["guardiancontact"]?.ToObject<string>();
-            dict["ProvinceID"] = req["ProvinceID"]?.ToObject<int>();
-            dict["CityID"] = req["CityID"]?.ToObject<int>();
-            dict["CountyID"] = req["CountyID"]?.ToObject<int>();
+            dict["ProvinceID"] = req["provinceid"]?.ToObject<int>();
+            dict["CityID"] = req["cityid"]?.ToObject<int>();
+            dict["CountyID"] = req["countyid"]?.ToObject<int>();
 
 
 
