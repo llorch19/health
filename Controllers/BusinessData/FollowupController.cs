@@ -149,13 +149,13 @@ WHERE ID=?p1
                 condi["id"] = req["id"];
                 dict["LastUpdatedBy"] = HttpContext.User.ToString();
                 dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_attandent", dict, condi);
+                var tmp = this.db.Update("t_followup", dict, condi);
             }
             else
             {
                 dict["CreatedBy"] = HttpContext.User.ToString();
                 dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("t_attandent", dict);
+                this.db.Insert("t_followup", dict);
             }
 
             JObject res = new JObject();

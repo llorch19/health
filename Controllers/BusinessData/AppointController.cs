@@ -214,13 +214,13 @@ WHERE ID=?p1", id);
                 condi["id"] = req["id"];
                 dict["LastUpdatedBy"] = HttpContext.User.ToString();
                 dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_medication", dict, condi);
+                var tmp = this.db.Update("t_appoint", dict, condi);
             }
             else
             {
                 dict["CreatedBy"] = HttpContext.User.ToString();
                 dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("t_medication", dict);
+                this.db.Insert("t_appoint", dict);
             }
 
             JObject res = new JObject();

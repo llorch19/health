@@ -198,8 +198,6 @@ t_detectionrecord
 WHERE ID=?p1",id);
             res["person"] = new PersonController(null, null)
                 .GetPersonInfo(res["patientid"]?.ToObject<int>()??0);
-            res["submitby"] = new PersonController(null, null)
-                .GetUserInfo(res["SubmitBy"]?.ToObject<int>() ?? 0);
             res["orgnization"] = new OrgnizationController(null)
                 .GetOrgInfo(res["orgnizationid"]?.ToObject<int>()??0);
             res["recommend"] = new TreatmentOptionController(null)
@@ -245,7 +243,7 @@ WHERE ID=?p1",id);
             dict["Pdf"] = req["pdf"]?.ToObject<string>();
             dict["DiagnoticsTypeID"] = req["diagnoticstypeid"]?.ToObject<int>();
             dict["DiagnoticsTime"] = req["diagnoticstime"]?.ToObject<DateTime>();
-            dict["DiagnoticsBy"] = req["diagnoticsby"]?.ToObject<int>();
+            dict["DiagnoticsBy"] = req["diagnoticsby"]?.ToObject<string>();
             dict["ReportTime"] = req["reporttime"]?.ToObject<DateTime>();
             dict["ReportBy"] = req["reportby"]?.ToObject<string>();
             dict["Reference"] = req["reference"]?.ToObject<string>();
@@ -258,13 +256,13 @@ WHERE ID=?p1",id);
                 condi["id"] = req["id"];
                 dict["LastUpdatedBy"] = HttpContext.User.ToString();
                 dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_attandent", dict, condi);
+                var tmp = this.db.Update("t_detectionrecord", dict, condi);
             }
             else
             {
                 dict["CreatedBy"] = HttpContext.User.ToString();
                 dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("t_attandent", dict);
+                this.db.Insert("t_detectionrecord", dict);
             }
 
             JObject res = new JObject();

@@ -85,13 +85,13 @@ namespace health.Controllers
                 dict["LastUpdatedTime"] = DateTime.Now;
                 Dictionary<string, object> condi = new Dictionary<string, object>();
                 condi["id"] = req["id"];
-                var tmp = this.db.Update("data_medicationfreqcategory", dict, condi);
+                var tmp = this.db.Update("data_occupation", dict, condi);
             }
             else
             {
                 dict["CreatedBy"] = HttpContext.Connection.RemoteIpAddress.ToString();
                 dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("data_medicationfreqcategory", dict);
+                this.db.Insert("data_occupation", dict);
             }
 
             JObject res = new JObject();
