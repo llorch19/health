@@ -20,6 +20,7 @@ namespace health.Controllers
     public class TreatController : ControllerBase
     {
         private readonly ILogger<TreatController> _logger;
+        dbfactory db = new dbfactory();
         public TreatController(ILogger<TreatController> logger)
         {
             _logger = logger;
@@ -34,19 +35,95 @@ namespace health.Controllers
         [Route("GetOrgTreatList")]
         public JObject GetOrgTreatList(int orgid)
         {
-            throw new NotImplementedException();
+            JObject res = new JObject();
+            res["list"] = db.GetArray(@"
+SELECT 
+t_treat.ID
+,t_treat.OrgnizationID
+,t_orgnization.OrgName
+,t_orgnization.OrgCode
+,PrescriptionCode
+,PatientID AS PersonID
+,t_patient.FamilyName AS PersonName
+,t_patient.IDCardNO AS PersonIDCard
+,t_treat.GenderID
+,data_gender.GenderName
+,t_treat.AgeY
+,t_treat.AgeM
+,DiseaseCode
+,TreatName
+,DrugGroupNumber
+,Tstatus
+,Prescriber
+,PrescribeTime
+,PrescribeDepartment
+,IsCancel
+,CancelTime
+,CompleteTime
+FROM t_treat
+LEFT JOIN t_orgnization
+ON t_treat.OrgnizationID=t_orgnization.ID
+LEFT JOIN t_patient
+ON t_treat.PatientID=t_patient.ID
+LEFT JOIN data_gender
+ON t_treat.GenderID=data_gender.ID
+LEFT JOIN t_user prescribe
+ON t_treat.Prescriber=prescribe.ID
+WHERE t_treat.OrgnizationID=?p1
+",orgid);
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
         }
 
         /// <summary>
         /// 获取个人的“用药记录”历史
         /// </summary>
-        /// <param name="userid">检索指定个人的id</param>
+        /// <param name="personid">检索指定个人的id</param>
         /// <returns>JSON对象，包含相应的“用药记录”数组</returns>
         [HttpGet]
         [Route("GetPersonTreatList")]
-        public JObject GetPersonTreatList(int userid)
+        public JObject GetPersonTreatList(int personid)
         {
-            throw new NotImplementedException();
+            JObject res = new JObject();
+            res["list"] = db.GetArray(@"
+SELECT 
+t_treat.ID
+,t_treat.OrgnizationID
+,t_orgnization.OrgName
+,t_orgnization.OrgCode
+,PrescriptionCode
+,PatientID AS PersonID
+,t_patient.FamilyName AS PersonName
+,t_patient.IDCardNO AS PersonIDCard
+,t_treat.GenderID
+,data_gender.GenderName
+,t_treat.AgeY
+,t_treat.AgeM
+,DiseaseCode
+,TreatName
+,DrugGroupNumber
+,Tstatus
+,Prescriber
+,PrescribeTime
+,PrescribeDepartment
+,IsCancel
+,CancelTime
+,CompleteTime
+FROM t_treat
+LEFT JOIN t_orgnization
+ON t_treat.OrgnizationID=t_orgnization.ID
+LEFT JOIN t_patient
+ON t_treat.PatientID=t_patient.ID
+LEFT JOIN data_gender
+ON t_treat.GenderID=data_gender.ID
+LEFT JOIN t_user prescribe
+ON t_treat.Prescriber=prescribe.ID
+WHERE t_treat.PatientID=?p1
+", personid);
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
         }
 
 
@@ -59,7 +136,49 @@ namespace health.Controllers
         [Route("GetTreat")]
         public JObject GetTreat(int id)
         {
-            throw new NotImplementedException();
+            JObject res = db.GetOne(@"
+SELECT 
+ID
+,OrgnizationID
+,PrescriptionCode
+,PatientID
+,GenderID
+,AgeY
+,AgeM
+,DiseaseCode
+,TreatName
+,DrugGroupNumber
+,Tstatus
+,Prescriber
+,PrescribeTime
+,PrescribeDepartment
+,IsCancel
+,CancelTime
+,CompleteTime
+FROM t_treat
+WHERE ID=?p1
+",id);
+            if (res["id"]==null)
+            {
+                res["status"] = 201;
+                res["msg"] = "无法获取相应的数据";
+            }
+            else
+            {
+                OrgnizationController org = new OrgnizationController(null);
+                res["orgnization"] = org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
+                PersonController person = new PersonController(null, null);
+                res["person"] = person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
+                GenderController gender = new GenderController(null);
+                res["gender"] = gender.GetGenderInfo(res["genderid"]?.ToObject<int>() ?? 0);
+                res["prescriber"] = person.GetUserInfo(res["prescriber"]?.ToObject<int>() ?? 0);
+                TreatItemController items = new TreatItemController(null);
+                res["items"] = items.GetTreatItemList(res["id"].ToObject<int>());
+                res["status"] = 200;
+                res["msg"] = "读取成功";
+            }
+
+            return res;
         }
 
 

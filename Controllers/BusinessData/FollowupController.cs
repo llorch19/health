@@ -20,6 +20,7 @@ namespace health.Controllers
     public class FollowupController : ControllerBase
     {
         private readonly ILogger<FollowupController> _logger;
+        dbfactory db = new dbfactory();
         public FollowupController(ILogger<FollowupController> logger)
         {
             _logger = logger;
@@ -34,19 +35,63 @@ namespace health.Controllers
         [Route("GetOrgFollowupList")]
         public JObject GetOrgFollowupList(int orgid)
         {
-            throw new NotImplementedException();
+            JObject res = new JObject();
+            res["list"] = db.GetArray(@"
+SELECT 
+t_followup.ID
+,t_followup.PatientID AS PersonID
+,t_patient.FamilyName AS PersonName
+,t_patient.IDCardNO AS PersonCode
+,t_followup.OrgnizationID
+,t_orgnization.OrgName
+,t_orgnization.OrgCode
+,t_followup.TIME
+,t_followup.PersonList
+,t_followup.Abstract
+,t_followup.Detail
+FROM t_followup
+LEFT JOIN t_patient
+ON t_followup.PatientID=t_patient.ID
+LEFT JOIN t_orgnization
+ON t_followup.OrgnizationID=t_orgnization.ID
+WHERE t_followup.OrgnizationID=?p1", orgid);
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
         }
 
         /// <summary>
         /// 获取个人的“随访”历史
         /// </summary>
-        /// <param name="userid">检索指定个人的id</param>
+        /// <param name="personid">检索指定个人的id</param>
         /// <returns>JSON对象，包含相应的“随访”数组</returns>
         [HttpGet]
         [Route("GetPersonFollowupList")]
-        public JObject GetPersonFollowupList(int userid)
+        public JObject GetPersonFollowupList(int personid)
         {
-            throw new NotImplementedException();
+            JObject res = new JObject();
+            res["list"] = db.GetArray(@"
+SELECT 
+t_followup.ID
+,t_followup.PatientID AS PersonID
+,t_patient.FamilyName AS PersonName
+,t_patient.IDCardNO AS PersonCode
+,t_followup.OrgnizationID
+,t_orgnization.OrgName
+,t_orgnization.OrgCode
+,t_followup.TIME
+,t_followup.PersonList
+,t_followup.Abstract
+,t_followup.Detail
+FROM t_followup
+LEFT JOIN t_patient
+ON t_followup.PatientID=t_patient.ID
+LEFT JOIN t_orgnization
+ON t_followup.OrgnizationID=t_orgnization.ID
+WHERE t_followup.PatientID=?p1",personid);
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
         }
 
 
@@ -59,7 +104,25 @@ namespace health.Controllers
         [Route("GetFollowup")]
         public JObject GetFollowup(int id)
         {
-            throw new NotImplementedException();
+            JObject res = db.GetOne(@"
+SELECT 
+ID
+,PatientID
+,OrgnizationID
+,TIME
+,PersonList
+,Abstract
+,Detail
+FROM t_followup
+WHERE ID=?p1
+",id);
+            res["person"] = new PersonController(null, null)
+                .GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
+            res["orgnization"] = new OrgnizationController(null)
+                .GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
         }
 
 
@@ -72,7 +135,6 @@ namespace health.Controllers
         [Route("SetFollowup")]
         public JObject SetFollowup([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
             JObject res = new JObject();
             if (req["id"] != null)
             {
@@ -135,7 +197,6 @@ namespace health.Controllers
         {
             JObject res = new JObject();
             var dict = req.ToObject<Dictionary<string, object>>();
-            dbfactory db = new dbfactory();
             var count = db.del("t_followup", dict);
             if (count > 0)
             {

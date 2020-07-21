@@ -7,6 +7,7 @@
  */
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MySqlX.XDevAPI.Relational;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Asn1.X509;
 using System;
@@ -20,6 +21,7 @@ namespace health.Controllers
     public class CheckProductController : ControllerBase
     {
         private readonly ILogger<CheckProductController> _logger;
+        dbfactory db = new dbfactory();
         public CheckProductController(ILogger<CheckProductController> logger)
         {
             _logger = logger;
@@ -31,9 +33,32 @@ namespace health.Controllers
         /// <returns>JSON对象，包含相应的“检测产品”数组</returns>
         [HttpGet]
         [Route("GetCheckProductList")]
-        public JObject GetCheckProductList()
+        public JObject GetCheckProductList(int pageSize,int pageIndex)
         {
-            throw new NotImplementedException();
+            int offset = 0;
+            if (pageIndex > 0)
+                offset = pageSize * (pageIndex - 1);
+
+            JObject res = new JObject();
+            JArray rows = db.GetArray(@"
+SELECT 
+ID
+,`Name`
+,ShortName
+,CommonName
+,Specification
+,BatchNumber
+,Manufacturer
+,ESC
+,ProductionDate
+,ExpiryDate
+FROM t_detectionproduct
+LIMIT ?p1,?p2
+", offset, pageSize);
+            res["list"] = rows;
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
         }
 
 
@@ -49,16 +74,18 @@ namespace health.Controllers
         public JObject GetCheckProduct(int id)
         {
             dbfactory db = new dbfactory();
-            JObject res = db.GetOne(@"SELECT   
-IFNULL(ID,'') AS ID
-,IFNULL(`Name`,'') AS `Name`
-,IFNULL(CommonName,'') AS CommonName
-,IFNULL(Specification,'') AS Specification
-,IFNULL(ESC,'') AS ESC
-,IFNULL(ProductionDate,'') AS ProductionDate
-,IFNULL(ExpiryDate,'') AS ExpiryDate
-,IFNULL(Manufacturer,'') AS Manufacturer
-FROM t_medication
+            JObject res = db.GetOne(@"SELECT 
+ID
+,`Name`
+,ShortName
+,CommonName
+,Specification
+,BatchNumber
+,Manufacturer
+,ESC
+,ProductionDate
+,ExpiryDate
+FROM t_detectionproduct
 WHERE ID=?p1", id);
             if (res["id"] != null)
             {

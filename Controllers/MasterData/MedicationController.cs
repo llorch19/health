@@ -29,25 +29,35 @@ namespace health.Controllers
         /// <summary>
         /// 获取机构的“药品”列表
         /// </summary>
-        /// <param name="orgid">检索指定机构的id</param>
+        /// <param name="pageSize"></param>
+        /// <param name="pageIndex"></param>
         /// <returns>JSON对象，包含相应的“药品”数组</returns>
         [HttpGet]
         [Route("GetMedicationList")]
-        public JObject GetMedicationList(int orgid)
+        public JObject GetMedicationList(int pageSize,int pageIndex)
         {
-            throw new NotImplementedException();
-        }
+            int offset = 0;
+            if (pageIndex > 0)
+                offset = pageSize * (pageIndex - 1);
 
-        /// <summary>
-        /// 获取个人的“药品”历史
-        /// </summary>
-        /// <param name="userid">检索指定个人的id</param>
-        /// <returns>JSON对象，包含相应的“药品”数组</returns>
-        [HttpGet]
-        [Route("GetPersonMedicationList")]
-        public JObject GetPersonMedicationList(int userid)
-        {
-            throw new NotImplementedException();
+            JObject res = new JObject();
+            JArray rows = db.GetArray(@"
+SELECT   
+IFNULL(ID,'') AS ID
+,IFNULL(`Name`,'') AS `Name`
+,IFNULL(CommonName,'') AS CommonName
+,IFNULL(Specification,'') AS Specification
+,IFNULL(ESC,'') AS ESC
+,IFNULL(ProductionDate,'') AS ProductionDate
+,IFNULL(ExpiryDate,'') AS ExpiryDate
+,IFNULL(Manufacturer,'') AS Manufacturer
+FROM t_medication
+LIMIT ?p1,?p2
+", offset, pageSize);
+            res["list"] = rows;
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
         }
 
 

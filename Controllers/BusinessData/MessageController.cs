@@ -18,6 +18,7 @@ namespace health.Controllers
     public class MessageController : ControllerBase
     {
         private readonly ILogger<MessageController> _logger;
+        dbfactory db = new dbfactory();
         public MessageController(ILogger<MessageController> logger)
         {
             _logger = logger;
@@ -31,7 +32,6 @@ namespace health.Controllers
         [Route("GetMessageList")]
         public JObject GetMessageList()
         {
-            dbfactory db = new dbfactory();
             JObject res = new JObject();
             JArray list = db.GetArray(@"SELECT
 IFNULL(t_messagesent.ID,'') as ID
@@ -74,7 +74,6 @@ WHERE OutdateTime > NOW()
         [Route("GetMessage")]
         public JObject GetMessage(int id)
         {
-            dbfactory db = new dbfactory();
             JObject res = db.GetOne(@"select
 IFNULL(t_messagesent.ID,'') as ID
 ,IFNULL(t_user.ID,'') as PublishUserID
@@ -116,7 +115,6 @@ WHERE t_messagesent.ID=?p1
         [Route("SetMessage")]
         public JObject SetMessage([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
             JObject res = new JObject();
             if (req["id"] != null)
             {
@@ -179,7 +177,6 @@ WHERE t_messagesent.ID=?p1
         {
             JObject res = new JObject();
             var dict = req.ToObject<Dictionary<string, object>>();
-            dbfactory db = new dbfactory();
             var count = db.del("t_messagesent", dict);
             if (count > 0)
             {

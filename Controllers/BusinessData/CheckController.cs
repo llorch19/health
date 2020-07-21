@@ -36,7 +36,63 @@ namespace health.Controllers
         [Route("GetOrgCheckList")]
         public JObject GetOrgCheckList(int orgid)
         {
-            throw new NotImplementedException();
+            JObject res = new JObject();
+            res["list"] = db.GetArray(@"
+SELECT 
+t_detectionrecord.ID
+,CheckType
+,PatientID
+,t_patient.FamilyName AS PatientName
+,t_detectionrecord.OrgnizationID
+,t_orgnization.OrgName AS OrgName
+,RecommendedTreatID
+,recom.`Name` AS Recommend
+,ChosenTreatID
+,chosen.`Name` AS Chosen
+,PatientTel
+,IsReexam
+,t_detectionrecord.GenderID
+,data_gender.GenderName 
+,SubmitBy
+,submit.ChineseName AS Submitter
+,SubmitTime
+,t_detectionrecord.OrgCode
+,DetectionNO
+,ClinicalNO
+,PatientName
+,Pics
+,Pdf
+,DiagnoticsTypeID
+,DiagnoticsTime
+,DiagnoticsBy
+,diagnotics.ChineseName AS Diagnoser
+,ReportTime
+,ReportBy
+,report.ChineseName AS Reporter
+,Reference
+FROM 
+t_detectionrecord
+LEFT JOIN t_patient
+ON t_detectionrecord.PatientID=t_patient.ID
+LEFT JOIN t_orgnization
+ON t_detectionrecord.OrgnizationID=t_orgnization.ID
+LEFT JOIN data_treatmentoption recom
+ON t_detectionrecord.RecommendedTreatID=recom.ID
+LEFT JOIN data_treatmentoption chosen
+ON t_detectionrecord.ChosenTreatID=chosen.ID
+LEFT JOIN data_gender
+ON t_detectionrecord.GenderID=data_gender.ID
+LEFT JOIN t_user submit
+ON t_detectionrecord.SubmitBy=submit.ID
+LEFT JOIN t_user diagnotics
+ON t_detectionrecord.DiagnoticsBy=diagnotics.ID
+LEFT JOIN t_user report
+ON t_detectionrecord.ReportBy=report.ID
+WHERE t_detectionrecord.OrgnizationID=?p1
+", orgid);
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
         }
 
         /// <summary>
