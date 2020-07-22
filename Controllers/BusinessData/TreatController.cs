@@ -38,26 +38,26 @@ namespace health.Controllers
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 
-t_treat.ID
-,t_treat.OrgnizationID
-,t_orgnization.OrgName
-,t_orgnization.OrgCode
-,PrescriptionCode
-,PatientID AS PersonID
-,t_patient.FamilyName AS PersonName
-,t_patient.IDCardNO AS PersonIDCard
-,t_treat.GenderID
-,data_gender.GenderName
-,DiseaseCode
-,TreatName
-,DrugGroupNumber
-,Tstatus
-,Prescriber
-,PrescribeTime
-,PrescribeDepartment
-,IsCancel
-,CancelTime
-,CompleteTime
+IFNULL(t_treat.ID,'') AS ID
+,IFNULL(t_treat.OrgnizationID,'') AS OrgnizationID
+,IFNULL(t_orgnization.OrgName,'') AS OrgName
+,IFNULL(t_orgnization.OrgCode,'') AS OrgCode
+,IFNULL(PrescriptionCode,'') AS PrescriptionCode
+,IFNULL(PatientID,'') AS PersonID
+,IFNULL(t_patient.FamilyName,'') AS PersonName
+,IFNULL(t_patient.IDCardNO,'') AS PersonIDCard
+,IFNULL(t_treat.GenderID,'') AS GenderID
+,IFNULL(data_gender.GenderName,'') AS GenderName
+,IFNULL(DiseaseCode,'') AS DiseaseCode
+,IFNULL(TreatName,'') AS TreatName
+,IFNULL(DrugGroupNumber,'') AS DrugGroupNumber
+,IFNULL(Tstatus,'') AS Tstatus
+,IFNULL(Prescriber,'') AS Prescriber
+,IFNULL(PrescribeTime,'') AS PrescribeTime
+,IFNULL(PrescribeDepartment,'') AS PrescribeDepartment
+,IFNULL(IsCancel,'') AS IsCancel
+,IFNULL(CancelTime,'') AS CancelTime
+,IFNULL(CompleteTime,'') AS CompleteTime
 FROM t_treat
 LEFT JOIN t_orgnization
 ON t_treat.OrgnizationID=t_orgnization.ID
@@ -68,7 +68,7 @@ ON t_treat.GenderID=data_gender.ID
 LEFT JOIN t_user prescribe
 ON t_treat.Prescriber=prescribe.ID
 WHERE t_treat.OrgnizationID=?p1
-",orgid);
+", orgid);
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -86,26 +86,26 @@ WHERE t_treat.OrgnizationID=?p1
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 
-t_treat.ID
-,t_treat.OrgnizationID
-,t_orgnization.OrgName
-,t_orgnization.OrgCode
-,PrescriptionCode
-,PatientID AS PersonID
-,t_patient.FamilyName AS PersonName
-,t_patient.IDCardNO AS PersonIDCard
-,t_treat.GenderID
-,data_gender.GenderName
-,DiseaseCode
-,TreatName
-,DrugGroupNumber
-,Tstatus
-,Prescriber
-,PrescribeTime
-,PrescribeDepartment
-,IsCancel
-,CancelTime
-,CompleteTime
+IFNULL(t_treat.ID,'') AS ID
+,IFNULL(t_treat.OrgnizationID,'') AS OrgnizationID
+,IFNULL(t_orgnization.OrgName,'') AS OrgName
+,IFNULL(t_orgnization.OrgCode,'') AS OrgCode
+,IFNULL(PrescriptionCode,'') AS PrescriptionCode
+,IFNULL(PatientID,'') AS PersonID
+,IFNULL(t_patient.FamilyName,'') AS PersonName
+,IFNULL(t_patient.IDCardNO,'') AS PersonIDCard
+,IFNULL(t_treat.GenderID,'') AS GenderID
+,IFNULL(data_gender.GenderName,'') AS GenderName
+,IFNULL(DiseaseCode,'') AS DiseaseCode
+,IFNULL(TreatName,'') AS TreatName
+,IFNULL(DrugGroupNumber,'') AS DrugGroupNumber
+,IFNULL(Tstatus,'') AS Tstatus
+,IFNULL(Prescriber,'') AS Prescriber
+,IFNULL(PrescribeTime,'') AS PrescribeTime
+,IFNULL(PrescribeDepartment,'') AS PrescribeDepartment
+,IFNULL(IsCancel,'') AS IsCancel
+,IFNULL(CancelTime,'') AS CancelTime
+,IFNULL(CompleteTime,'') AS CompleteTime
 FROM t_treat
 LEFT JOIN t_orgnization
 ON t_treat.OrgnizationID=t_orgnization.ID
@@ -134,24 +134,24 @@ WHERE t_treat.PatientID=?p1
         {
             JObject res = db.GetOne(@"
 SELECT 
-ID
-,OrgnizationID
-,PrescriptionCode
-,PatientID
-,GenderID
-,DiseaseCode
-,TreatName
-,DrugGroupNumber
-,Tstatus
-,Prescriber
-,PrescribeTime
-,PrescribeDepartment
-,IsCancel
-,CancelTime
-,CompleteTime
+IFNULL(ID,'') AS ID
+,IFNULL(OrgnizationID,'') AS OrgnizationID
+,IFNULL(PrescriptionCode,'') AS PrescriptionCode
+,IFNULL(PatientID,'') AS PatientID
+,IFNULL(GenderID,'') AS GenderID
+,IFNULL(DiseaseCode,'') AS DiseaseCode
+,IFNULL(TreatName,'') AS TreatName
+,IFNULL(DrugGroupNumber,'') AS DrugGroupNumber
+,IFNULL(Tstatus,'') AS Tstatus
+,IFNULL(Prescriber,'') AS Prescriber
+,IFNULL(PrescribeTime,'') AS PrescribeTime
+,IFNULL(PrescribeDepartment,'') AS PrescribeDepartment
+,IFNULL(IsCancel,'') AS IsCancel
+,IFNULL(CancelTime,'') AS CancelTime
+,IFNULL(CompleteTime,'') AS CompleteTime
 FROM t_treat
 WHERE ID=?p1
-",id);
+", id);
             if (res["id"]==null)
             {
                 res["status"] = 201;
@@ -165,7 +165,6 @@ WHERE ID=?p1
                 res["person"] = person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
                 GenderController gender = new GenderController(null);
                 res["gender"] = gender.GetGenderInfo(res["genderid"]?.ToObject<int>() ?? 0);
-                res["prescriber"] = person.GetUserInfo(res["prescriber"]?.ToObject<int>() ?? 0);
                 TreatItemController items = new TreatItemController(null);
                 res["items"] = items.GetTreatItemList(res["id"].ToObject<int>());
                 res["status"] = 200;
