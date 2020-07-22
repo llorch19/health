@@ -4,6 +4,7 @@
  * Date  : 2020-07-14
  * Description: 对“用药记录”信息的增删查改
  * Comments
+ * - - GetOrgTreatList 应该和GetPeron["treat"]字段一致     @xuedi      2020-07-22 
  */
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -43,7 +44,8 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(t_orgnization.OrgName,'') AS OrgName
 ,IFNULL(t_orgnization.OrgCode,'') AS OrgCode
 ,IFNULL(PrescriptionCode,'') AS PrescriptionCode
-,IFNULL(PatientID,'') AS PersonID
+,IFNULL(t_medication.`Name`,'') AS MedicationName
+,IFNULL(t_treat.PatientID,'') AS PersonID
 ,IFNULL(t_patient.FamilyName,'') AS PersonName
 ,IFNULL(t_patient.IDCardNO,'') AS PersonIDCard
 ,IFNULL(t_treat.GenderID,'') AS GenderID
@@ -52,12 +54,12 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(TreatName,'') AS TreatName
 ,IFNULL(DrugGroupNumber,'') AS DrugGroupNumber
 ,IFNULL(Tstatus,'') AS Tstatus
-,IFNULL(Prescriber,'') AS Prescriber
-,IFNULL(PrescribeTime,'') AS PrescribeTime
-,IFNULL(PrescribeDepartment,'') AS PrescribeDepartment
-,IFNULL(IsCancel,'') AS IsCancel
-,IFNULL(CancelTime,'') AS CancelTime
-,IFNULL(CompleteTime,'') AS CompleteTime
+,IFNULL(t_treat.Prescriber,'') AS Prescriber
+,IFNULL(t_treat.PrescribeTime,'') AS PrescribeTime
+,IFNULL(t_treat.PrescribeDepartment,'') AS PrescribeDepartment
+,IFNULL(t_treat.IsCancel,'') AS IsCancel
+,IFNULL(t_treat.CancelTime,'') AS CancelTime
+,IFNULL(t_treat.CompleteTime,'') AS CompleteTime
 FROM t_treat
 LEFT JOIN t_orgnization
 ON t_treat.OrgnizationID=t_orgnization.ID
@@ -67,6 +69,10 @@ LEFT JOIN data_gender
 ON t_treat.GenderID=data_gender.ID
 LEFT JOIN t_user prescribe
 ON t_treat.Prescriber=prescribe.ID
+LEFT JOIN t_treatitem
+ON t_treat.ID=t_treatitem.TreatID
+LEFT JOIN t_medication
+ON t_medication.ID=t_treatitem.MedicationID
 WHERE t_treat.OrgnizationID=?p1
 ", orgid);
             res["status"] = 200;
@@ -91,7 +97,8 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(t_orgnization.OrgName,'') AS OrgName
 ,IFNULL(t_orgnization.OrgCode,'') AS OrgCode
 ,IFNULL(PrescriptionCode,'') AS PrescriptionCode
-,IFNULL(PatientID,'') AS PersonID
+,IFNULL(t_medication.`Name`,'') AS MedicationName
+,IFNULL(t_treat.PatientID,'') AS PersonID
 ,IFNULL(t_patient.FamilyName,'') AS PersonName
 ,IFNULL(t_patient.IDCardNO,'') AS PersonIDCard
 ,IFNULL(t_treat.GenderID,'') AS GenderID
@@ -100,12 +107,12 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(TreatName,'') AS TreatName
 ,IFNULL(DrugGroupNumber,'') AS DrugGroupNumber
 ,IFNULL(Tstatus,'') AS Tstatus
-,IFNULL(Prescriber,'') AS Prescriber
-,IFNULL(PrescribeTime,'') AS PrescribeTime
-,IFNULL(PrescribeDepartment,'') AS PrescribeDepartment
-,IFNULL(IsCancel,'') AS IsCancel
-,IFNULL(CancelTime,'') AS CancelTime
-,IFNULL(CompleteTime,'') AS CompleteTime
+,IFNULL(t_treat.Prescriber,'') AS Prescriber
+,IFNULL(t_treat.PrescribeTime,'') AS PrescribeTime
+,IFNULL(t_treat.PrescribeDepartment,'') AS PrescribeDepartment
+,IFNULL(t_treat.IsCancel,'') AS IsCancel
+,IFNULL(t_treat.CancelTime,'') AS CancelTime
+,IFNULL(t_treat.CompleteTime,'') AS CompleteTime
 FROM t_treat
 LEFT JOIN t_orgnization
 ON t_treat.OrgnizationID=t_orgnization.ID
@@ -115,6 +122,10 @@ LEFT JOIN data_gender
 ON t_treat.GenderID=data_gender.ID
 LEFT JOIN t_user prescribe
 ON t_treat.Prescriber=prescribe.ID
+LEFT JOIN t_treatitem
+ON t_treat.ID=t_treatitem.TreatID
+LEFT JOIN t_medication
+ON t_medication.ID=t_treatitem.MedicationID
 WHERE t_treat.PatientID=?p1
 ", personid);
             res["status"] = 200;
