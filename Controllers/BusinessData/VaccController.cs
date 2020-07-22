@@ -4,6 +4,7 @@
  * Date  : 2020-07-14
  * Description: 对“接种记录”信息的增删查改
  * Comments
+ * - GetOrgVaccList 应该和GetPeron["vacc"]字段一致     @xuedi      2020-07-22      15:20
  */
 using health.Controllers.BaseData;
 using Microsoft.AspNetCore.Mvc;
