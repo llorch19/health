@@ -43,11 +43,12 @@ t_vacc.ID
 ,PatientID
 ,t_patient.FamilyName AS Person
 ,t_vacc.OrgnizationID
-,t_orgnization.OrgName AS Orgnization
+,t_orgnization.OrgName AS OrgName
 ,OperationUserID
 ,t_user.ChineseName AS Operator
 ,MedicationID
 ,t_medication.`Name` AS Medication
+,t_medication.`CommonName` AS CommonName
 ,MedicationDosageFormID
 ,data_medicationdosageform.`Name` AS Dosage
 ,MedicationPathwayID
@@ -95,11 +96,12 @@ t_vacc.ID
 ,PatientID
 ,t_patient.FamilyName AS Person
 ,t_vacc.OrgnizationID
-,t_orgnization.OrgName AS Orgnization
+,t_orgnization.OrgName AS OrgName
 ,OperationUserID
 ,t_user.ChineseName AS Operator
 ,MedicationID
 ,t_medication.`Name` AS Medication
+,t_medication.`CommonName` AS CommonName
 ,MedicationDosageFormID
 ,data_medicationdosageform.`Name` AS Dosage
 ,MedicationPathwayID
