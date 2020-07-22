@@ -170,6 +170,7 @@ where t_patient.ID=?p1"
 
             res["personinfo"] = personinfo;
             // 检查信息
+            //where IsReexam = 0
             res["checkinfo"] = db.GetArray(@"select 
 IFNULL(t_detectionrecord.ID,'') as ID
 ,IFNULL(ReportTime,'') as ReportTime
@@ -177,7 +178,6 @@ IFNULL(t_detectionrecord.ID,'') as ID
 from t_detectionrecord
 LEFT JOIN data_detectionresulttype
 ON t_detectionrecord.DiagnoticsTypeID=data_detectionresulttype.ID
-where IsReexam = 0
 and PatientID=?p1"
                 , id);
 
