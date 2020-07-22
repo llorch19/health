@@ -4,6 +4,7 @@
  * Date  : 2020-07-14
  * Description: 对“药品”信息的增删查改
  * Comments
+ * - 开会时说过，Medication总数不多，需要手选药品    @xuedi  2020-07-22
  */
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -34,7 +35,7 @@ namespace health.Controllers
         /// <returns>JSON对象，包含相应的“药品”数组</returns>
         [HttpGet]
         [Route("GetMedicationList")]
-        public JObject GetMedicationList(int pageSize,int pageIndex)
+        public JObject GetMedicationList(int pageSize = int.MaxValue, int pageIndex = 0)
         {
             int offset = 0;
             if (pageIndex > 0)
