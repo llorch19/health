@@ -4,6 +4,7 @@
  * Date  : 2020-07-14
  * Description: 对“检测”信息的增删查改
  * Comments
+ * -GetUserCheckList 应该和GetPeron["check"]字段一致     @xuedi      2020-07-22      15:48
  */
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -62,6 +63,7 @@ t_detectionrecord.ID
 ,Pics
 ,Pdf
 ,DiagnoticsTypeID
+,data_detectionresulttype.ResultName
 ,DiagnoticsTime
 ,DiagnoticsBy
 ,diagnotics.ChineseName AS Diagnoser
@@ -87,6 +89,8 @@ LEFT JOIN t_user diagnotics
 ON t_detectionrecord.DiagnoticsBy=diagnotics.ID
 LEFT JOIN t_user report
 ON t_detectionrecord.ReportBy=report.ID
+LEFT JOIN data_detectionresulttype
+ON t_detectionrecord.DiagnoticsTypeID=data_detectionresulttype.ID
 WHERE t_detectionrecord.OrgnizationID=?p1
 ", orgid);
             res["status"] = 200;
@@ -129,6 +133,7 @@ t_detectionrecord.ID
 ,Pics
 ,Pdf
 ,DiagnoticsTypeID
+,data_detectionresulttype.ResultName
 ,DiagnoticsTime
 ,DiagnoticsBy
 ,diagnotics.ChineseName AS Diagnoser
@@ -154,6 +159,8 @@ LEFT JOIN t_user diagnotics
 ON t_detectionrecord.DiagnoticsBy=diagnotics.ID
 LEFT JOIN t_user report
 ON t_detectionrecord.ReportBy=report.ID
+LEFT JOIN data_detectionresulttype
+ON t_detectionrecord.DiagnoticsTypeID=data_detectionresulttype.ID
 WHERE t_detectionrecord.PatientID=?p1
 ", personid);
             res["status"] = 200;
@@ -206,6 +213,8 @@ WHERE ID=?p1",id);
                 .GetTreatOptionInfo(res["chosentreatid"]?.ToObject<int>() ?? 0);
             res["gender"] = new GenderController(null)
                 .GetGenderInfo(res["genderid"]?.ToObject<int>() ?? 0);
+            res["result"] = new DetectionResultTypeController(null)
+                .GetResultTypeInfo(res["diagnoticstypeid"]?.ToObject<int>() ?? 0);
             res["items"] = GetCheckItems(res["id"]?.ToObject<int>() ?? 0);
             res["status"] = 200;
             res["msg"] = "读取成功";
