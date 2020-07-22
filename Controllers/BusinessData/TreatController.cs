@@ -388,7 +388,8 @@ WHERE ID=?p1
             //dict["CompleteTime"] = req["completetime"]?.ToObject<DateTime>();
             // TODO: 在这里添加add item逻辑
 
-       
+            TreatItemController itemControl = new TreatItemController(null);
+
 
             if (req["id"]?.ToObject<int>() > 0)
             {
@@ -397,22 +398,54 @@ WHERE ID=?p1
                 dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update("t_treat", dict, condi);
+
+                JArray list = itemControl.GetTreatItemList(req["id"].ToObject<int>());
+                var item = list.FirstOrDefault();
+                if (item==null)
+                {
+                    JObject itemReq = new JObject();
+                    itemReq["id"] = 0;
+                    itemReq["treatid"] = req["id"]?.ToObject<int>();
+                    //itemReq["genderid"] = req["genderid"]?.ToObject<int>();
+                    itemReq["patientid"] = req["patientid"]?.ToObject<int>();
+                    itemReq["medicationid"] = req["medicationid"]?.ToObject<int>();
+                    itemReq["medicationpathwayid"] = req["medicationpathwayid"]?.ToObject<int>();
+                    itemReq["medicationdosageformid"] = req["medicationdosageformid"]?.ToObject<int>();
+                    itemReq["medicationfreqcategoryid"] = req["medicationfreqcategoryid"]?.ToObject<int>();
+                    var rows = itemControl.SetTreatItem(new JObject[] { itemReq }).Aggregate((sum, p) => sum += p);
+                }
+                else
+                {
+                    Dictionary<string, object> subcondi = new Dictionary<string, object>();
+                    subcondi["id"] = item["id"]?.ToObject<int>();
+
+                    Dictionary<string, object> subdict = new Dictionary<string, object>();
+                    subdict["medicationid"] = req["medicationid"]?.ToObject<int>();
+                    subdict["medicationpathwayid"] = req["medicationpathwayid"]?.ToObject<int>();
+                    subdict["medicationdosageformid"] = req["medicationdosageformid"]?.ToObject<int>();
+                    subdict["medicationfreqcategoryid"] = req["medicationfreqcategoryid"]?.ToObject<int>();
+
+                    db.Update("t_treatitem",subdict,subcondi);
+                }
+
             }
             else
             {
-                TreatItemController itemControl = new TreatItemController(null);
-                JObject itemReq = new JObject();
-                itemReq["MedicationID"] = req["medicationid"]?.ToObject<int>();
-                itemReq["MedicationPathwayID"] = req["medicationpathwayid"]?.ToObject<int>();
-                itemReq["MedicationDosageFormID"] = req["medicationdosageformid"]?.ToObject<int>();
-                itemReq["MedicationFreqCategoryID"] = req["medicationfreqcategoryid"]?.ToObject<int>();
-                var rows = itemControl.SetTreatItem(new JObject[] { itemReq }).Aggregate((sum, p) => sum += p);
-
-
-
                 dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("t_treat", dict);
+                var newId = this.db.Insert("t_treat", dict);
+
+                JObject itemReq = new JObject();
+                itemReq["id"] = 0;
+                itemReq["treatid"] = newId;
+                //itemReq["genderid"] = req["genderid"]?.ToObject<int>();
+                itemReq["patientid"] = req["patientid"]?.ToObject<int>();
+                itemReq["medicationid"] = req["medicationid"]?.ToObject<int>();
+                itemReq["medicationpathwayid"] = req["medicationpathwayid"]?.ToObject<int>();
+                itemReq["medicationdosageformid"] = req["medicationdosageformid"]?.ToObject<int>();
+                itemReq["medicationfreqcategoryid"] = req["medicationfreqcategoryid"]?.ToObject<int>();
+                var rows = itemControl.SetTreatItem(new JObject[] { itemReq }).Aggregate((sum, p) => sum += p);
+               
             }
 
             JObject res = new JObject();

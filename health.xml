@@ -617,16 +617,30 @@
             <param name="req">在请求body中JSON形式的“未读消息”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.TreatController.GetOrgTreatList(System.Int32)">
+        <member name="M:health.Controllers.TreatController.GetOrgTreatList2(System.Int32)">
             <summary>
-            获取机构的“用药记录”列表
+            获取机构的“治疗记录”列表
             </summary>
             <param name="orgid">检索指定机构的id</param>
             <returns>JSON对象，包含相应的“用药记录”数组</returns>
         </member>
+        <member name="M:health.Controllers.TreatController.GetOrgTreatList(System.Int32)">
+            <summary>
+            获取机构的“治疗用药记录”列表
+            </summary>
+            <param name="orgid">检索指定机构的id</param>
+            <returns>JSON对象，包含相应的“用药记录”数组</returns>
+        </member>
+        <member name="M:health.Controllers.TreatController.GetPersonTreatList2(System.Int32)">
+            <summary>
+            获取个人的“治疗记录”历史
+            </summary>
+            <param name="personid">检索指定个人的id</param>
+            <returns>JSON对象，包含相应的“用药记录”数组</returns>
+        </member>
         <member name="M:health.Controllers.TreatController.GetPersonTreatList(System.Int32)">
             <summary>
-            获取个人的“用药记录”历史
+            获取个人的“治疗用药记录”历史
             </summary>
             <param name="personid">检索指定个人的id</param>
             <returns>JSON对象，包含相应的“用药记录”数组</returns>

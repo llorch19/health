@@ -194,7 +194,7 @@ LEFT JOIN t_medication
 ON t_treatitem.MedicationID=t_medication.ID
 LEFT JOIN t_treat
 ON t_treatitem.TreatID=t_treat.ID
-AND t_treatitem.PatientID=?p1",id);
+AND t_treat.PatientID=?p1",id);
 
             // 随访信息
             res["followupinfo"] = db.GetArray(@"
