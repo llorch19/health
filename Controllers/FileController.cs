@@ -121,7 +121,8 @@ namespace health.Controllers
 
             if (row>0)
                 foreach (var oldfile in check["pics"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries))
-                    System.IO.File.Delete(oldfile);
+                    if(System.IO.File.Exists(oldfile))
+                        System.IO.File.Delete(oldfile);
 
             res["status"] = 200;
             res["msg"] = "上传成功";
