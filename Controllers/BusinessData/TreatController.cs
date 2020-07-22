@@ -91,7 +91,7 @@ LEFT JOIN data_medicationfreqcategory
 ON t_treatitem.MedicationFreqCategoryID=data_medicationfreqcategory.ID
 LEFT JOIN data_medicationpathway
 ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
-WHERE t_treat.OrgnizationID=?p1
+AND t_treat.OrgnizationID=?p1
 ", orgid);
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -161,7 +161,7 @@ LEFT JOIN data_medicationfreqcategory
 ON t_treatitem.MedicationFreqCategoryID=data_medicationfreqcategory.ID
 LEFT JOIN data_medicationpathway
 ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
-WHERE t_treat.OrgnizationID=?p1
+AND t_treat.OrgnizationID=?p1
 ", orgid);
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -230,7 +230,7 @@ LEFT JOIN data_medicationfreqcategory
 ON t_treatitem.MedicationFreqCategoryID=data_medicationfreqcategory.ID
 LEFT JOIN data_medicationpathway
 ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
-WHERE t_treat.PatientID=?p1
+AND t_treat.PatientID=?p1
 ", personid);
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -302,7 +302,7 @@ LEFT JOIN data_medicationfreqcategory
 ON t_treatitem.MedicationFreqCategoryID=data_medicationfreqcategory.ID
 LEFT JOIN data_medicationpathway
 ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
-WHERE t_treat.PatientID=?p1
+AND t_treat.PatientID=?p1
 ", personid);
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -374,8 +374,8 @@ WHERE ID=?p1
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
             dict["PatientID"] = req["patientid"]?.ToObject<int>();
-            dict["GenderID"] = req["genderid"]?.ToObject<int>();
-            dict["TreatName"] = req["treatname"]?.ToObject<string>();
+            //dict["GenderID"] = req["genderid"]?.ToObject<int>();
+            //dict["TreatName"] = req["treatname"]?.ToObject<string>();
             //dict["DiseaseCode"] = req["diseasecode"]?.ToObject<string>();
             //dict["PrescriptionCode"] = req["prescriptioncode"]?.ToObject<string>();
             //dict["DrugGroupNumber"] = req["druggroupnumber"]?.ToObject<int>();
@@ -388,11 +388,7 @@ WHERE ID=?p1
             //dict["CompleteTime"] = req["completetime"]?.ToObject<DateTime>();
             // TODO: 在这里添加add item逻辑
 
-            TreatItemController itemControl = new TreatItemController(null);
-            JObject itemReq = new JObject();
-            itemReq[""] = "";
-            var rows=itemControl.SetTreatItem(new JObject[] { itemReq }).Aggregate((sum,p)=>sum+=p);
-
+       
 
             if (req["id"]?.ToObject<int>() > 0)
             {
@@ -404,6 +400,16 @@ WHERE ID=?p1
             }
             else
             {
+                TreatItemController itemControl = new TreatItemController(null);
+                JObject itemReq = new JObject();
+                itemReq["MedicationID"] = req["medicationid"]?.ToObject<int>();
+                itemReq["MedicationPathwayID"] = req["medicationpathwayid"]?.ToObject<int>();
+                itemReq["MedicationDosageFormID"] = req["medicationdosageformid"]?.ToObject<int>();
+                itemReq["MedicationFreqCategoryID"] = req["medicationfreqcategoryid"]?.ToObject<int>();
+                var rows = itemControl.SetTreatItem(new JObject[] { itemReq }).Aggregate((sum, p) => sum += p);
+
+
+
                 dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
                 this.db.Insert("t_treat", dict);
