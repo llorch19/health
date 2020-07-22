@@ -56,16 +56,17 @@ namespace health.Controllers.BaseData
         {
             JObject res = new JObject();
             
-            string sql = "SELECT id,ChineseName,Username,Email,PhoneNumber,ProvinceID,CityID,CountyID,GroupId,OrgnizationID,IsActive from t_user where id=?p1";
+            string sql = "SELECT id,ChineseName,Username,Email,PhoneNumber,ProvinceID,CityID,CountyID,GroupId,OrgnizationID,IsActive,Address from t_user where id=?p1";
             res = db.GetOne(sql, id);
             if(res["id"] != null)
             {
                 common.BaseConfig conf = new common.BaseConfig();
-                res["Province"] = conf.GetAreaInfo(res["ProvinceID"].ToObject<int>());
-                res["City"] = conf.GetAreaInfo(res["CityID"].ToObject<int>());
-                res["County"] = conf.GetAreaInfo(res["CountyID"].ToObject<int>());
-                res["UserGroup"] = conf.GetUserGroup(res["GroupId"].ToObject<int>());
-                res["org"] = conf.GetUserGroup(res["orgnizationid"].ToObject<int>());
+                res["Province"] = conf.GetAreaInfo(res["provinceid"].ToObject<int>());
+                res["City"] = conf.GetAreaInfo(res["cityid"].ToObject<int>());
+                res["County"] = conf.GetAreaInfo(res["countyid"].ToObject<int>());
+                res["UserGroup"] = conf.GetUserGroup(res["groupid"].ToObject<int>());
+                res["org"] = conf.GetOrg(res["orgnizationid"].ToObject<int>());
+
                 res["status"] = 200;
             }
             else
