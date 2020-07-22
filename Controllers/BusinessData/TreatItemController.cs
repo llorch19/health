@@ -95,37 +95,37 @@ WHERE t_treatitem.PatientID=?p1
         {
             return db.GetArray(@"
 SELECT 
-t_treatitem.ID
-,PatientID AS PersonID
-,t_patient.FamilyName AS PersonName
-,t_patient.IDCardNO AS PersionIDCard
-,t_treatitem.GenderID
-,data_gender.GenderName
-,MedicationID
-,t_medication.`Name` AS MedicationName
-,t_medication.Specification 
-,MedicationFreqCategoryID
-,data_medicationfreqcategory.ValueMessage AS Freq
-,MedicationDosageFormID
-,data_medicationdosageform.`Name` AS DosageName
-,MedicationPathwayID
-,data_medicationpathway.`Name` AS PathwayName
-,ICDCode
-,Type
-,SingleDoseAmount
-,SingleDoseUnit
-,TotalDoseAmount
-,Prescriber
-,PrescribeTime
-,ReviewPharmacist
-,ReviewTime
-,AllocationPharmacist
-,AllocationTime
-,VerifyPharmacist
-,VerifyTime
-,DispensePharmacist
-,DispenseTime
-,Remarks
+IFNULL(t_treatitem.ID,'') AS  ID
+,IFNULL(PatientID,'') AS  PersonID
+,IFNULL(t_patient.FamilyName,'') AS PersonName
+,IFNULL(t_patient.IDCardNO,'') AS PersionIDCard
+,IFNULL(t_treatitem.GenderID,'') AS GenderID
+,IFNULL(data_gender.GenderName,'') AS GenderName
+,IFNULL(MedicationID,'') AS MedicationID
+,IFNULL(t_medication.`Name`,'') AS MedicationName
+,IFNULL(t_medication.Specification,'') AS Specification
+,IFNULL(MedicationFreqCategoryID,'') AS MedicationFreqCategoryID
+,IFNULL(data_medicationfreqcategory.ValueMessage,'') AS  Freq
+,IFNULL(MedicationDosageFormID,'') AS MedicationDosageFormID
+,IFNULL(data_medicationdosageform.`Name`,'') AS DosageName
+,IFNULL(MedicationPathwayID,'') AS MedicationPathwayID
+,IFNULL(data_medicationpathway.`Name`,'') AS PathwayName
+,IFNULL(ICDCode,'') AS ICDCode
+,IFNULL(Type,'') AS Type
+,IFNULL(SingleDoseAmount,'') AS SingleDoseAmount
+,IFNULL(SingleDoseUnit,'') AS SingleDoseUnit
+,IFNULL(TotalDoseAmount,'') AS TotalDoseAmount
+,IFNULL(Prescriber,'') AS Prescriber
+,IFNULL(PrescribeTime,'') AS PrescribeTime
+,IFNULL(ReviewPharmacist,'') AS ReviewPharmacist
+,IFNULL(ReviewTime,'') AS ReviewTime
+,IFNULL(AllocationPharmacist,'') AS AllocationPharmacist
+,IFNULL(AllocationTime,'') AS AllocationTime
+,IFNULL(VerifyPharmacist,'') AS VerifyPharmacist
+,IFNULL(VerifyTime,'') AS VerifyTime
+,IFNULL(DispensePharmacist,'') AS DispensePharmacist
+,IFNULL(DispenseTime,'') AS DispenseTime
+,IFNULL(Remarks,'') AS Remarks
 FROM t_treatitem
 LEFT JOIN t_patient
 ON t_treatitem.PatientID=t_patient.ID

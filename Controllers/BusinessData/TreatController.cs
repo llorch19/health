@@ -69,6 +69,9 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(data_medicationfreqcategory.ValueMessage,'') AS Freq
 ,IFNULL(t_treatitem.MedicationPathwayID,'') AS MedicationPathwayID
 ,IFNULL(data_medicationpathway.`Name`,'') AS Pathway
+,IFNULL(t_treatitem.SingleDoseAmount,'') AS SingleDoseAmount
+,IFNULL(t_treatitem.SingleDoseUnit,'') AS SingleDoseUnit
+,IFNULL(t_treatitem.TotalDoseAmount,'') AS TotalDoseAmount
 FROM t_treat
 LEFT JOIN t_orgnization
 ON t_treat.OrgnizationID=t_orgnization.ID
@@ -136,6 +139,9 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(data_medicationfreqcategory.ValueMessage,'') AS Freq
 ,IFNULL(t_treatitem.MedicationPathwayID,'') AS MedicationPathwayID
 ,IFNULL(data_medicationpathway.`Name`,'') AS Pathway
+,IFNULL(t_treatitem.SingleDoseAmount,'') AS SingleDoseAmount
+,IFNULL(t_treatitem.SingleDoseUnit,'') AS SingleDoseUnit
+,IFNULL(t_treatitem.TotalDoseAmount,'') AS TotalDoseAmount
 FROM t_treatitem
 LEFT JOIN t_treat
 ON t_treat.ID=t_treatitem.TreatID
@@ -202,6 +208,9 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(data_medicationfreqcategory.ValueMessage,'') AS Freq
 ,IFNULL(t_treatitem.MedicationPathwayID,'') AS MedicationPathwayID
 ,IFNULL(data_medicationpathway.`Name`,'') AS Pathway
+,IFNULL(t_treatitem.SingleDoseAmount,'') AS SingleDoseAmount
+,IFNULL(t_treatitem.SingleDoseUnit,'') AS SingleDoseUnit
+,IFNULL(t_treatitem.TotalDoseAmount,'') AS TotalDoseAmount
 FROM t_treat
 LEFT JOIN t_orgnization
 ON t_treat.OrgnizationID=t_orgnization.ID
@@ -271,6 +280,9 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(data_medicationfreqcategory.ValueMessage,'') AS Freq
 ,IFNULL(t_treatitem.MedicationPathwayID,'') AS MedicationPathwayID
 ,IFNULL(data_medicationpathway.`Name`,'') AS Pathway
+,IFNULL(t_treatitem.SingleDoseAmount,'') AS SingleDoseAmount
+,IFNULL(t_treatitem.SingleDoseUnit,'') AS SingleDoseUnit
+,IFNULL(t_treatitem.TotalDoseAmount,'') AS TotalDoseAmount
 FROM t_treatitem
 LEFT JOIN t_treat
 ON t_treat.ID=t_treatitem.TreatID
