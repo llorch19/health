@@ -12,7 +12,7 @@ namespace health
         public static string GetUser(HttpContext context)
         {
             string remoteIpAddress = context?.Connection?.RemoteIpAddress?.ToString();
-            if (context.Request.Headers.ContainsKey("X-Forwarded-For"))
+            if (context?.Request?.Headers?.ContainsKey("X-Forwarded-For")??false)
                 remoteIpAddress = context.Request.Headers["X-Forwarded-For"];
             return remoteIpAddress;
         }
