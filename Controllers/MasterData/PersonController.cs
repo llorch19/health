@@ -9,6 +9,7 @@
  * - 使用JObject["personinfo"]=db.GetOne() 这种形式逐个添加所需信息             @norway 2020-07-14 10:24
  * - GetList 需要附带返回Person列表的总条数。                                   @xuedi  2020-07-17  10:47
  * - Post提交值将只包含：个人信息。检测及随访的针对各自的接口进行POST。            @xuedi  2020-07-17  17:21
+ * - 先不检查复诊字段       @xuedi  2020-07-22  10:35
  */
 using health.BaseData;
 using health.common;
