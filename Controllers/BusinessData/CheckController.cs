@@ -207,6 +207,8 @@ WHERE ID=?p1",id);
             res["gender"] = new GenderController(null)
                 .GetGenderInfo(res["genderid"]?.ToObject<int>() ?? 0);
             res["items"] = GetCheckItems(res["id"]?.ToObject<int>() ?? 0);
+            res["status"] = 200;
+            res["msg"] = "读取成功";
             return res;
         }
 
@@ -225,16 +227,17 @@ WHERE ID=?p1",id);
             dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
             dict["RecommendedTreatID"] = req["recommendedtreatid"]?.ToObject<int>();
             dict["ChosenTreatID"] = req["chosentreatid"]?.ToObject<int>();
-            dict["IsReexam"] = req["isreexam"]?.ToObject<int>();
+            dict["IsReexam"] = req["isreexam"]?.ToObject<Boolean>();
             dict["GenderID"] = req["genderid"]?.ToObject<int>();
+            dict["CheckType"] = req["checktype"]?.ToObject<string>();
             dict["DetectionNO"] = req["detectionno"]?.ToObject<string>();
-            dict["ClinicalNO"] = req["clinicalno"]?.ToObject<string>();
-            dict["DepartmentName"] = req["departmentname"]?.ToObject<string>();
-            dict["InpatientArea"] = req["inpatientarea"]?.ToObject<string>();
-            dict["SickbedNO"] = req["sickbedno"]?.ToObject<string>();
-            dict["SampleID"] = req["sampleid"]?.ToObject<string>();
-            dict["SampleType"] = req["sampletype"]?.ToObject<string>();
-            dict["SampleStatus"] = req["samplestatus"]?.ToObject<string>();
+            //dict["ClinicalNO"] = req["clinicalno"]?.ToObject<string>();
+            //dict["DepartmentName"] = req["departmentname"]?.ToObject<string>();
+            //dict["InpatientArea"] = req["inpatientarea"]?.ToObject<string>();
+            //dict["SickbedNO"] = req["sickbedno"]?.ToObject<string>();
+            //dict["SampleID"] = req["sampleid"]?.ToObject<string>();
+            //dict["SampleType"] = req["sampletype"]?.ToObject<string>();
+            //dict["SampleStatus"] = req["samplestatus"]?.ToObject<string>();
             dict["SubmitBy"] = req["submitby"]?.ToObject<string>();
             dict["SubmitTime"] = req["submittime"]?.ToObject<DateTime>();
             dict["ObjectiveResult"] = req["objectiveresult"]?.ToObject<string>();
@@ -249,6 +252,16 @@ WHERE ID=?p1",id);
             dict["Reference"] = req["reference"]?.ToObject<string>();
             // TODO: ADD CheckItem HERE
 
+            CheckProductController product = new CheckProductController(null);
+            JObject pObject = new JObject();
+            pObject["Name"] = req["productname"];
+            pObject["BatchNumber"] = req["product"];
+            pObject["Specification"] = req["specification"];
+            product.SetCheckProduct(pObject);
+
+            CheckItemController items = new CheckItemController(null);
+            JObject itemObject = new JObject();
+            //itemObject[""]
 
             if (req["id"]?.ToObject<int>() > 0)
             {
