@@ -3,6 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Renci.SshNet.Security;
 using System;
+/*
+ * Title : “文件”控制器
+ * Author: zudan
+ * Date  : 2020-07-22
+ * Description: 上传下载文件，需要在中间件加以权限控制
+ * Comments
+ */
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
@@ -15,6 +22,9 @@ using util.mysql;
 
 namespace health.Controllers
 {
+    /// <summary>
+    /// 上传下载图片
+    /// </summary>
     [ApiController]
     [Route("api")]
     public class FileController:ControllerBase
@@ -22,6 +32,13 @@ namespace health.Controllers
         dbfactory db = new dbfactory();
         const string spliter = "$$";
 
+        /// <summary>
+        /// 上传指定“检查结果”对应的图片
+        /// </summary>
+        /// <param name="checkid"></param>
+        /// <param name="files"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         [HttpPost("upload/{checkid:int}")]
         public JObject UploadFile(
          int checkid,
@@ -32,7 +49,9 @@ namespace health.Controllers
             string uploadir = new config().GetValue("upload");
             if (!Directory.Exists(uploadir))
                 Directory.CreateDirectory(uploadir);
-            StringBuilder builder = new StringBuilder();
+
+            StringBuilder bPics = new StringBuilder();
+            
             foreach (var f in files)
             {
                 string filepath = Path.Combine(uploadir, Path.GetRandomFileName() + Path.GetExtension(f.FileName));
@@ -43,13 +62,13 @@ namespace health.Controllers
                 {
                     f.CopyTo(stream);
                 }
-                builder.Append(Path.GetFullPath(filepath));
-                builder.Append(spliter);
+                bPics.Append(Path.GetFullPath(filepath));
+                bPics.Append(spliter);
             }
 
 
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Pics"] = builder.ToString();
+            dict["Pics"] = bPics.ToString();
 
             Dictionary<string, object> keys = new Dictionary<string, object>();
             keys["id"] = checkid;
