@@ -12,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using System.IO;
 using health.common;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace health
 {
@@ -51,6 +52,7 @@ namespace health
             });
             #endregion
 
+            #region swagger
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "API接口文档", Version = "v1" });
@@ -78,6 +80,12 @@ namespace health
                 var basePath = HostEnvironment.ContentRootPath;//获取应用程序所在目录（绝对，不受工作目录影响，建议采用此方法获取路径）
                 var xmlPath = Path.Combine(basePath, "health.xml");
                 c.IncludeXmlComments(xmlPath);
+            });
+            #endregion
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             });
 
             services.AddSingleton<IdGenerator>();
