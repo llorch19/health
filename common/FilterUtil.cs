@@ -11,7 +11,7 @@ namespace health
     {
         public static string GetUser(HttpContext context)
         {
-            return context.Connection.RemoteIpAddress.ToString();
+            return context?.Connection?.RemoteIpAddress?.ToString();
         }
     }
 }
