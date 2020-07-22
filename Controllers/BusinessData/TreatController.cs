@@ -186,19 +186,19 @@ WHERE ID=?p1
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
-            dict["PrescriptionCode"] = req["prescriptioncode"]?.ToObject<string>();
             dict["PatientID"] = req["patientid"]?.ToObject<int>();
             dict["GenderID"] = req["genderid"]?.ToObject<int>();
-            dict["DiseaseCode"] = req["diseasecode"]?.ToObject<string>();
             dict["TreatName"] = req["treatname"]?.ToObject<string>();
-            dict["DrugGroupNumber"] = req["druggroupnumber"]?.ToObject<int>();
-            dict["Tstatus"] = req["tstatus"]?.ToObject<string>();
-            dict["Prescriber"] = req["prescriber"]?.ToObject<int>();
-            dict["PrescribeTime"] = req["prescribetime"]?.ToObject<DateTime>();
-            dict["PrescribeDepartment"] = req["prescribedepartment"]?.ToObject<string>();
-            dict["IsCancel"] = req["iscancel"]?.ToObject<int>();
-            dict["CancelTime"] = req["canceltime"]?.ToObject<DateTime>();
-            dict["CompleteTime"] = req["completetime"]?.ToObject<DateTime>();
+            //dict["DiseaseCode"] = req["diseasecode"]?.ToObject<string>();
+            //dict["PrescriptionCode"] = req["prescriptioncode"]?.ToObject<string>();
+            //dict["DrugGroupNumber"] = req["druggroupnumber"]?.ToObject<int>();
+            //dict["Tstatus"] = req["tstatus"]?.ToObject<string>();
+            //dict["Prescriber"] = req["prescriber"]?.ToObject<int>();
+            //dict["PrescribeTime"] = req["prescribetime"]?.ToObject<DateTime>();
+            //dict["PrescribeDepartment"] = req["prescribedepartment"]?.ToObject<string>();
+            //dict["IsCancel"] = req["iscancel"]?.ToObject<int>();
+            //dict["CancelTime"] = req["canceltime"]?.ToObject<DateTime>();
+            //dict["CompleteTime"] = req["completetime"]?.ToObject<DateTime>();
             // TODO: 在这里添加add item逻辑
 
 
