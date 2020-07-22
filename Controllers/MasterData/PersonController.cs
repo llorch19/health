@@ -172,77 +172,58 @@ where t_patient.ID=?p1"
             res["personinfo"] = personinfo;
             // 检查信息
             //where IsReexam = 0
-            res["checkinfo"] = db.GetArray(@"select 
+            res["checkinfo"] = db.GetArray(@"
+SELECT 
 IFNULL(t_detectionrecord.ID,'') as ID
 ,IFNULL(ReportTime,'') as ReportTime
 ,IFNULL(data_detectionresulttype.ResultName,'') as ResultName
+,IFNULL(IsReexam,'') as IsReexam
 from t_detectionrecord
 LEFT JOIN data_detectionresulttype
 ON t_detectionrecord.DiagnoticsTypeID=data_detectionresulttype.ID
 and PatientID=?p1"
                 , id);
 
-            res["check"] = db.GetOne(@"select 
-IFNULL(t_detectionrecord.ID,'') as ID
-,IFNULL(t_detectionproduct.`Name`,'') as ProductName
-,IFNULL(t_detectionproduct.Specification,'') as Specification
-,IFNULL(t_detectionproduct.BatchNumber,'') as BatchNumber
-,IFNULL(t_detectionrecorditem.InjectTime,'') as InjectTime
-,IFNULL(t_detectionrecorditem.ResultTime,'') as ResultTime
-,IFNULL(r.`Name`,'') as Recommend
-,IFNULL(c.`Name`,'') as Chosen
-,IFNULL(t_detectionrecord.Pics,'') as Pics
-,IFNULL(t_detectionrecord.Pdf,'') as Pdf
-from t_detectionrecorditem
-LEFT JOIN t_detectionrecord
-ON t_detectionrecord.ID=t_detectionrecorditem.DetectionRecordID
-LEFT JOIN t_detectionproduct
-ON t_detectionrecorditem.DetectionProductID=t_detectionproduct.ID
-LEFT JOIN data_treatmentoption r
-ON t_detectionrecord.RecommendedTreatID=r.ID
-LEFT JOIN data_treatmentoption c
-ON t_detectionrecord.ChosenTreatID=c.ID
-where  t_detectionrecord.IsReexam=0
-and t_detectionrecorditem.PatientID = ?p1 
-order by ResultTime desc limit 1"
-                , id);
-
-            res["recheck"] = db.GetArray(@"select 
-IFNULL(t_detectionrecord.ID, '') as ID
-, IFNULL(t_detectionproduct.`Name`, '') as ProductName
-, IFNULL(t_detectionproduct.Specification, '') as Specification
-, IFNULL(t_detectionproduct.BatchNumber, '') as BatchNumber
-, IFNULL(t_detectionrecorditem.InjectTime, '') as InjectTime
-, IFNULL(t_detectionrecorditem.ResultTime, '') as ResultTime
-, IFNULL(r.`Name`, '') as Recommend
-, IFNULL(c.`Name`, '') as Chosen
-, IFNULL(t_detectionrecord.Pics, '') as Pics
-, IFNULL(t_detectionrecord.Pdf, '') as Pdf
-from t_detectionrecorditem
-LEFT JOIN t_detectionrecord
-ON t_detectionrecord.ID = t_detectionrecorditem.DetectionRecordID
-LEFT JOIN t_detectionproduct
-ON t_detectionrecorditem.DetectionProductID = t_detectionproduct.ID
-LEFT JOIN data_treatmentoption r
-ON t_detectionrecord.RecommendedTreatID = r.ID
-LEFT JOIN data_treatmentoption c
-ON t_detectionrecord.ChosenTreatID = c.ID
-where  t_detectionrecord.IsReexam = 1
-and t_detectionrecorditem.PatientID = ?p1
-order by ResultTime desc limit 1"
-                    , id);
+            res["treatinfo"] = db.GetArray(@"
+SELECT
+IFNULL(t_treat.ID,'') AS ID
+,IFNULL(t_treat.PrescribeTime,'') AS PrescribeTime
+,IFNULL(t_medication.`Name`,'') AS MedicationName
+FROM t_treatitem
+LEFT JOIN t_medication
+ON t_treatitem.MedicationID=t_medication.ID
+LEFT JOIN t_treat
+ON t_treatitem.TreatID=t_treat.ID
+AND t_treatitem.PatientID=?p1",id);
 
             // 随访信息
-            res["followup"] = db.GetArray(
-                @"select 
-IFNULL(t_followup.ID,'') as ID
+            res["followupinfo"] = db.GetArray(@"
+SELECT
+IFNULL(ID,'') as ID
 ,IFNULL(Time,'') as Time
 ,IFNULL(PersonList,'') as PersonList
 ,IFNULL(Abstract,'') as Abstract
-,IFNULL(Detail,'') as Detail from t_followup
+FROM t_followup
+WHERE PatientID=?p1
+",id);
+
+            res["vaccinfo"] = db.GetArray(@"
+SELECT 
+IFNULL(t_vacc.ID,'') AS ID
+,IFNULL(t_vacc.OperationTime,'') AS OperationTime
+,IFNULL(t_medication.CommonName,'') AS CommonName
+,IFNULL(t_medication.ESC,'') AS ESC
+,IFNULL(t_orgnization.OrgName,'') AS OrgName
+,IFNULL(t_user.ChineseName,'') AS Operator
+FROM t_vacc
+LEFT JOIN t_medication
+ON t_vacc.MedicationID=t_medication.ID
 LEFT JOIN t_orgnization
-ON t_followup.OrgnizationID=t_orgnization.ID
-where PatientID=?p1", id);
+ON t_vacc.OrgnizationID=t_orgnization.ID
+LEFT JOIN t_user
+ON t_vacc.OperationUserID=t_user.ID
+AND t_vacc.PatientID=?p1
+", id);
 
             if (res["personinfo"].HasValues)
             {
