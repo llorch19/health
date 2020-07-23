@@ -492,6 +492,29 @@
             <param name="req">在请求body中JSON形式的“检测”信息</param>
             <returns>响应状态信息</returns>
         </member>
+        <member name="M:health.Controllers.CheckController.UploadFile(System.Int32,Microsoft.AspNetCore.Http.IFormFile[],System.Threading.CancellationToken)">
+            <summary>
+            上传指定“检查结果”对应的图片
+            </summary>
+            <param name="checkid"></param>
+            <param name="files"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.CheckController.GetFile(System.Int32,System.Int32)">
+            <summary>
+            获取指定“检查编号”对应的图片
+            </summary>
+            <param name="checkid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.CheckController.GetFileList(System.Int32)">
+            <summary>
+            获取指定检查结果中包含的图片
+            </summary>
+            <param name="checkid"></param>
+            <returns></returns>
+        </member>
         <member name="M:health.Controllers.CheckItemController.GetOrgCheckItemList(System.Int32)">
             <summary>
             获取机构的“检测”列表
@@ -588,6 +611,28 @@
             </summary>
             <param name="req">在请求body中JSON形式的“公告”信息</param>
             <returns>响应状态信息</returns>
+        </member>
+        <member name="M:health.Controllers.MessageController.IsOrgUser">
+            <summary>
+            只有机构用户可以查看并编辑未发布的公告
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.MessageController.UploadPics(Microsoft.AspNetCore.Http.IFormFile[],System.Threading.CancellationToken)">
+            <summary>
+            上传指定“公告”对应的图片
+            </summary>
+            <param name="files"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.MessageController.UploadZip(Microsoft.AspNetCore.Http.IFormFile[],System.Threading.CancellationToken)">
+            <summary>
+            上传指定“公告”对应的附件
+            </summary>
+            <param name="files"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
         </member>
         <member name="M:health.Controllers.ReadMessageController.GetList(System.Int32)">
             <summary>

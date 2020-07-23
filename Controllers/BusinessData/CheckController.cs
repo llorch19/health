@@ -475,6 +475,11 @@ WHERE DetectionRecordID=?p1",checkid);
             return res;
         }
 
+        /// <summary>
+        /// 获取指定“检查编号”对应的图片
+        /// </summary>
+        /// <param name="checkid"></param>
+        /// <returns></returns>
         [HttpGet("Get[controller]Pic/{checkid:int}/{index:int}")]
         public IActionResult GetFile(int checkid, int index)
         {
@@ -502,6 +507,12 @@ WHERE DetectionRecordID=?p1",checkid);
             };
         }
 
+
+        /// <summary>
+        /// 获取指定检查结果中包含的图片
+        /// </summary>
+        /// <param name="checkid"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("Get[controller]Pics/{checkid:int}")]
         public JObject GetFileList(int checkid)

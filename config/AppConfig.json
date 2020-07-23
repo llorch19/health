@@ -8,8 +8,16 @@
     "filecount": 2
   },
   "user": {
-    "upload": "upload",
-    "filesize": "2097152",
-    "filecount": 10
+    "static": "upload",
+    "pic": {
+      "upload": "uploadpic",
+      "filesize": "2097152",
+      "filecount": 20
+    },
+    "zip": {
+      "upload": "uploadzip",
+      "filesize": "20971520",
+      "filecount": 2
+    }
   }
 }

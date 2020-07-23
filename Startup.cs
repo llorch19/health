@@ -13,6 +13,8 @@ using System.IO;
 using health.common;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.FileProviders;
+using util;
 
 namespace health
 {
@@ -94,6 +96,8 @@ namespace health
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            config conf = new config();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -113,6 +117,16 @@ namespace health
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+
+            // 在生产环境当中，upload不可以static资源发放，应该以UploadController的形式发放
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                    FileProvider = new PhysicalFileProvider(
+                            Path.Combine(env.ContentRootPath, conf.GetValue("user:static"))),
+                    RequestPath = "/"+ conf.GetValue("user:static")
+            }
+            );
 
             app.UseEndpoints(endpoints =>
             {
