@@ -33,9 +33,9 @@ namespace health.Controllers
         dbfactory db = new dbfactory();
         config conf = new config();
         const string spliter = "$$";
-        string[] permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif"};
+        string[] permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
 
-        public MessageController(ILogger<MessageController> logger,IWebHostEnvironment env)
+        public MessageController(ILogger<MessageController> logger, IWebHostEnvironment env)
         {
             _logger = logger;
             _env = env;
@@ -62,6 +62,7 @@ IFNULL(t_messagesent.ID,'') as ID
 ,IFNULL(t_messagesent.Abstract,'') as Abstract
 ,IFNULL(t_messagesent.Thumbnail,'') as Thumbnail
 ,IFNULL(Content,'') as Content
+,IFNULL(Attachment,'') as Attachment
 FROM t_messagesent 
 LEFT JOIN t_user
 ON t_user.ID=t_messagesent.PublishUserID
@@ -109,6 +110,7 @@ IFNULL(ID,'') AS ID
 ,IFNULL(Abstract,'') AS Abstract
 ,IFNULL(Thumbnail,'') AS Thumbnail
 ,IFNULL(Content,'') AS Content
+,IFNULL(Attachment,'') as Attachment
 FROM t_messagesent 
 WHERE t_messagesent.ID=?p1";
 
@@ -117,12 +119,12 @@ WHERE t_messagesent.ID=?p1";
 AND IsPublic=1
 ";
 
-            JObject res = db.GetOne(sql,id);
+            JObject res = db.GetOne(sql, id);
             if (res["id"] != null)
             {
                 OrgnizationController org = new OrgnizationController(null);
-                res["orgnization"] = org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>()??0);
-                PersonController person = new PersonController(null,null);
+                res["orgnization"] = org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
+                PersonController person = new PersonController(null, null);
                 res["publish"] = person.GetUserInfo(res["publishuserid"]?.ToObject<int>() ?? 0);
                 res["status"] = 200;
                 res["msg"] = "获取数据成功";
@@ -152,6 +154,7 @@ AND IsPublic=1
             dict["Abstract"] = req["abstract"]?.ToObject<string>();
             dict["Thumbnail"] = req["thumbnail"]?.ToObject<string>();
             dict["Content"] = req["content"]?.ToObject<string>();
+            dict["Attachment"] = req["attachment"]?.ToObject<string>();
             dict["IsPublic"] = req["ispublic"]?.ToObject<string>();
 
             if (req["id"]?.ToObject<int>() > 0)
@@ -250,7 +253,7 @@ AND IsPublic=1
             }
 
 
-            string filestore = Path.Combine(_env.ContentRootPath,conf.GetValue("user:static"), uploadir);
+            string filestore = Path.Combine(_env.ContentRootPath, conf.GetValue("user:static"), uploadir);
 
             if (!Directory.Exists(filestore))
                 Directory.CreateDirectory(filestore);
@@ -279,7 +282,7 @@ AND IsPublic=1
                 }
                 Uri full = new Uri(filepath);
                 Uri baseUri = new Uri(_env.ContentRootPath);
-                array.Add(full.ToString().Replace(baseUri.ToString(),""));
+                array.Add(full.ToString().Replace(baseUri.ToString(), ""));
             }
 
 
@@ -323,7 +326,7 @@ AND IsPublic=1
             }
 
 
-            string filestore = Path.Combine(_env.ContentRootPath,conf.GetValue("user:static"), uploadir);
+            string filestore = Path.Combine(_env.ContentRootPath, conf.GetValue("user:static"), uploadir);
 
             if (!Directory.Exists(filestore))
                 Directory.CreateDirectory(filestore);
@@ -338,7 +341,7 @@ AND IsPublic=1
                 using (var memoryStream = new MemoryStream())
                 {
                     f.CopyTo(memoryStream);
-                    if (!FileHelpers.IsValidFileExtensionAndSignature(f.FileName, memoryStream, new string[]{ ".zip"} ))
+                    if (!FileHelpers.IsValidFileExtensionAndSignature(f.FileName, memoryStream, new string[] { ".zip" }))
                     {
                         res["status"] = 201;
                         res["msg"] = f.FileName + " 不能上传";
