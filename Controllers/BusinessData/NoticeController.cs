@@ -33,7 +33,6 @@ namespace health.Controllers
         IWebHostEnvironment _env;
         dbfactory db = new dbfactory();
         config conf = new config();
-        const string spliter = "$$";
         string[] permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
 
         public NoticeController(ILogger<NoticeController> logger, IWebHostEnvironment env)

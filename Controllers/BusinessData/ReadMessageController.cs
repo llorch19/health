@@ -4,10 +4,12 @@
  * Date  : 2020-07-14
  * Description: 对个人信息的增删查改
  * Comments
+ * - ReadMessage 只针对个人用户    @xuedi      2020-07-23      10:50
  */
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using Renci.SshNet.Messages;
 using System;
 using System.Collections.Generic;
 using util.mysql;
@@ -38,25 +40,24 @@ namespace health.Controllers
 -- Get Unread Messages By User Id
 SELECT 
 IFNULL(t_messagesent.ID,'') AS ID
+,IFNULL(t_messagesent.OrgnizationID,'') as OrgnizationID
+,IFNULL(t_orgnization.OrgName,'') AS OrgName 
 ,IFNULL(t_user.ID,'') AS PublishUserID
 ,IFNULL(t_user.FamilyName,'') AS Publish 
-,IFNULL(t_messagesent.Title,'') AS Title
-,IFNULL(Content,'') AS Content
 ,IFNULL(PublishTime,'') AS PublishTime
-,IFNULL(OutdateTime,'') AS OutdateTime
-,IFNULL(IsCancel,'') AS IsCancel
-,IFNULL(IsClose,'') AS IsClose
-,IFNULL(ReaderType,'') AS ReaderType
-,IFNULL(t_messagesent.Description,'') AS Description 
+,IFNULL(t_messagesent.Title,'') AS Title
+,IFNULL(t_messagesent.Thumbnail,'') AS Thumbnail
+,IFNULL(t_messagesent.Abstract,'') AS Abstract
+,IFNULL(Content,'') AS Content
 FROM t_messagesent
 LEFT JOIN t_user
 ON t_user.ID=t_messagesent.PublishUserID
+LEFT JOIN t_orgnization
+ON t_orgnization.ID=t_messagesent.OrgnizationID
 WHERE t_messagesent.ID NOT IN(
 SELECT MessageID AS ID FROM t_messageread
-WHERE UserID=0)
-AND IsCancel=0
-AND IsClose=0
-AND OutdateTime > NOW()
+WHERE PatientID=1)
+AND t_messagesent.IsPublic = 1
 ");
             if (list.HasValues)
             {
@@ -77,13 +78,17 @@ AND OutdateTime > NOW()
         /// 打开“未读消息”信息，点击[科普公告]中的一个“未读消息”
         /// </summary>
         /// <param name="msgid">指定消息的id</param>
-        /// <param name="userid">指定用户的id</param>
+        /// <param name="patientid">指定用户的id</param>
         /// <returns>JSON对象，包含相应的“未读消息”</returns>
         [HttpGet]
         [Route("Get[controller]")]
-        public JObject Get(int msgid, int userid)
+        public JObject Get(int msgid, int patientid)
         {
-            JObject res = db.GetOne("select * from t_messagesent where id=?p1", msgid);
+            JObject res = db.GetOne(@"
+select 
+IFNULL(ID,'') AS ID 
+from t_messagesent where id=?p1
+", msgid);
             if (res["id"] == null)
             {
                 res["status"] = 201;
@@ -91,25 +96,25 @@ AND OutdateTime > NOW()
                 return res;
             }
 
-            if (res["readertype"].ToObject<string>() == "个人")
-            {
-                // 个人用户
-                JObject read = db.GetOne(@"select * 
+            res = new JObject();
+            // 自动插入已读记录
+            JObject read = db.GetOne(@"select ID
 from t_messageread 
 where messageid=?p1 
-and patientid=?p2", msgid, userid);
-                if (read["id"] == null)
-                {
-                    var newRead = new Dictionary<string, object>();
-                    newRead["MessageID"] = msgid;
-                    newRead["PatientID"] = userid;
-                    newRead["OpenTime"] = DateTime.Now;
-                    newRead["CreatedBy"] = userid;
-                    newRead["CreatedTime"] = DateTime.Now;
-                    db.Insert("t_messageread", newRead);
-                }
+and patientid=?p2", msgid, patientid);
+            if (read["id"] == null)
+            {
+                // 未打开过消息则自动插入
+                var newRead = new Dictionary<string, object>();
+                newRead["MessageID"] = msgid;
+                newRead["PatientID"] = patientid;
+                newRead["OpenTime"] = DateTime.Now;
+                newRead["CreatedBy"] = patientid;
+                newRead["CreatedTime"] = DateTime.Now;
+                db.Insert("t_messageread", newRead);
+            }
 
-                res["readinfo"] = db.GetOne(@"SELECT 
+            res = db.GetOne(@"SELECT 
 IFNULL(ID,'') AS ID
 ,IFNULL(MessageID,'') AS MessageID
 ,IFNULL(PatientID,'') AS PersonID
@@ -117,75 +122,17 @@ IFNULL(ID,'') AS ID
 ,IFNULL(FinishTime,'') AS FinishTime
 ,IFNULL(IsRead,'') AS IsRead 
 FROM t_messageread
-where MessageID=?p1 and PatientID=?p2", msgid, userid);
-            }
-            else
-            {
-                // 机构用户
-                JObject read = db.GetOne(@"select * 
-from t_messageread 
-where messageid=?p1 
-and userid=?p2", msgid, userid);
-                if (read["id"] == null)
-                {
-                    var newRead = new Dictionary<string, object>();
-                    newRead["MessageID"] = msgid;
-                    newRead["userid"] = userid;
-                    newRead["OpenTime"] = DateTime.Now;
-                    newRead["CreatedBy"] = userid;
-                    newRead["CreatedTime"] = DateTime.Now;
-                    db.Insert("t_messageread", newRead);
-                }
-
-                res["readinfo"] = db.GetOne(@"SELECT 
-IFNULL(ID,'') AS ID
-,IFNULL(MessageID,'') AS MessageID
-,IFNULL(UserID,'') AS UserID
-,IFNULL(OpenTime,'') AS OpenTime
-,IFNULL(FinishTime,'') AS FinishTime
-,IFNULL(IsRead,'') AS IsRead 
-FROM t_messageread
-where MessageID=?p1 and UserID=?p2", msgid, userid);
-            }
+where MessageID=?p1 and PatientID=?p2", msgid, patientid);
 
 
+            PersonController person = new PersonController(null, null);
+            res["person"] = person.GetPersonInfo(res["personid"]?.ToObject<int>()??0);
 
+            MessageController msg = new MessageController(null, null);
+            res["message"] = msg.GetMessage(msgid);
 
-
-
-
-
-
-
-            res["messageinfo"] = db.GetOne(@"SELECT 
-IFNULL(t_messagesent.ID,'') AS ID
-,IFNULL(t_user.ID,'') AS PublishUserID
-,IFNULL(t_user.FamilyName,'') AS Publish 
-,IFNULL(t_messagesent.Title,'') AS Title
-,IFNULL(Content,'') AS Content
-,IFNULL(PublishTime,'') AS PublishTime
-,IFNULL(OutdateTime,'') AS OutdateTime
-,IFNULL(IsCancel,'') AS IsCancel
-,IFNULL(IsClose,'') AS IsClose
-,IFNULL(ReaderType,'') AS ReaderType
-,IFNULL(t_messagesent.Description,'') AS Description 
-FROM t_messagesent
-LEFT JOIN t_user
-ON t_user.ID=t_messagesent.PublishUserID
-WHERE t_messagesent.ID = ?p1
-"
-                    , msgid);
-
-            if (res.HasValues)
-            {
-                res["status"] = 200;
-                res["msg"] = "获取数据成功";
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "没有获取到相应的数据";
-            }
+            res["status"] = 200;
+            res["msg"] = "获取数据成功";
             return res;
         }
 
@@ -201,7 +148,6 @@ WHERE t_messagesent.ID = ?p1
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["MessageID"] = req["messageid"]?.ToObject<int>();
-            dict["UserID"] = req["userid"]?.ToObject<int>();
             dict["PatientID"] = req["patientid"]?.ToObject<int>();
             dict["OpenTime"] = req["opentime"]?.ToObject<DateTime>();
             dict["FinishTime"] = req["finishtime"]?.ToObject<DateTime>();

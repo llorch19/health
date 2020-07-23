@@ -63,6 +63,7 @@ IFNULL(t_messagesent.ID,'') as ID
 ,IFNULL(t_messagesent.Thumbnail,'') as Thumbnail
 ,IFNULL(Content,'') as Content
 ,IFNULL(Attachment,'') as Attachment
+,IFNULL(IsPublic,'') as IsPublic
 FROM t_messagesent 
 LEFT JOIN t_user
 ON t_user.ID=t_messagesent.PublishUserID
@@ -111,6 +112,7 @@ IFNULL(ID,'') AS ID
 ,IFNULL(Thumbnail,'') AS Thumbnail
 ,IFNULL(Content,'') AS Content
 ,IFNULL(Attachment,'') as Attachment
+,IFNULL(IsPublic,'') as IsPublic
 FROM t_messagesent 
 WHERE t_messagesent.ID=?p1";
 
