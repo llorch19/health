@@ -132,8 +132,8 @@ AND IsPublic=1
         public JObject SetMessage([FromBody] JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            //dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
-            //dict["PublishUserID"] = req["publishuserid"]?.ToObject<int>();
+            dict["OrgnizationID"] = 1;
+            dict["PublishUserID"] = 4;
             dict["Title"] = req["title"]?.ToObject<string>();
             dict["Abstract"] = req["abstract"]?.ToObject<string>();
             dict["Thumbnail"] = req["thumbnail"]?.ToObject<string>();

@@ -6,6 +6,9 @@
  * Comments
  * -GetUserCheckList 应该和GetPeron["check"]字段一致     @xuedi      2020-07-22      15:48
  */
+using health.common;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -13,6 +16,11 @@ using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using util;
 using util.mysql;
 
 namespace health.Controllers
@@ -23,6 +31,9 @@ namespace health.Controllers
     {
         private readonly ILogger<CheckController> _logger;
         dbfactory db = new dbfactory();
+        const string spliter = "$$";
+        string[] permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
+
         public CheckController(ILogger<CheckController> logger)
         {
             _logger = logger;
@@ -365,6 +376,151 @@ WHERE DetectionRecordID=?p1",checkid);
                 //item["tester"]
             }
 
+            return res;
+        }
+
+
+        
+        /// <summary>
+        /// 上传指定“检查结果”对应的图片
+        /// </summary>
+        /// <param name="checkid"></param>
+        /// <param name="files"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpPost("Upload[controller]Pics/{checkid:int}")]
+        public JObject UploadFile(
+         int checkid,
+         IFormFile[] files,
+         CancellationToken cancellationToken)
+        {
+            JObject res = new JObject();
+            config conf = new config();
+            string uploadir = conf.GetValue("person:upload");
+            int countlimit = int.Parse(conf.GetValue("person:filecount"));
+            if (files.Length > countlimit)
+            {
+                res["status"] = 201;
+                res["msg"] = "最多允许上传 " + countlimit + " 个文件";
+                return res;
+            }
+
+            long sizelimit = long.Parse(conf.GetValue("person:filesize"));
+            if (files
+                .Where(f => f.Length == 0 || f.Length > sizelimit)
+                .FirstOrDefault() != null)
+            {
+                res["status"] = 201;
+                res["msg"] = "文件大小介于0，" + sizelimit;
+                return res;
+            }
+
+            JObject check = db.GetOne(@"SELECT ID,ReportTime,Pics,IsArchived FROM t_detectionrecord WHERE ID=?p1", checkid);
+            if (check["id"] == null || (check["isarchived"]?.ToObject<bool>() ?? false))
+            {
+                res["status"] = 201;
+                res["msg"] = "无法上传";
+                return res;
+            }
+
+
+            if (!Directory.Exists(uploadir))
+                Directory.CreateDirectory(uploadir);
+
+            StringBuilder bPics = new StringBuilder();
+
+            foreach (var f in files)
+            {
+                string filepath = Path.Combine(uploadir, Path.GetRandomFileName() + Path.GetExtension(f.FileName));
+                while (System.IO.File.Exists(filepath))
+                    filepath = Path.Combine(uploadir, Path.GetRandomFileName() + Path.GetExtension(f.FileName));
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    f.CopyTo(memoryStream);
+                    if (!FileHelpers.IsValidFileExtensionAndSignature(f.FileName, memoryStream, permittedExtensions))
+                    {
+                        res["status"] = 201;
+                        res["msg"] = f.FileName + " 不能上传";
+                        return res;
+                    }
+                    else
+                    {
+                        using (var fileStream = new FileStream(filepath, FileMode.Create))
+                            f.CopyTo(fileStream);
+                    }
+                }
+
+                bPics.Append(Path.GetFullPath(filepath));
+                bPics.Append(spliter);
+            }
+
+
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["Pics"] = bPics.ToString();
+            dict["LastUpdatedBy"] = FilterUtil.GetUser(this.HttpContext);
+            dict["LastUpdatedTime"] = DateTime.Now;
+            Dictionary<string, object> keys = new Dictionary<string, object>();
+            keys["id"] = checkid;
+
+            int row = db.Update("t_detectionrecord", dict, keys);
+
+            if (row > 0)
+                foreach (var oldfile in check["pics"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries))
+                    if (System.IO.File.Exists(oldfile))
+                        System.IO.File.Delete(oldfile);
+
+            res = GetFileList(checkid);
+            res["msg"] = "上传成功";
+            return res;
+        }
+
+        [HttpGet("Get[controller]Pic/{checkid:int}/{index:int}")]
+        public IActionResult GetFile(int checkid, int index)
+        {
+            JObject check = db.GetOne(@"SELECT ReportTime,Pics FROM t_detectionrecord WHERE ID=?p1", checkid);
+            JObject res = new JObject();
+            string[] pics = check["pics"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries);
+            if (index >= pics?.Length)
+                return NoContent();
+
+            string filepath = pics?[index];
+            if (string.IsNullOrEmpty(filepath))
+                return NoContent();
+
+            string mimeType = "application/octet-stream";
+            var stream = new FileStream(filepath, FileMode.Open);
+
+            StringBuilder bFileDownloadName = new StringBuilder();
+            bFileDownloadName.Append(check["reporttime"]?.ToObject<DateTime>().ToString("yyyymmdd"));
+            bFileDownloadName.Append(".");
+            bFileDownloadName.Append(index);
+            bFileDownloadName.Append(Path.GetExtension(filepath));
+            return new FileStreamResult(stream, mimeType)
+            {
+                FileDownloadName = bFileDownloadName.ToString()
+            };
+        }
+
+        [HttpGet]
+        [Route("Get[controller]Pics/{checkid:int}")]
+        public JObject GetFileList(int checkid)
+        {
+            JObject tmp = db.GetOne(@"SELECT Pics FROM t_detectionrecord WHERE ID=?p1", checkid);
+            string[] pics = tmp["pics"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries);
+            JArray array = new JArray();
+            for (int i = 0; i < pics?.Length; i++)
+            {
+                var tmpl = ControllerContext.ActionDescriptor.AttributeRouteInfo.Template;
+                tmpl = tmpl.Replace("{checkid:int}", "{0}/{1}");
+                tmpl = tmpl.Replace("Upload","Get");
+                var url = string.Format(tmpl,checkid,i);
+                array.Add(url);
+            }
+            JObject res = new JObject();
+            res["list"] = array;
+            res["status"] = 200;
+            res["msg"] = "读取成功";
             return res;
         }
     }

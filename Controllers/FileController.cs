@@ -50,8 +50,8 @@ namespace health.Controllers
         {
             JObject res = new JObject();
             config conf = new config();
-            string uploadir = conf.GetValue("upload");
-            int countlimit = int.Parse(conf.GetValue("filecount"));
+            string uploadir = conf.GetValue("person:upload");
+            int countlimit = int.Parse(conf.GetValue("person:filecount"));
             if (files.Length > countlimit)
             {
                 res["status"] = 201;
@@ -59,7 +59,7 @@ namespace health.Controllers
                 return res;
             }
 
-            long sizelimit = long.Parse(conf.GetValue("filesize"));
+            long sizelimit = long.Parse(conf.GetValue("person:filesize"));
             if (files
                 .Where(f => f.Length == 0 || f.Length > sizelimit)
                 .FirstOrDefault() != null)
