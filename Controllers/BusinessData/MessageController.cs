@@ -4,7 +4,9 @@
  * Date  : 2020-07-14
  * Description: 对个人信息的增删查改
  * Comments
+ * - 发布时间由服务器定，过期时间去掉，公告只针对Patient不针对User       @xuedi      2020-07-23  10:50
  */
+using health.Controllers.BaseData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -34,23 +36,32 @@ namespace health.Controllers
         public JObject GetMessageList()
         {
             JObject res = new JObject();
-            JArray list = db.GetArray(@"SELECT
+            string sql = @"
+SELECT
 IFNULL(t_messagesent.ID,'') as ID
+,IFNULL(t_messagesent.OrgnizationID,'') as OrgnizationID
+,IFNULL(t_orgnization.OrgName,'') AS OrgName 
 ,IFNULL(t_user.ID,'') as PublishUserID
 ,IFNULL(t_user.FamilyName,'') as Publish 
+,IFNULL(t_messagesent.PublishTime,'') as PublishTime
 ,IFNULL(t_messagesent.Title,'') as Title
+,IFNULL(t_messagesent.Abstract,'') as Abstract
+,IFNULL(t_messagesent.Thumbnail,'') as Thumbnail
 ,IFNULL(Content,'') as Content
-,IFNULL(PublishTime,'') as PublishTime
-,IFNULL(OutdateTime,'') as OutdateTime
-,IFNULL(IsCancel,'') as IsCancel
-,IFNULL(IsClose,'') as IsClose
-,IFNULL(ReaderType,'') as ReaderType
-,IFNULL(t_messagesent.Description,'') as Description
 FROM t_messagesent 
 LEFT JOIN t_user
 ON t_user.ID=t_messagesent.PublishUserID
-WHERE OutdateTime > NOW()
-");
+LEFT JOIN t_orgnization
+ON t_messagesent.OrgnizationID=t_orgnization.ID
+WHERE 1 = 1
+";
+            if (!IsOrgUser())
+            {
+                sql += @"
+AND t_messagesent.IsPublic = 1
+";
+            }
+            JArray list = db.GetArray(sql);
             if (list.HasValues)
             {
                 res["status"] = 200;
@@ -75,26 +86,30 @@ WHERE OutdateTime > NOW()
         [Route("GetMessage")]
         public JObject GetMessage(int id)
         {
-            JObject res = db.GetOne(@"select
-IFNULL(t_messagesent.ID,'') as ID
-,IFNULL(t_user.ID,'') as PublishUserID
-,IFNULL(t_user.FamilyName,'') as Publish 
-,IFNULL(t_messagesent.Title,'') as Title
-,IFNULL(Content,'') as Content
+            string sql = @"SELECT
+IFNULL(ID,'') AS ID
+,IFNULL(OrgnizationID,'') AS OrgnizationID
+,IFNULL(PublishUserID,'') AS PublishUserID
 ,IFNULL(PublishTime,'') as PublishTime
-,IFNULL(OutdateTime,'') as OutdateTime
-,IFNULL(IsCancel,'') as IsCancel
-,IFNULL(IsClose,'') as IsClose
-,IFNULL(ReaderType,'') as ReaderType
-,IFNULL(t_messagesent.Description,'') as Description
-from t_messagesent 
-LEFT JOIN t_user
-ON t_user.ID=t_messagesent.PublishUserID
-WHERE t_messagesent.ID=?p1
-"
-                    , id);
+,IFNULL(Title,'') AS Title
+,IFNULL(Abstract,'') AS Abstract
+,IFNULL(Thumbnail,'') AS Thumbnail
+,IFNULL(Content,'') AS Content
+FROM t_messagesent 
+WHERE t_messagesent.ID=?p1";
+
+            if (!IsOrgUser())
+                sql += @"
+AND IsPublic=1
+";
+
+            JObject res = db.GetOne(sql,id);
             if (res["id"] != null)
             {
+                OrgnizationController org = new OrgnizationController(null);
+                res["orgnization"] = org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>()??0);
+                PersonController person = new PersonController(null,null);
+                res["publish"] = person.GetUserInfo(res["publishuserid"]?.ToObject<int>() ?? 0);
                 res["status"] = 200;
                 res["msg"] = "获取数据成功";
             }
@@ -117,28 +132,26 @@ WHERE t_messagesent.ID=?p1
         public JObject SetMessage([FromBody] JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
-            dict["PublishUserID"] = req["publishuserid"]?.ToObject<int>();
+            //dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
+            //dict["PublishUserID"] = req["publishuserid"]?.ToObject<int>();
             dict["Title"] = req["title"]?.ToObject<string>();
+            dict["Abstract"] = req["abstract"]?.ToObject<string>();
+            dict["Thumbnail"] = req["thumbnail"]?.ToObject<string>();
             dict["Content"] = req["content"]?.ToObject<string>();
-            dict["Attachment"] = req["attachment"]?.ToObject<string>();
-            dict["PublishTime"] = req["publishtime"]?.ToObject<DateTime>();
-            dict["OutdateTime"] = req["outdatetime"]?.ToObject<DateTime>();
-            dict["IsCancel"] = req["iscancel"]?.ToObject<int>();
-            dict["IsClose"] = req["isclose"]?.ToObject<int>();
-            dict["ReaderType"] = req["readertype"]?.ToObject<string>();
-
+            dict["IsPublic"] = req["ispublic"]?.ToObject<string>();
 
             if (req["id"]?.ToObject<int>() > 0)
             {
-                Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];
+                Dictionary<string, object> keys = new Dictionary<string, object>();
+                keys["id"] = req["id"];
+
                 dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_messagesent", dict, condi);
+                var tmp = this.db.Update("t_messagesent", dict, keys);
             }
             else
             {
+                dict["PublishTime"] = DateTime.Now;
                 dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
                 this.db.Insert("t_messagesent", dict);
@@ -178,6 +191,15 @@ WHERE t_messagesent.ID=?p1
                 res["msg"] = "操作失败";
                 return res;
             }
+        }
+
+        /// <summary>
+        /// 只有机构用户可以查看并编辑未发布的公告
+        /// </summary>
+        /// <returns></returns>
+        private bool IsOrgUser()
+        {
+            return true;
         }
     }
 }
