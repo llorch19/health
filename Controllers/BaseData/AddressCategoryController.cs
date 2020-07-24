@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using Renci.SshNet.Security;
 using System;
 using System.Collections.Generic;
 using util.mysql;
@@ -28,7 +29,7 @@ namespace health.BaseData
             JObject res = new JObject();
             res["status"] = 200;
             res["msg"] = "读取成功";
-            res["list"] = db.GetArray("select ID,Code,AddressCategory from data_addresscategory");
+            res["list"] = db.GetArray("select ID,Code,AddressCategory from data_addresscategory WHERE IsActive=1 AND IsDeleted=0");
             return res;
         }
 
@@ -40,7 +41,7 @@ namespace health.BaseData
         [HttpGet("GetAddressCategory")]
         public JObject GetAddressCategory(int id)
         {
-            JObject res = db.GetOne("select ID,Code,AddressCategory from data_addresscategory where id=?p1", id);
+            JObject res = db.GetOne("select ID,Code,AddressCategory from data_addresscategory where id=?p1 AND IsActive=1 AND IsDeleted=0", id);
             if (res["id"] != null)
             {
                 res["status"] = 200;
@@ -66,7 +67,7 @@ namespace health.BaseData
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["Code"] = req["code"]?.ToObject<string>();
             dict["AddressCategory"] = req["addresscategory"]?.ToObject<string>();
-           
+            JObject res = new JObject();
 
             if (req["id"].ToObject<int>()>0)
             {
@@ -75,18 +76,18 @@ namespace health.BaseData
                 Dictionary<string, object> condi = new Dictionary<string, object>();
                 condi["id"] = req["id"];
                 var tmp=this.db.Update("data_addresscategory",dict,condi);
+                res["id"] = req["id"];
             }
             else
             {
                 dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("data_addresscategory",dict);
+                res["id"] = this.db.Insert("data_addresscategory",dict);
             }
 
-            JObject res = new JObject();
+            
             res["status"] = 200;
             res["msg"] = "提交成功";
-            res["id"] = req["id"];
             return res;
         }
 
@@ -100,9 +101,11 @@ namespace health.BaseData
         public JObject DelAddressCategory([FromBody] JObject req)
         {
             JObject res = new JObject();
-            var dict = req.ToObject<Dictionary<string, object>>();
-            dbfactory db = new dbfactory();
-            var count = db.del("data_addresscategory", dict);
+            var dict=new Dictionary<string, object>();
+            dict["IsDeleted"] = 1;
+            var keys = new Dictionary<string, object>();
+            keys["id"] = req["id"]?.ToObject<int>();
+            var count = db.Update("data_addresscategory", dict, keys);
             if (count > 0)
             {
                 res["status"] = 200;

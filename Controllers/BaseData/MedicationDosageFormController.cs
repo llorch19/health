@@ -112,8 +112,11 @@ select ID,Code,Name from data_medicationdosageform where id=?p1
         public JObject DelMedicationDosageForm([FromBody] JObject req)
         {
             JObject res = new JObject();
-            var dict = req.ToObject<Dictionary<string, object>>();
-            var count = db.del("data_medicationdosageform", dict);
+            var dict = new Dictionary<string, object>();
+            dict["IsDeleted"] = 1;
+            var keys = new Dictionary<string, object>();
+            keys["id"] = req["id"]?.ToObject<int>();
+            var count = db.Update("data_medicationdosageform", dict, keys);
             if (count > 0)
             {
                 res["status"] = 200;

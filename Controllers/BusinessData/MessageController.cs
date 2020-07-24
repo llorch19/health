@@ -196,8 +196,11 @@ AND IsPublic=1
         public JObject DelMessage([FromBody] JObject req)
         {
             JObject res = new JObject();
-            var dict = req.ToObject<Dictionary<string, object>>();
-            var count = db.del("t_messagesent", dict);
+            var dict = new Dictionary<string, object>();
+            dict["IsDeleted"] = 1;
+            var keys = new Dictionary<string, object>();
+            keys["id"] = req["id"]?.ToObject<int>();
+            var count = db.Update("t_messagesent", dict, keys);
             if (count > 0)
             {
                 res["status"] = 200;
