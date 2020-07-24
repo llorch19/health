@@ -209,7 +209,7 @@ WHERE ID=?p1", id);
             dict["DisChargeTime"] = req.ToDateTime("dischargetime");
             dict["IsReferral"] = req["isreferral"]?.ToObject<int>();
             dict["DesStatus"] = req["desstatus"]?.ToObject<string>();
-            dict["DesTime"] = req.ToDateTime("destime")
+            dict["DesTime"] = req.ToDateTime("destime");
             dict["IsReferralCancel"] = req["isreferralcancel"]?.ToObject<int>();
             dict["IsReferralFinish"] = req["isreferralfinish"]?.ToObject<int>();
 
