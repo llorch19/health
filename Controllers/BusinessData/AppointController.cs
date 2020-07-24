@@ -64,7 +64,9 @@ LEFT JOIN t_orgnization
 ON t_appoint.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_patient
 ON t_appoint.PatientID=t_patient.ID
-WHERE t_appoint.OrgnizationID=?p1", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
+WHERE t_appoint.OrgnizationID=?p1
+AND t_appoint.IsActive=1
+AND t_appoint.IsDeleted=0", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
             if (list.HasValues)
             {
                 res["status"] = 200;
@@ -116,7 +118,9 @@ LEFT JOIN t_orgnization
 ON t_appoint.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_patient
 ON t_appoint.PatientID=t_patient.ID
-WHERE t_appoint.PatientID=?p1", personid);
+WHERE t_appoint.PatientID=?p1
+AND t_appoint.IsActive=1
+AND t_appoint.IsDeleted=0", personid);
             if (list.HasValues)
             {
                 res["status"] = 200;
@@ -162,7 +166,8 @@ IFNULL(ID,'') AS ID
 ,IFNULL(CompleteTime,'') AS CompleteTime
 ,IFNULL(Description,'') AS Description
 FROM t_appoint
-WHERE ID=?p1", id);
+WHERE ID=?p1
+AND t_appoint.IsDeleted=0", id);
             if (res["id"] != null)
             {
                 res["orgnization"] = new OrgnizationController(null)

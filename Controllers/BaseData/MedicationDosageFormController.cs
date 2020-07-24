@@ -36,6 +36,8 @@ namespace health.Controllers
 
             JArray rows = db.GetArray(@"
 select ID,Code,Name from data_medicationdosageform
+where IsActive=1
+and IsDeleted=0
 ");
 
             res["list"] = rows;
@@ -52,7 +54,7 @@ select ID,Code,Name from data_medicationdosageform
         public override JObject Get(int id)
         {
             JObject res = db.GetOne(@"
-select ID,Code,Name from data_medicationdosageform where id=?p1
+select ID,Code,Name from data_medicationdosageform where id=?p1 and IsDeleted=0
 ", id);
             if (res["id"] != null)
             {
@@ -95,7 +97,7 @@ select ID,Code,Name from data_medicationdosageform where id=?p1
         public JObject GetDosageInfo(int id)
         {
             dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,Name text from data_medicationdosageform where id=?p1", id);
+            JObject res = db.GetOne("select id,Name text from data_medicationdosageform where id=?p1 and IsDeleted=0", id);
             return res;
         }
 

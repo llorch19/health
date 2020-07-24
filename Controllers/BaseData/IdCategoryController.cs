@@ -37,6 +37,8 @@ namespace health.Controllers
 
             JArray rows = db.GetArray(@"
 select id,Code,Name from data_idcategory
+where IsActive=1
+and IsDeleted=0
 ");
 
             res["list"] = rows;
@@ -52,7 +54,7 @@ select id,Code,Name from data_idcategory
         [Route("GetIdCategory")]
         public override JObject Get(int id)
         {
-            JObject res = db.GetOne("select id,Code,Name from data_idcategory where id=?p1", id);
+            JObject res = db.GetOne("select id,Code,Name from data_idcategory where id=?p1 and isdeleted=0", id);
             if (res["id"] != null)
             {
                 res["status"] = 200;
@@ -96,7 +98,7 @@ select id,Code,Name from data_idcategory
         public JObject GetIdCategoryInfo(int id)
         {
             dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,Name text from data_idcategory where id=?p1", id);
+            JObject res = db.GetOne("select id,Name text from data_idcategory where id=?p1 and isdeleted=0", id);
             return res;
         }
 

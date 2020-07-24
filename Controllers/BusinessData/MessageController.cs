@@ -70,7 +70,8 @@ LEFT JOIN t_user
 ON t_user.ID=t_messagesent.PublishUserID
 LEFT JOIN t_orgnization
 ON t_messagesent.OrgnizationID=t_orgnization.ID
-WHERE 1 = 1
+WHERE t_messagesent.IsActive=1
+AND t_meesagesent.IsDeleted=0
 ";
             if (!IsOrgUser())
             {

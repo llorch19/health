@@ -55,7 +55,9 @@ LEFT JOIN t_patient
 ON t_followup.PatientID=t_patient.ID
 LEFT JOIN t_orgnization
 ON t_followup.OrgnizationID=t_orgnization.ID
-WHERE t_followup.OrgnizationID=?p1", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
+WHERE t_followup.OrgnizationID=?p1
+AND t_followup.IsActive=1
+AND t_followup.IsDeleted=0", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -89,7 +91,9 @@ LEFT JOIN t_patient
 ON t_followup.PatientID=t_patient.ID
 LEFT JOIN t_orgnization
 ON t_followup.OrgnizationID=t_orgnization.ID
-WHERE t_followup.PatientID=?p1",personid);
+WHERE t_followup.PatientID=?p1
+AND t_followup.IsActive=1
+AND t_followup.IsDeleted=0", personid);
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -116,7 +120,8 @@ ID
 ,Detail
 FROM t_followup
 WHERE ID=?p1
-",id);
+AND t_followup.IsDeleted=0
+", id);
             res["person"] = new PersonController(null, null)
                 .GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
             res["orgnization"] = new OrgnizationController(null)

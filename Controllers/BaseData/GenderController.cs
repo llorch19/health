@@ -34,7 +34,7 @@ namespace health.Controllers
             res["msg"] = "读取成功";
 
             dbfactory db = new dbfactory();
-            JArray rows = db.GetArray("select id,Code,GenderName from data_gender");
+            JArray rows = db.GetArray("select id,Code,GenderName from data_gender where IsActive=1 and IsDeleted=0");
 
             res["list"] = rows;
             return res;
@@ -52,7 +52,7 @@ namespace health.Controllers
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
             dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,Code,GenderName from data_gender where id=?p1", id);
+            JObject res = db.GetOne("select id,Code,GenderName from data_gender where id=?p1 and IsDeleted = 0", id);
             if (res["id"] != null)
             {
                 res["status"] = 200;
@@ -101,7 +101,7 @@ namespace health.Controllers
         public JObject GetGenderInfo(int id)
         {
             dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,GenderName text from data_gender where id=?p1", id);
+            JObject res = db.GetOne("select id,GenderName text from data_gender where id=?p1 and IsDeleted=0", id);
             return res;
         }
 

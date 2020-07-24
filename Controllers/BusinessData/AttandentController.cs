@@ -65,7 +65,9 @@ LEFT JOIN t_orgnization src
 ON t_attandent.SrcOrgID=src.ID
 LEFT JOIN t_orgnization des
 ON t_attandent.DesOrgID=des.id
-WHERE t_attandent.OrgnizationID=?p1", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
+WHERE t_attandent.OrgnizationID=?p1
+AND t_attandent.IsActive=1
+AND t_attandent.IsDeleted=0", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -108,7 +110,9 @@ LEFT JOIN t_orgnization src
 ON t_attandent.SrcOrgID=src.ID
 LEFT JOIN t_orgnization des
 ON t_attandent.DesOrgID=des.id
-WHERE t_attandent.PatientID=?p1", personid);
+WHERE t_attandent.PatientID=?p1
+AND t_attandent.IsActive=1
+AND t_attandent.IsDeleted=0", personid);
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -142,7 +146,8 @@ IFNULL(ID, '') AS ID
 , IFNULL(IsReferralFinish, '') AS IsReferralFinish
 FROM
 t_attandent
-WHERE ID=?p1", id);
+WHERE ID=?p1
+AND t_attandent.IsDeleted=0", id);
 
             if (res["id"]!=null)
             {

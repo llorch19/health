@@ -103,6 +103,8 @@ ON t_detectionrecord.ReportBy=report.ID
 LEFT JOIN data_detectionresulttype
 ON t_detectionrecord.DiagnoticsTypeID=data_detectionresulttype.ID
 WHERE t_detectionrecord.OrgnizationID=?p1
+AND t_detectionrecord.IsActive=1
+AND t_detectionrecord.IsDeleted=0
 ", orgid);
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -173,6 +175,8 @@ ON t_detectionrecord.ReportBy=report.ID
 LEFT JOIN data_detectionresulttype
 ON t_detectionrecord.DiagnoticsTypeID=data_detectionresulttype.ID
 WHERE t_detectionrecord.PatientID=?p1
+AND t_detectionrecord.IsActive=1
+AND t_detectionrecord.IsDeleted=0
 ", personid);
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -213,7 +217,8 @@ ID
 ,Reference
 FROM 
 t_detectionrecord
-WHERE ID=?p1",id);
+WHERE ID=?p1
+AND t_detectionrecord.IsDeleted=0", id);
             res["person"] = new PersonController(null, null)
                 .GetPersonInfo(res["patientid"]?.ToObject<int>()??0);
             res["orgnization"] = new OrgnizationController(null)
@@ -363,7 +368,9 @@ ID
 ,Observer
 ,ObserveTime
 FROM t_detectionrecorditem
-WHERE DetectionRecordID=?p1",checkid);
+WHERE DetectionRecordID=?p1
+AND t_detectionrecorditem.IsActive=1
+AND t_detectionrecorditem.IsDeleted=0", checkid);
             foreach (JToken item in res)
             {
                 PersonController person = new PersonController(null, null);
@@ -421,7 +428,7 @@ WHERE DetectionRecordID=?p1",checkid);
                 return res;
             }
 
-            JObject check = db.GetOne(@"SELECT ID,ReportTime,Pics,IsArchived FROM t_detectionrecord WHERE ID=?p1", checkid);
+            JObject check = db.GetOne(@"SELECT ID,ReportTime,Pics,IsArchived FROM t_detectionrecord WHERE ID=?p1 AND IsActive=1 AND IsDeleted=0", checkid);
             if (check["id"] == null || (check["isarchived"]?.ToObject<bool>() ?? false))
             {
                 res["status"] = 201;
@@ -490,7 +497,7 @@ WHERE DetectionRecordID=?p1",checkid);
         [HttpGet("Get[controller]Pic/{checkid:int}/{index:int}")]
         public IActionResult GetFile(int checkid, int index)
         {
-            JObject check = db.GetOne(@"SELECT ReportTime,Pics FROM t_detectionrecord WHERE ID=?p1", checkid);
+            JObject check = db.GetOne(@"SELECT ReportTime,Pics FROM t_detectionrecord WHERE ID=?p1 AND IsActive=1 AND IsDeleted=0", checkid);
             JObject res = new JObject();
             string[] pics = check["pics"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries);
             if (index >= pics?.Length)
@@ -524,7 +531,7 @@ WHERE DetectionRecordID=?p1",checkid);
         [Route("Get[controller]Pics/{checkid:int}")]
         public JObject GetFileList(int checkid)
         {
-            JObject tmp = db.GetOne(@"SELECT Pics FROM t_detectionrecord WHERE ID=?p1", checkid);
+            JObject tmp = db.GetOne(@"SELECT Pics FROM t_detectionrecord WHERE ID=?p1 AND IsActive=1 AND IsDeleted=0", checkid);
             string[] pics = tmp["pics"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries);
             JArray array = new JArray();
             for (int i = 0; i < pics?.Length; i++)

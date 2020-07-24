@@ -44,7 +44,7 @@ namespace health.Controllers
             res["msg"] = "读取成功";
 
             dbfactory db = new dbfactory();
-            JArray rows = db.GetArray("select ID,Name from data_domitype");
+            JArray rows = db.GetArray("select ID,Name from data_domitype WHERE IsActive=1 AND IsDeleted=0");
 
             res["list"] = rows;
             return res;
@@ -59,7 +59,7 @@ namespace health.Controllers
         [Route("GetDomiType")]
         public override JObject Get(int id)
         {
-            JObject res = db.GetOne("select ID,Name from data_domitype where id=?p1", id);
+            JObject res = db.GetOne("select ID,Name from data_domitype where id=?p1 and isdeleted=0", id);
             if (res["id"] != null)
             {
                 res["status"] = 200;

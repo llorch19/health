@@ -54,6 +54,7 @@ namespace health.Controllers
             JObject res = new JObject();
             var dict = new Dictionary<string, object>();
             dict["IsDeleted"] = 1;
+            dict["IsActive"] = 0;
             var keys = new Dictionary<string, object>();
             keys["id"] = req["id"]?.ToObject<int>();
             var count = db.Update(TableName, dict, keys);
