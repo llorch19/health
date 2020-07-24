@@ -25,16 +25,29 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class PersonController : ControllerBase
+    public class PersonController : AbstractBLLController
     {
         private readonly ILogger<PersonController> _logger;
-        dbfactory db = new dbfactory();
         IdGenerator idGenerator;
+        public override string TableName => "t_patient";
+
         public PersonController(ILogger<PersonController> logger, IdGenerator generator)
         {
             _logger = logger;
             idGenerator = generator;
         }
+
+        /// <summary>
+        /// 获取个人列表，[人员转诊]菜单
+        /// </summary>
+        /// <returns>JSON数组形式的个人信息</returns>
+        [HttpGet]
+        [Route("GetPersonListD")]
+        public override JObject GetList()
+        {
+            return GetPersonList(10,0);
+        }
+
 
         /// <summary>
         /// 获取个人列表，[人员转诊]菜单
@@ -121,7 +134,7 @@ LIMIT ?p2,?p3"
         /// <returns>JSON形式的某位个人信息，包括个人信息，</returns>
         [HttpGet]
         [Route("GetPerson")]
-        public JObject GetPerson(int id)
+        public override JObject Get(int id)
         {
             common.BaseConfig conf = new common.BaseConfig();
             JObject res = new JObject();
@@ -251,59 +264,9 @@ AND t_vacc.PatientID=?p1
         /// <returns>JSON形式的响应状态信息</returns>
         [HttpPost]
         [Route("SetPerson")]
-        public JObject SetPerson([FromBody] JObject req)
+        public override JObject Set([FromBody] JObject req)
         {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
-            dict["PrimaryOrgnizationID"] = req["primaryorgnizationid"]?.ToObject<int>();
-            dict["Tel"] = req["tel"]?.ToObject<string>();
-            dict["IDCardNO"] = req["idcardno"]?.ToObject<string>();
-            dict["GenderID"] = req["genderid"]?.ToObject<int>();
-            dict["FamilyName"] = req["familyname"]?.ToObject<string>();
-            DateTime dt;
-            if (DateTime.TryParse(req["birthday"].ToObject<string>(),out dt))
-            {
-                dict["Birthday"] = dt ;
-            }
-            
-            
-            dict["Nation"] = req["nation"]?.ToObject<string>();
-            dict["DomicileType"] = req["domiciletype"]?.ToObject<string>();
-            dict["DomicileType"] = req["domiciletype"]?.ToObject<string>();
-            dict["DomicileDetail"] = req["domiciledetail"]?.ToObject<string>();
-            dict["WorkUnitName"] = req["workunitname"]?.ToObject<string>();
-            dict["OccupationCategoryID"] = req["occupationcategoryid"]?.ToObject<int>();
-            dict["Detainees"] = req["detainees"]?.ToObject<string>();
-            dict["AddressCategoryID"] = req["addresscategoryid"]?.ToObject<int>();
-            dict["Address"] = req["address"]?.ToObject<string>();
-            dict["GuardianName"] = req["guardianname"]?.ToObject<string>();
-            dict["GuardianContact"] = req["guardiancontact"]?.ToObject<string>();
-            dict["ProvinceID"] = req["provinceid"]?.ToObject<int>();
-            dict["CityID"] = req["cityid"]?.ToObject<int>();
-            dict["CountyID"] = req["countyid"]?.ToObject<int>();
-
-
-
-            if (req["id"]?.ToObject<int>() > 0)
-            {
-                Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_patient", dict, condi);
-            }
-            else
-            {
-                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("t_patient", dict);
-            }
-
-            JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "提交成功";
-            res["id"] = req["id"];
-            return res;
+            return base.Set(req);
         }
 
         /// <summary>
@@ -313,26 +276,9 @@ AND t_vacc.PatientID=?p1
         /// <returns>JSON形式的响应状态信息</returns>
         [HttpPost]
         [Route("DelPerson")]
-        public JObject DelPerson([FromBody] JObject req)
+        public override JObject Del([FromBody] JObject req)
         {
-            JObject res = new JObject();
-            var dict = new Dictionary<string, object>();
-            dict["IsDeleted"] = 1;
-            var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
-            var count = db.Update("t_patient", dict, keys);
-            if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+            return base.Del(req);
         }
 
         /// <summary>
@@ -373,5 +319,42 @@ AND t_vacc.PatientID=?p1
             JObject res = db.GetOne("select id,ChineseName text,IDCardNO code from t_user where id=?p1", id);
             return res;
         }
+
+        
+        public override Dictionary<string, object> GetReq(JObject req)
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
+            dict["PrimaryOrgnizationID"] = req["primaryorgnizationid"]?.ToObject<int>();
+            dict["Tel"] = req["tel"]?.ToObject<string>();
+            dict["IDCardNO"] = req["idcardno"]?.ToObject<string>();
+            dict["GenderID"] = req["genderid"]?.ToObject<int>();
+            dict["FamilyName"] = req["familyname"]?.ToObject<string>();
+            DateTime dt;
+            if (DateTime.TryParse(req["birthday"].ToObject<string>(), out dt))
+            {
+                dict["Birthday"] = dt;
+            }
+
+
+            dict["Nation"] = req["nation"]?.ToObject<string>();
+            dict["DomicileType"] = req["domiciletype"]?.ToObject<string>();
+            dict["DomicileType"] = req["domiciletype"]?.ToObject<string>();
+            dict["DomicileDetail"] = req["domiciledetail"]?.ToObject<string>();
+            dict["WorkUnitName"] = req["workunitname"]?.ToObject<string>();
+            dict["OccupationCategoryID"] = req["occupationcategoryid"]?.ToObject<int>();
+            dict["Detainees"] = req["detainees"]?.ToObject<string>();
+            dict["AddressCategoryID"] = req["addresscategoryid"]?.ToObject<int>();
+            dict["Address"] = req["address"]?.ToObject<string>();
+            dict["GuardianName"] = req["guardianname"]?.ToObject<string>();
+            dict["GuardianContact"] = req["guardiancontact"]?.ToObject<string>();
+            dict["ProvinceID"] = req["provinceid"]?.ToObject<int>();
+            dict["CityID"] = req["cityid"]?.ToObject<int>();
+            dict["CountyID"] = req["countyid"]?.ToObject<int>();
+
+
+            return dict;
+        }
+
     }
 }

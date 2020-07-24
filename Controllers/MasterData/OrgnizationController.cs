@@ -21,13 +21,25 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class OrgnizationController : ControllerBase
+    public class OrgnizationController : AbstractBLLController
     {
         private readonly ILogger<OrgnizationController> _logger;
-        dbfactory db = new dbfactory();
+        public override string TableName => "t_orgnization";
+
         public OrgnizationController(ILogger<OrgnizationController> logger)
         {
             _logger = logger;
+        }
+
+        /// <summary>
+        /// 获取“机构”列表
+        /// </summary>
+        /// <returns>JSON数组形式的“机构”信息</returns>
+        [HttpGet]
+        [Route("GetOrgListD")]
+        public override JObject GetList()
+        {
+            return GetOrgList(10,0);
         }
 
         /// <summary>
@@ -139,7 +151,7 @@ AND one.CountyID=?p3
         /// <returns>JSON形式的某个“机构”信息</returns>
         [HttpGet]
         [Route("GetOrg")]
-        public JObject GetOrg(int id)
+        public override JObject Get(int id)
         {
 
             dbfactory db = new dbfactory();
@@ -188,7 +200,34 @@ WHERE ID=?p1"
         /// <returns>JSON形式的响应状态信息</returns>
         [HttpPost]
         [Route("SetOrg")]
-        public JObject SetOrg([FromBody] JObject req)
+        public override JObject Set([FromBody] JObject req)
+        {
+            return base.Set(req);
+        }
+
+        /// <summary>
+        /// 删除“机构”信息
+        /// </summary>
+        /// <param name="req">在请求body中JSON形式的“机构”信息</param>
+        /// <returns>JSON形式的响应状态信息</returns>
+        [HttpPost]
+        [Route("DelOrg")]
+        public override JObject Del([FromBody] JObject req)
+        {
+            return base.Del(req);
+        }
+
+        [NonAction]
+        public JObject GetOrgInfo(int id)
+        {
+            dbfactory db = new dbfactory();
+            JObject res = db.GetOne("select id,OrgName text,OrgCode code,CertCode register from t_orgnization where id=?p1", id);
+            return res;
+        }
+
+       
+
+        public override Dictionary<string, object> GetReq(JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["OrgName"] = req["orgname"]?.ToObject<string>();
@@ -204,63 +243,8 @@ WHERE ID=?p1"
             dict["CityID"] = req["cityid"]?.ToObject<int>();
             dict["CountyID"] = req["countyid"]?.ToObject<int>();
 
-            if (req["id"]?.ToObject<int>() > 0)
-            {
-                Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_orgnization", dict, condi);
-            }
-            else
-            {
-                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("t_orgnization", dict);
-            }
 
-            JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "提交成功";
-            res["id"] = req["id"];
-            return res;
-        }
-
-        /// <summary>
-        /// 删除“机构”信息
-        /// </summary>
-        /// <param name="req">在请求body中JSON形式的“机构”信息</param>
-        /// <returns>JSON形式的响应状态信息</returns>
-        [HttpPost]
-        [Route("DelOrg")]
-        public JObject DelOrg([FromBody] JObject req)
-        {
-            JObject res = new JObject();
-            var dict = new Dictionary<string, object>();
-            dict["IsDeleted"] = 1;
-            var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
-            var count = db.Update("t_orgnization", dict, keys);
-            if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
-        }
-
-        [NonAction]
-        public JObject GetOrgInfo(int id)
-        {
-            dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,OrgName text,OrgCode code,CertCode register from t_orgnization where id=?p1", id);
-            return res;
+            return dict;
         }
     }
 }

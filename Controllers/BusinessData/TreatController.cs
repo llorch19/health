@@ -7,6 +7,7 @@
  * - - GetOrgTreatList 应该和GetPeron["treat"]字段一致     @xuedi      2020-07-22 
  * - 新增“治疗用药记录”     @xuedi      2020-07-22      16:30
   */
+using health.common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -20,10 +21,11 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class TreatController : ControllerBase
+    public class TreatController : AbstractBLLController
     {
         private readonly ILogger<TreatController> _logger;
-        dbfactory db = new dbfactory();
+        public override string TableName => "t_treat";
+
         public TreatController(ILogger<TreatController> logger)
         {
             _logger = logger;
@@ -106,7 +108,7 @@ AND t_treat.OrgnizationID=?p1
         /// <returns>JSON对象，包含相应的“用药记录”数组</returns>
         [HttpGet]
         [Route("GetOrgTreatList")]
-        public JObject GetOrgTreatList(int orgid)
+        public override JObject GetList()
         {
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
@@ -162,7 +164,7 @@ ON t_treatitem.MedicationFreqCategoryID=data_medicationfreqcategory.ID
 LEFT JOIN data_medicationpathway
 ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
 AND t_treat.OrgnizationID=?p1
-", orgid);
+", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -317,7 +319,7 @@ AND t_treat.PatientID=?p1
         /// <returns>JSON对象，包含相应的“用药记录”信息</returns>
         [HttpGet]
         [Route("GetTreat")]
-        public JObject GetTreat(int id)
+        public override JObject Get(int id)
         {
             JObject res = db.GetOne(@"
 SELECT 
@@ -369,7 +371,7 @@ WHERE ID=?p1
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("SetTreat")]
-        public JObject SetTreat([FromBody] JObject req)
+        public override JObject Set([FromBody] JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
@@ -465,26 +467,14 @@ WHERE ID=?p1
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("DelTreat")]
-        public JObject DelTreat([FromBody] JObject req)
+        public override JObject Del([FromBody] JObject req)
         {
-            JObject res = new JObject();
-            var dict = new Dictionary<string, object>();
-            dict["IsDeleted"] = 1;
-            var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
-            var count = db.Update("t_treat", dict, keys);
-            if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+            return base.Del(req);
+        }
+
+        public override Dictionary<string, object> GetReq(JObject req)
+        {
+            throw new NotImplementedException();
         }
     }
 }

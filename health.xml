@@ -81,269 +81,269 @@
             <param name="req">JSON对象，包含待删除的“区域”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.DetectionResultTypeController.GetDetectionResultTypeList(System.Int32)">
+        <member name="M:health.Controllers.DetectionResultTypeController.GetList">
             <summary>
             获取“检测结果”列表
             </summary>
             <returns>JSON对象，包含“检测结果”的数组</returns>
         </member>
-        <member name="M:health.Controllers.DetectionResultTypeController.GetDetectionResultType(System.Int32)">
+        <member name="M:health.Controllers.DetectionResultTypeController.Get(System.Int32)">
             <summary>
             获取“检测结果”信息
             </summary>
             <returns></returns>
         </member>
-        <member name="M:health.Controllers.DetectionResultTypeController.SetDetectionResultType(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.DetectionResultTypeController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             修改“检测结果”
             </summary>
             <param name="req">JSON对象，包含待修改的“检测结果”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.DetectionResultTypeController.DelDetectionResultType(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.DetectionResultTypeController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“检测结果”
             </summary>
             <param name="req">JSON对象，包含待删除的“检测结果”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.DomiTypeController.GetDomiTypeList">
+        <member name="M:health.Controllers.DomiTypeController.GetList">
             <summary>
             获取“户籍类型”列表
             </summary>
             <returns>JSON对象，包含所有可用的“户籍类型”数组</returns>
         </member>
-        <member name="M:health.Controllers.DomiTypeController.GetDomiType(System.Int32)">
+        <member name="M:health.Controllers.DomiTypeController.Get(System.Int32)">
             <summary>
             获取“户籍类型”信息
             </summary>
             <param name="id">指定id</param>
             <returns>JSON对象，包含相应的“户籍类型”信息</returns>
         </member>
-        <member name="M:health.Controllers.DomiTypeController.SetDomiType(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.DomiTypeController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             修改“户籍类型”
             </summary>
             <param name="req">JSON对象，包含待修改的“户籍类型”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.DomiTypeController.DelDomiType(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.DomiTypeController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“户籍类型”
             </summary>
             <param name="req">JSON对象，包含待删除的“户籍类型”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.GenderController.GetGenderList">
+        <member name="M:health.Controllers.GenderController.GetList">
             <summary>
             获取“性别”列表
             </summary>
             <returns>JSON对象，包含所有可用的“性别”数组</returns>
         </member>
-        <member name="M:health.Controllers.GenderController.GetGender(System.Int32)">
+        <member name="M:health.Controllers.GenderController.Get(System.Int32)">
             <summary>
             获取“性别”信息
             </summary>
             <param name="id">指定id</param>
             <returns>JSON对象，包含相应的“性别”信息</returns>
         </member>
-        <member name="M:health.Controllers.GenderController.SetGender(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.GenderController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             修改“性别”
             </summary>
             <param name="req">JSON对象，包含待修改的“性别”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.GenderController.DelGender(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.GenderController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“性别”
             </summary>
             <param name="req">JSON对象，包含待删除的“性别”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.IdCategoryController.GetIdCategoryList">
+        <member name="M:health.Controllers.IdCategoryController.GetList">
             <summary>
             获取“身份证件类型”列表
             </summary>
             <returns>JSON对象，包含所有可用的“身份证件类型”数组</returns>
         </member>
-        <member name="M:health.Controllers.IdCategoryController.GetIdCategory(System.Int32)">
+        <member name="M:health.Controllers.IdCategoryController.Get(System.Int32)">
             <summary>
             获取“身份证件类型”信息
             </summary>
             <param name="id">指定id</param>
             <returns>JSON对象，包含相应的“身份证件类型”信息</returns>
         </member>
-        <member name="M:health.Controllers.IdCategoryController.SetIdCategory(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.IdCategoryController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             修改“身份证件类型”
             </summary>
             <param name="req">JSON对象，包含待修改的“身份证件类型”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.IdCategoryController.DelIdCategory(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.IdCategoryController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“身份证件类型”
             </summary>
             <param name="req">JSON对象，包含待删除的“身份证件类型”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.MedicationDosageFormController.GetMedicationDosageFormList(System.Int32)">
+        <member name="M:health.Controllers.MedicationDosageFormController.GetList">
             <summary>
             获取“药物剂型”列表
             </summary>
             <returns>JSON对象，包含所有可用的“药物剂型”数组</returns>
         </member>
-        <member name="M:health.Controllers.MedicationDosageFormController.GetMedicationDosageForm(System.Int32)">
+        <member name="M:health.Controllers.MedicationDosageFormController.Get(System.Int32)">
             <summary>
             获取“药物剂型”信息
             </summary>
             <param name="id">指定id</param>
             <returns>JSON对象，包含相应的“药物剂型”信息</returns>
         </member>
-        <member name="M:health.Controllers.MedicationDosageFormController.SetMedicationDosageForm(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.MedicationDosageFormController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             修改“药物剂型”
             </summary>
             <param name="req">JSON对象，包含待修改的“药物剂型”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.MedicationDosageFormController.DelMedicationDosageForm(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.MedicationDosageFormController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“药物剂型”
             </summary>
             <param name="req">JSON对象，包含待删除的“药物剂型”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.MedicationFreqCategoryController.GetMedicationFreqCategoryList">
+        <member name="M:health.Controllers.MedicationFreqCategoryController.GetList">
             <summary>
             获取“用药频次”列表
             </summary>
             <returns>JSON对象，包含所有可用的“用药频次”数组</returns>
         </member>
-        <member name="M:health.Controllers.MedicationFreqCategoryController.GetMedicationFreqCategory(System.Int32)">
+        <member name="M:health.Controllers.MedicationFreqCategoryController.Get(System.Int32)">
             <summary>
             获取“用药频次”信息
             </summary>
             <param name="id">指定id</param>
             <returns>JSON对象，包含相应的“用药频次”信息</returns>
         </member>
-        <member name="M:health.Controllers.MedicationFreqCategoryController.SetMedicationFreqCategory(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.MedicationFreqCategoryController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             修改“用药频次”
             </summary>
             <param name="req">JSON对象，包含待修改的“用药频次”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.MedicationFreqCategoryController.DelMedicationFreqCategory(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.MedicationFreqCategoryController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“用药频次”
             </summary>
             <param name="req">JSON对象，包含待删除的“用药频次”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.MedicationPathwayController.GetMedicationPathwayList">
+        <member name="M:health.Controllers.MedicationPathwayController.GetList">
             <summary>
             获取“用药途径”列表
             </summary>
             <returns>JSON对象，包含所有可用的“用药途径”数组</returns>
         </member>
-        <member name="M:health.Controllers.MedicationPathwayController.GetMedicationPathway(System.Int32)">
+        <member name="M:health.Controllers.MedicationPathwayController.Get(System.Int32)">
             <summary>
             获取“用药途径”信息
             </summary>
             <param name="id">指定id</param>
             <returns>JSON对象，包含相应的“用药途径”信息</returns>
         </member>
-        <member name="M:health.Controllers.MedicationPathwayController.SetMedicationPathway(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.MedicationPathwayController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             修改“用药途径”
             </summary>
             <param name="req">JSON对象，包含待修改的“用药途径”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.MedicationPathwayController.DelMedicationPathway(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.MedicationPathwayController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“用药途径”
             </summary>
             <param name="req">JSON对象，包含待删除的“用药途径”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.NationController.GetNationList">
+        <member name="M:health.Controllers.NationController.GetList">
             <summary>
             获取“民族”列表
             </summary>
             <returns>JSON对象，包含所有可用的“民族”数组</returns>
         </member>
-        <member name="M:health.Controllers.NationController.GetNation(System.Int32)">
+        <member name="M:health.Controllers.NationController.Get(System.Int32)">
             <summary>
             获取“民族”信息
             </summary>
             <param name="id">指定id</param>
             <returns>JSON对象，包含相应的“民族”信息</returns>
         </member>
-        <member name="M:health.Controllers.NationController.SetNation(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.NationController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             修改“民族”
             </summary>
             <param name="req">JSON对象，包含待修改的“民族”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.NationController.DelNation(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.NationController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“民族”
             </summary>
             <param name="req">JSON对象，包含待删除的“民族”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.OccupationController.GetOccupationList">
+        <member name="M:health.Controllers.OccupationController.GetList">
             <summary>
             获取“职业”列表
             </summary>
             <returns>JSON对象，包含所有可用的“职业”数组</returns>
         </member>
-        <member name="M:health.Controllers.OccupationController.GetOccupation(System.Int32)">
+        <member name="M:health.Controllers.OccupationController.Get(System.Int32)">
             <summary>
             获取“职业”信息
             </summary>
             <param name="id">指定id</param>
             <returns>JSON对象，包含相应的“职业”信息</returns>
         </member>
-        <member name="M:health.Controllers.OccupationController.SetOccupation(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.OccupationController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             修改“职业”
             </summary>
             <param name="req">JSON对象，包含待修改的“职业”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.OccupationController.DelOccupation(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.OccupationController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“职业”
             </summary>
             <param name="req">JSON对象，包含待删除的“职业”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.TreatmentOptionController.GetTreatmentOptionList">
+        <member name="M:health.Controllers.TreatmentOptionController.GetList">
             <summary>
             获取“治疗方案”列表
             </summary>
             <returns>JSON对象，包含所有可用的“治疗方案”数组</returns>
         </member>
-        <member name="M:health.Controllers.TreatmentOptionController.GetTreatmentOption(System.Int32)">
+        <member name="M:health.Controllers.TreatmentOptionController.Get(System.Int32)">
             <summary>
             获取“治疗方案”信息
             </summary>
             <param name="id">指定id</param>
             <returns>JSON对象，包含相应的“治疗方案”信息</returns>
         </member>
-        <member name="M:health.Controllers.TreatmentOptionController.SetTreatmentOption(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.TreatmentOptionController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             修改“治疗方案”
             </summary>
             <param name="req">JSON对象，包含待修改的“治疗方案”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.TreatmentOptionController.DelTreatmentOption(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.TreatmentOptionController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“治疗方案”
             </summary>
@@ -391,11 +391,10 @@
             <param name="cname"></param>
             <returns></returns>
         </member>
-        <member name="M:health.Controllers.AppointController.GetOrgAppointList(System.Int32)">
+        <member name="M:health.Controllers.AppointController.GetList">
             <summary>
             获取机构的“预约”列表
             </summary>
-            <param name="orgid">检索指定机构的id</param>
             <returns>JSON对象，包含相应的“预约”数组</returns>
         </member>
         <member name="M:health.Controllers.AppointController.GetPersonAppointList(System.Int32)">
@@ -405,32 +404,31 @@
             <param name="personid">检索指定个人的id</param>
             <returns>JSON对象，包含相应的“预约”数组</returns>
         </member>
-        <member name="M:health.Controllers.AppointController.GetAppoint(System.Int32)">
+        <member name="M:health.Controllers.AppointController.Get(System.Int32)">
             <summary>
             获取“预约”信息
             </summary>
             <param name="id">指定的id</param>
             <returns>JSON对象，包含相应的“预约”信息</returns>
         </member>
-        <member name="M:health.Controllers.AppointController.SetAppoint(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.AppointController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             更改“预约”信息。如果id=0新增，如果id>0修改。
             </summary>
             <param name="req">在请求body中JSON形式的“预约”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.AppointController.DelAppoint(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.AppointController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“预约”。
             </summary>
             <param name="req">在请求body中JSON形式的“预约”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.AttandentController.GetOrgAttandentList(System.Int32)">
+        <member name="M:health.Controllers.AttandentController.GetList">
             <summary>
             获取机构的“就诊”列表
             </summary>
-            <param name="orgid">检索指定机构的id</param>
             <returns>JSON对象，包含相应的“就诊”数组</returns>
         </member>
         <member name="M:health.Controllers.AttandentController.GetPersonAttandentList(System.Int32)">
@@ -440,21 +438,21 @@
             <param name="personid">检索指定个人的id</param>
             <returns>JSON对象，包含相应的“就诊”数组</returns>
         </member>
-        <member name="M:health.Controllers.AttandentController.GetAttandent(System.Int32)">
+        <member name="M:health.Controllers.AttandentController.Get(System.Int32)">
             <summary>
             获取“就诊”信息
             </summary>
             <param name="id">指定的id</param>
             <returns>JSON对象，包含相应的“就诊”信息</returns>
         </member>
-        <member name="M:health.Controllers.AttandentController.SetAttandent(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.AttandentController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             更改“就诊”信息。如果id=0新增，如果id>0修改。
             </summary>
             <param name="req">在请求body中JSON形式的“就诊”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.AttandentController.DelAttandent(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.AttandentController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“就诊”。
             </summary>
@@ -554,11 +552,10 @@
             <param name="req">在请求body中JSON形式的“检测”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.FollowupController.GetOrgFollowupList(System.Int32)">
+        <member name="M:health.Controllers.FollowupController.GetList">
             <summary>
             获取机构的“随访”列表
             </summary>
-            <param name="orgid">检索指定机构的id</param>
             <returns>JSON对象，包含相应的“随访”数组</returns>
         </member>
         <member name="M:health.Controllers.FollowupController.GetPersonFollowupList(System.Int32)">
@@ -568,48 +565,48 @@
             <param name="personid">检索指定个人的id</param>
             <returns>JSON对象，包含相应的“随访”数组</returns>
         </member>
-        <member name="M:health.Controllers.FollowupController.GetFollowup(System.Int32)">
+        <member name="M:health.Controllers.FollowupController.Get(System.Int32)">
             <summary>
             获取“随访”信息
             </summary>
             <param name="id">指定的id</param>
             <returns>JSON对象，包含相应的“随访”信息</returns>
         </member>
-        <member name="M:health.Controllers.FollowupController.SetFollowup(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.FollowupController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             更改“随访”信息。如果id=0新增，如果id>0修改。
             </summary>
             <param name="req">在请求body中JSON形式的“随访”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.FollowupController.DelFollowup(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.FollowupController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“随访”。
             </summary>
             <param name="req">在请求body中JSON形式的“随访”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.MessageController.GetMessageList">
+        <member name="M:health.Controllers.MessageController.GetList">
             <summary>
             获取“公告”列表，[科普公告]菜单
             </summary>
             <returns>JSON对象，包含相应的公告数组</returns>
         </member>
-        <member name="M:health.Controllers.MessageController.GetMessage(System.Int32)">
+        <member name="M:health.Controllers.MessageController.Get(System.Int32)">
             <summary>
             获取“公告”信息，点击[科普公告]中的一个栏目
             </summary>
             <param name="id">指定的id</param>
             <returns>JSON对象，包含相应的“公告”信息</returns>
         </member>
-        <member name="M:health.Controllers.MessageController.SetMessage(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.MessageController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             更改“公告”信息。如果id=0新增，如果id>0修改。
             </summary>
             <param name="req">在请求body中JSON形式的“公告”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.MessageController.DelMessage(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.MessageController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“公告”。
             </summary>
@@ -638,27 +635,27 @@
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
-        <member name="M:health.Controllers.NoticeController.GetNoticeList">
+        <member name="M:health.Controllers.NoticeController.GetList">
             <summary>
             获取“通知”列表
             </summary>
             <returns>JSON对象，包含相应的通知数组</returns>
         </member>
-        <member name="M:health.Controllers.NoticeController.GetNotice(System.Int32)">
+        <member name="M:health.Controllers.NoticeController.Get(System.Int32)">
             <summary>
             获取“通知”信息
             </summary>
             <param name="id">指定的id</param>
             <returns>JSON对象，包含相应的“通知”信息</returns>
         </member>
-        <member name="M:health.Controllers.NoticeController.SetNotice(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.NoticeController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             更改“通知”信息。如果id=0新增，如果id>0修改。
             </summary>
             <param name="req">在请求body中JSON形式的“通知”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.NoticeController.DelNotice(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.NoticeController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“通知”。
             </summary>
@@ -722,7 +719,7 @@
             <param name="orgid">检索指定机构的id</param>
             <returns>JSON对象，包含相应的“用药记录”数组</returns>
         </member>
-        <member name="M:health.Controllers.TreatController.GetOrgTreatList(System.Int32)">
+        <member name="M:health.Controllers.TreatController.GetList">
             <summary>
             获取机构的“治疗用药记录”列表
             </summary>
@@ -743,21 +740,21 @@
             <param name="personid">检索指定个人的id</param>
             <returns>JSON对象，包含相应的“用药记录”数组</returns>
         </member>
-        <member name="M:health.Controllers.TreatController.GetTreat(System.Int32)">
+        <member name="M:health.Controllers.TreatController.Get(System.Int32)">
             <summary>
             获取“用药记录”信息
             </summary>
             <param name="id">指定的id</param>
             <returns>JSON对象，包含相应的“用药记录”信息</returns>
         </member>
-        <member name="M:health.Controllers.TreatController.SetTreat(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.TreatController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             更改“用药记录”信息。如果id=0新增，如果id>0修改。
             </summary>
             <param name="req">在请求body中JSON形式的“用药记录”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.TreatController.DelTreat(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.TreatController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“用药记录”。
             </summary>
@@ -799,11 +796,10 @@
             <param name="req">在请求body中JSON形式的“用药记录明细”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.VaccController.GetOrgVaccList(System.Int32)">
+        <member name="M:health.Controllers.VaccController.GetList">
             <summary>
             获取机构的“接种记录”列表
             </summary>
-            <param name="orgid">检索指定机构的id</param>
             <returns>JSON对象，包含相应的“接种记录”数组</returns>
         </member>
         <member name="M:health.Controllers.VaccController.GetPersonVaccList(System.Int32)">
@@ -813,21 +809,21 @@
             <param name="personid">检索指定个人的id</param>
             <returns>JSON对象，包含相应的“接种记录”数组</returns>
         </member>
-        <member name="M:health.Controllers.VaccController.GetVacc(System.Int32)">
+        <member name="M:health.Controllers.VaccController.Get(System.Int32)">
             <summary>
             获取“接种记录”信息
             </summary>
             <param name="id">指定的id</param>
             <returns>JSON对象，包含相应的“接种记录”信息</returns>
         </member>
-        <member name="M:health.Controllers.VaccController.SetVacc(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.VaccController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             更改“接种记录”信息。如果id=0新增，如果id>0修改。
             </summary>
             <param name="req">在请求body中JSON形式的“接种记录”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.VaccController.DelVacc(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.VaccController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“接种记录”。
             </summary>
@@ -868,26 +864,32 @@
             </summary>
             <returns>JSON对象，包含相应的“检测产品”数组</returns>
         </member>
-        <member name="M:health.Controllers.CheckProductController.GetCheckProduct(System.Int32)">
+        <member name="M:health.Controllers.CheckProductController.Get(System.Int32)">
             <summary>
             获取“检测产品”信息
             </summary>
             <param name="id">指定的id</param>
             <returns>JSON对象，包含相应的“检测产品”信息</returns>
         </member>
-        <member name="M:health.Controllers.CheckProductController.SetCheckProduct(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.CheckProductController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             更改“检测产品”信息。如果id=0新增，如果id>0修改。
             </summary>
             <param name="req">在请求body中JSON形式的“检测产品”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.CheckProductController.DelCheckProduct(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.CheckProductController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“检测产品”。
             </summary>
             <param name="req">在请求body中JSON形式的“检测产品”信息</param>
             <returns>响应状态信息</returns>
+        </member>
+        <member name="M:health.Controllers.MedicationController.GetList">
+            <summary>
+            获取机构的“药品”列表
+            </summary>
+            <returns>JSON对象，包含相应的“药品”数组</returns>
         </member>
         <member name="M:health.Controllers.MedicationController.GetMedicationList(System.Int32,System.Int32)">
             <summary>
@@ -897,26 +899,32 @@
             <param name="pageIndex"></param>
             <returns>JSON对象，包含相应的“药品”数组</returns>
         </member>
-        <member name="M:health.Controllers.MedicationController.GetMedication(System.Int32)">
+        <member name="M:health.Controllers.MedicationController.Get(System.Int32)">
             <summary>
             获取“药品”信息
             </summary>
             <param name="id">指定的id</param>
             <returns>JSON对象，包含相应的“药品”信息</returns>
         </member>
-        <member name="M:health.Controllers.MedicationController.SetMedication(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.MedicationController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             更改“药品”信息。如果id=0新增，如果id>0修改。
             </summary>
             <param name="req">在请求body中JSON形式的“药品”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.MedicationController.DelMedication(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.MedicationController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“药品”。
             </summary>
             <param name="req">在请求body中JSON形式的“药品”信息</param>
             <returns>响应状态信息</returns>
+        </member>
+        <member name="M:health.Controllers.OptionController.GetList">
+            <summary>
+            获取“参数”列表
+            </summary>
+            <returns>JSON数组形式的“参数”信息</returns>
         </member>
         <member name="M:health.Controllers.OptionController.GetOptionList(System.String)">
             <summary>
@@ -925,25 +933,31 @@
             <param name="section">节名</param>
             <returns>JSON数组形式的“参数”信息</returns>
         </member>
-        <member name="M:health.Controllers.OptionController.GetOption(System.Int32)">
+        <member name="M:health.Controllers.OptionController.Get(System.Int32)">
             <summary>
             获取“参数”信息
             </summary>
             <returns>JSON形式的某个“参数”信息</returns>
         </member>
-        <member name="M:health.Controllers.OptionController.SetOption(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.OptionController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             更改“参数”信息。如果id=0新增，如果id>0修改。
             </summary>
             <param name="req">在请求body中JSON形式的“参数”信息</param>
             <returns>JSON形式的响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.OptionController.DelOption(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.OptionController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“参数”信息
             </summary>
             <param name="req">在请求body中JSON形式的“参数”信息</param>
             <returns>JSON形式的响应状态信息</returns>
+        </member>
+        <member name="M:health.Controllers.OrgnizationController.GetList">
+            <summary>
+            获取“机构”列表
+            </summary>
+            <returns>JSON数组形式的“机构”信息</returns>
         </member>
         <member name="M:health.Controllers.OrgnizationController.GetOrgList(System.Int32,System.Int32)">
             <summary>
@@ -957,25 +971,31 @@
             </summary>
             <returns>JSON数组形式的“机构”信息</returns>
         </member>
-        <member name="M:health.Controllers.OrgnizationController.GetOrg(System.Int32)">
+        <member name="M:health.Controllers.OrgnizationController.Get(System.Int32)">
             <summary>
             获取“机构”信息
             </summary>
             <returns>JSON形式的某个“机构”信息</returns>
         </member>
-        <member name="M:health.Controllers.OrgnizationController.SetOrg(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.OrgnizationController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             更改“机构”信息。如果id=0新增，如果id>0修改。
             </summary>
             <param name="req">在请求body中JSON形式的“机构”信息</param>
             <returns>JSON形式的响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.OrgnizationController.DelOrg(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.OrgnizationController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“机构”信息
             </summary>
             <param name="req">在请求body中JSON形式的“机构”信息</param>
             <returns>JSON形式的响应状态信息</returns>
+        </member>
+        <member name="M:health.Controllers.PersonController.GetList">
+            <summary>
+            获取个人列表，[人员转诊]菜单
+            </summary>
+            <returns>JSON数组形式的个人信息</returns>
         </member>
         <member name="M:health.Controllers.PersonController.GetPersonList(System.Int32,System.Int32)">
             <summary>
@@ -983,20 +1003,20 @@
             </summary>
             <returns>JSON数组形式的个人信息</returns>
         </member>
-        <member name="M:health.Controllers.PersonController.GetPerson(System.Int32)">
+        <member name="M:health.Controllers.PersonController.Get(System.Int32)">
             <summary>
             获取人员信息，初始化[人员信息录入]菜单
             </summary>
             <returns>JSON形式的某位个人信息，包括个人信息，</returns>
         </member>
-        <member name="M:health.Controllers.PersonController.SetPerson(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.PersonController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             更改个人信息。如果id=0新增个人信息，如果id>0修改个人信息。
             </summary>
             <param name="req">在请求body中JSON形式的个人信息</param>
             <returns>JSON形式的响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.PersonController.DelPerson(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.PersonController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除个人信息
             </summary>

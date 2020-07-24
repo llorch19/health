@@ -110,7 +110,41 @@ namespace health.Controllers
         [Route("SetArea")]
         public override JObject Set([FromBody] JObject req)
         {
-            return base.Set(req);
+            JObject res = new JObject();
+            res["status"] = 201;
+            res["msg"] = "操作失败";
+            return res;
+
+
+            //Dictionary<string, object> dict = new Dictionary<string, object>();
+            //dict["AreaCode"] = req["areacode"]?.ToObject<string>();
+            //dict["AreaName"] = req["areaname"]?.ToObject<string>();
+            //dict["ParentID"] = req["parentid"]?.ToObject<int>();
+            //dict["dingdingDept"] = req["dingdingdept"]?.ToObject<string>();
+            //dict["cs"] = req["cs"]?.ToObject<int>();
+            //dict["AreaCodeV2"] = req["areacodev2"]?.ToObject<string>();
+
+            //JObject res = new JObject();
+            //if (req["id"]?.ToObject<int>() > 0)
+            //{
+            //    Dictionary<string, object> condi = new Dictionary<string, object>();
+            //    condi["id"] = req["id"];
+            //    dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
+            //    dict["LastUpdatedTime"] = DateTime.Now;
+            //    var tmp = this.db.Update(TableName, dict, condi);
+            //    res["id"] = req["id"];
+            //}
+            //else
+            //{
+            //    dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
+            //    dict["CreatedTime"] = DateTime.Now;
+            //    res["id"] = this.db.Insert(TableName, dict);
+            //}
+
+
+            //res["status"] = 200;
+            //res["msg"] = "提交成功";
+            //return res;
         }
 
 
@@ -123,7 +157,10 @@ namespace health.Controllers
         [Route("DelArea")]
         public override JObject Del([FromBody] JObject req)
         {
-            return base.Del(req);
+            JObject res = new JObject();
+            res["status"] = 201;
+            res["msg"] = "操作失败";
+            return res;
         }
 
 

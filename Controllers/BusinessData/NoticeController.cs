@@ -27,13 +27,13 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class NoticeController : ControllerBase
+    public class NoticeController : AbstractBLLController
     {
         private readonly ILogger<NoticeController> _logger;
         IWebHostEnvironment _env;
-        dbfactory db = new dbfactory();
         config conf = new config();
         string[] permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
+        public override string TableName => "t_notice";
 
         public NoticeController(ILogger<NoticeController> logger, IWebHostEnvironment env)
         {
@@ -47,7 +47,7 @@ namespace health.Controllers
         /// <returns>JSON对象，包含相应的通知数组</returns>
         [HttpGet]
         [Route("Get[controller]List")]
-        public JObject GetNoticeList()
+        public override JObject GetList()
         {
             JObject res = new JObject();
             string sql = @"
@@ -90,7 +90,7 @@ ON t_notice.PublishUserID=t_user.ID
         /// <returns>JSON对象，包含相应的“通知”信息</returns>
         [HttpGet]
         [Route("Get[controller]")]
-        public JObject GetNotice(int id)
+        public override JObject Get(int id)
         {
             string sql = @"SELECT 
 IFNULL(ID,'') AS ID
@@ -128,36 +128,9 @@ WHERE ID=?p1";
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("Set[controller]")]
-        public JObject SetNotice([FromBody] JObject req)
+        public override JObject Set([FromBody] JObject req)
         {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["OrgnizationID"] = 1;
-            dict["PublishUserID"] = 4;
-            dict["Content"] = req["content"]?.ToObject<string>();
-            dict["Attachment"] = req["attachment"]?.ToObject<string>();
-
-            if (req["id"]?.ToObject<int>() > 0)
-            {
-                Dictionary<string, object> keys = new Dictionary<string, object>();
-                keys["id"] = req["id"];
-
-                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_notice", dict, keys);
-            }
-            else
-            {
-                dict["PublishTime"] = DateTime.Now;
-                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["CreatedTime"] = DateTime.Now;
-                req["id"] = this.db.Insert("t_notice", dict);
-            }
-
-            JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "提交成功";
-            res["id"] = req["id"];
-            return res;
+            return base.Set(req);
         }
 
 
@@ -170,26 +143,9 @@ WHERE ID=?p1";
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("Del[controller]")]
-        public JObject DelNotice([FromBody] JObject req)
+        public override JObject Del([FromBody] JObject req)
         {
-            JObject res = new JObject();
-            var dict = new Dictionary<string, object>();
-            dict["IsDeleted"] = 1;
-            var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
-            var count = db.Update("t_notice", dict, keys);
-            if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+            return base.Del(req);
         }
 
         /// <summary>
@@ -347,6 +303,17 @@ WHERE ID=?p1";
             res["msg"] = "上传成功";
 
             return res;
+        }
+
+        public override Dictionary<string, object> GetReq(JObject req)
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["OrgnizationID"] = 1;
+            dict["PublishUserID"] = 4;
+            dict["Content"] = req["content"]?.ToObject<string>();
+            dict["Attachment"] = req["attachment"]?.ToObject<string>();
+
+            return dict;
         }
     }
 }

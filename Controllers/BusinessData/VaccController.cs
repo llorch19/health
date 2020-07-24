@@ -6,6 +6,7 @@
  * Comments
  * - GetOrgVaccList 应该和GetPeron["vacc"]字段一致     @xuedi      2020-07-22      15:20
  */
+using health.common;
 using health.Controllers.BaseData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -19,10 +20,11 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class VaccController : ControllerBase
+    public class VaccController : AbstractBLLController
     {
         private readonly ILogger<VaccController> _logger;
-        dbfactory db = new dbfactory();
+        public override string TableName => "t_vacc";
+
         public VaccController(ILogger<VaccController> logger)
         {
             _logger = logger;
@@ -31,11 +33,10 @@ namespace health.Controllers
         /// <summary>
         /// 获取机构的“接种记录”列表
         /// </summary>
-        /// <param name="orgid">检索指定机构的id</param>
         /// <returns>JSON对象，包含相应的“接种记录”数组</returns>
         [HttpGet]
         [Route("GetOrgVaccList")]
-        public JObject GetOrgVaccList(int orgid)
+        public override JObject GetList()
         {
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
@@ -75,7 +76,7 @@ LEFT JOIN data_medicationdosageform
 ON t_vacc.MedicationDosageFormID=data_medicationdosageform.ID
 LEFT JOIN data_medicationpathway
 ON t_vacc.MedicationPathwayID=data_medicationpathway.ID
-WHERE t_vacc.OrgnizationID=?p1", orgid);
+WHERE t_vacc.OrgnizationID=?p1", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -142,7 +143,7 @@ WHERE t_vacc.PatientID=?p1", personid);
         /// <returns>JSON对象，包含相应的“接种记录”信息</returns>
         [HttpGet]
         [Route("GetVacc")]
-        public JObject GetVacc(int id)
+        public override JObject Get(int id)
         {
             JObject res = db.GetOne(@"
 SELECT 
@@ -190,7 +191,27 @@ WHERE ID=?p1", id);
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("SetVacc")]
-        public JObject SetVacc([FromBody] JObject req)
+        public override JObject Set([FromBody] JObject req)
+        {
+            return base.Set(req);
+        }
+
+
+
+
+        /// <summary>
+        /// 删除“接种记录”。
+        /// </summary>
+        /// <param name="req">在请求body中JSON形式的“接种记录”信息</param>
+        /// <returns>响应状态信息</returns>
+        [HttpPost]
+        [Route("DelVacc")]
+        public override JObject Del([FromBody] JObject req)
+        {
+            return base.Del(req);
+        }
+
+        public override Dictionary<string, object> GetReq(JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["PatientID"] = req["patientid"]?.ToObject<int>();
@@ -205,58 +226,8 @@ WHERE ID=?p1", id);
             dict["Fstatus"] = req["fstatus"]?.ToObject<string>();
             dict["Ftime"] = req["ftime"]?.ToObject<int>();
 
-            if (req["id"]?.ToObject<int>() > 0)
-            {
-                Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_vacc", dict, condi);
-            }
-            else
-            {
-                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("t_vacc", dict);
-            }
 
-            JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "提交成功";
-            res["id"] = req["id"];
-            return res;
-        }
-
-
-
-
-        /// <summary>
-        /// 删除“接种记录”。
-        /// </summary>
-        /// <param name="req">在请求body中JSON形式的“接种记录”信息</param>
-        /// <returns>响应状态信息</returns>
-        [HttpPost]
-        [Route("DelVacc")]
-        public JObject DelVacc([FromBody] JObject req)
-        {
-            JObject res = new JObject();
-            var dict = new Dictionary<string, object>();
-            dict["IsDeleted"] = 1;
-            var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
-            var count = db.Update("t_vacc", dict, keys);
-            if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+            return dict;
         }
     }
 }

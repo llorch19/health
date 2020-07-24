@@ -5,6 +5,7 @@
  * Description: 对“就诊”信息的增删查改
  * Comments
  */
+using health.common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -18,10 +19,11 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class AttandentController : ControllerBase
+    public class AttandentController : AbstractBLLController
     {
         private readonly ILogger<AttandentController> _logger;
-        dbfactory db = new dbfactory();
+        public override string TableName => "t_attandent";
+
         public AttandentController(ILogger<AttandentController> logger)
         {
             _logger = logger;
@@ -30,11 +32,10 @@ namespace health.Controllers
         /// <summary>
         /// 获取机构的“就诊”列表
         /// </summary>
-        /// <param name="orgid">检索指定机构的id</param>
         /// <returns>JSON对象，包含相应的“就诊”数组</returns>
         [HttpGet]
         [Route("GetOrgAttandentList")]
-        public JObject GetOrgAttandentList(int orgid)
+        public override JObject GetList()
         {
             JObject res = new JObject();
             res["list"] = db.GetArray(@"SELECT 
@@ -64,7 +65,7 @@ LEFT JOIN t_orgnization src
 ON t_attandent.SrcOrgID=src.ID
 LEFT JOIN t_orgnization des
 ON t_attandent.DesOrgID=des.id
-WHERE t_attandent.OrgnizationID=?p1", orgid);
+WHERE t_attandent.OrgnizationID=?p1", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -121,7 +122,7 @@ WHERE t_attandent.PatientID=?p1", personid);
         /// <returns>JSON对象，包含相应的“就诊”信息</returns>
         [HttpGet]
         [Route("GetAttandent")]
-        public JObject GetAttandent(int id)
+        public override JObject Get(int id)
         {
             dbfactory db = new dbfactory();
             JObject res = db.GetOne(@"SELECT 
@@ -175,7 +176,27 @@ WHERE ID=?p1", id);
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("SetAttandent")]
-        public JObject SetAttandent([FromBody] JObject req)
+        public override JObject Set([FromBody] JObject req)
+        {
+            return base.Set(req);
+        }
+
+
+
+
+        /// <summary>
+        /// 删除“就诊”。
+        /// </summary>
+        /// <param name="req">在请求body中JSON形式的“就诊”信息</param>
+        /// <returns>响应状态信息</returns>
+        [HttpPost]
+        [Route("DelAttandent")]
+        public override JObject Del([FromBody] JObject req)
+        {
+            return base.Del(req);
+        }
+
+        public override Dictionary<string, object> GetReq(JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["PatientID"] = req["personid"]?.ToObject<int>();
@@ -192,58 +213,8 @@ WHERE ID=?p1", id);
             dict["IsReferralCancel"] = req["isreferralcancel"]?.ToObject<int>();
             dict["IsReferralFinish"] = req["isreferralfinish"]?.ToObject<int>();
 
-            if (req["id"]?.ToObject<int>() > 0)
-            {
-                Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_attandent", dict, condi);
-            }
-            else
-            {
-                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("t_attandent", dict);
-            }
 
-            JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "提交成功";
-            res["id"] = req["id"];
-            return res;
-        }
-
-
-
-
-        /// <summary>
-        /// 删除“就诊”。
-        /// </summary>
-        /// <param name="req">在请求body中JSON形式的“就诊”信息</param>
-        /// <returns>响应状态信息</returns>
-        [HttpPost]
-        [Route("DelAttandent")]
-        public JObject DelAttandent([FromBody] JObject req)
-        {
-            JObject res = new JObject();
-            var dict = new Dictionary<string, object>();
-            dict["IsDeleted"] = 1;
-            var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
-            var count = db.Update("t_attandent", dict, keys);
-            if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+            return dict;
         }
     }
 }

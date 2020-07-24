@@ -129,7 +129,7 @@ where MessageID=?p1 and PatientID=?p2", msgid, patientid);
             res["person"] = person.GetPersonInfo(res["personid"]?.ToObject<int>()??0);
 
             MessageController msg = new MessageController(null, null);
-            res["message"] = msg.GetMessage(msgid);
+            res["message"] = msg.Get(msgid);
 
             res["status"] = 200;
             res["msg"] = "获取数据成功";

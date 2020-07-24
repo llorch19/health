@@ -5,6 +5,7 @@
  * Description: 对“预约”信息的增删查改
  * Comments
  */
+using health.common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -17,10 +18,11 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class AppointController : ControllerBase
+    public class AppointController : AbstractBLLController
     {
         private readonly ILogger<AppointController> _logger;
-        dbfactory db = new dbfactory();
+        public override string TableName => "t_appoint";
+
         public AppointController(ILogger<AppointController> logger)
         {
             _logger = logger;
@@ -29,11 +31,10 @@ namespace health.Controllers
         /// <summary>
         /// 获取机构的“预约”列表
         /// </summary>
-        /// <param name="orgid">检索指定机构的id</param>
         /// <returns>JSON对象，包含相应的“预约”数组</returns>
         [HttpGet]
         [Route("GetOrgAppointList")]
-        public JObject GetOrgAppointList(int orgid)
+        public override JObject GetList()
         {
             JObject res = new JObject();
             JArray list = db.GetArray(@"SELECT   
@@ -63,7 +64,7 @@ LEFT JOIN t_orgnization
 ON t_appoint.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_patient
 ON t_appoint.PatientID=t_patient.ID
-WHERE t_appoint.OrgnizationID=?p1", orgid);
+WHERE t_appoint.OrgnizationID=?p1", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
             if (list.HasValues)
             {
                 res["status"] = 200;
@@ -138,7 +139,7 @@ WHERE t_appoint.PatientID=?p1", personid);
         /// <returns>JSON对象，包含相应的“预约”信息</returns>
         [HttpGet]
         [Route("GetAppoint")]
-        public JObject GetAppoint(int id)
+        public override JObject Get(int id)
         {
             JObject res = db.GetOne(@"SELECT   
 IFNULL(ID,'') AS ID
@@ -187,7 +188,27 @@ WHERE ID=?p1", id);
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("SetAppoint")]
-        public JObject SetAppoint([FromBody] JObject req)
+        public override JObject Set([FromBody] JObject req)
+        {
+            return base.Set(req);
+        }
+
+
+
+
+        /// <summary>
+        /// 删除“预约”。
+        /// </summary>
+        /// <param name="req">在请求body中JSON形式的“预约”信息</param>
+        /// <returns>响应状态信息</returns>
+        [HttpPost]
+        [Route("DelAppoint")]
+        public override JObject Del([FromBody] JObject req)
+        {
+            return base.Del(req);
+        }
+
+        public override Dictionary<string, object> GetReq(JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
@@ -208,58 +229,8 @@ WHERE ID=?p1", id);
             dict["IsComplete"] = req["iscomplete"]?.ToObject<int>();
             dict["CompleteTime"] = req["completetime"]?.ToObject<DateTime>();
 
-            if (req["id"]?.ToObject<int>() > 0)
-            {
-                Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_appoint", dict, condi);
-            }
-            else
-            {
-                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("t_appoint", dict);
-            }
 
-            JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "提交成功";
-            res["id"] = req["id"];
-            return res;
-        }
-
-
-
-
-        /// <summary>
-        /// 删除“预约”。
-        /// </summary>
-        /// <param name="req">在请求body中JSON形式的“预约”信息</param>
-        /// <returns>响应状态信息</returns>
-        [HttpPost]
-        [Route("DelAppoint")]
-        public JObject DelAppoint([FromBody] JObject req)
-        {
-            JObject res = new JObject();
-            var dict = new Dictionary<string, object>();
-            dict["IsDeleted"] = 1;
-            var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
-            var count = db.Update("t_appoint", dict, keys);
-            if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+            return dict;
         }
     }
 }

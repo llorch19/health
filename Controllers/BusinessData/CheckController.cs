@@ -277,7 +277,7 @@ WHERE ID=?p1",id);
             pObject["Name"] = req["productname"];
             pObject["BatchNumber"] = req["product"];
             pObject["Specification"] = req["specification"];
-            product.SetCheckProduct(pObject);
+            product.Set(pObject);
 
             CheckItemController items = new CheckItemController(null);
             JObject itemObject = new JObject();

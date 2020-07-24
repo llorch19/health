@@ -26,7 +26,7 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class MessageController : ControllerBase
+    public class MessageController : AbstractBLLController
     {
         private readonly ILogger<MessageController> _logger;
         IWebHostEnvironment _env;
@@ -34,6 +34,7 @@ namespace health.Controllers
         config conf = new config();
         const string spliter = "$$";
         string[] permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
+        public override string TableName => "t_messagesent";
 
         public MessageController(ILogger<MessageController> logger, IWebHostEnvironment env)
         {
@@ -47,7 +48,7 @@ namespace health.Controllers
         /// <returns>JSON对象，包含相应的公告数组</returns>
         [HttpGet]
         [Route("GetMessageList")]
-        public JObject GetMessageList()
+        public override JObject GetList()
         {
             JObject res = new JObject();
             string sql = @"
@@ -100,7 +101,7 @@ AND t_messagesent.IsPublic = 1
         /// <returns>JSON对象，包含相应的“公告”信息</returns>
         [HttpGet]
         [Route("GetMessage")]
-        public JObject GetMessage(int id)
+        public override JObject Get(int id)
         {
             string sql = @"SELECT
 IFNULL(ID,'') AS ID
@@ -147,40 +148,9 @@ AND IsPublic=1
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("SetMessage")]
-        public JObject SetMessage([FromBody] JObject req)
+        public override JObject Set([FromBody] JObject req)
         {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["OrgnizationID"] = 1;
-            dict["PublishUserID"] = 4;
-            dict["Title"] = req["title"]?.ToObject<string>();
-            dict["Abstract"] = req["abstract"]?.ToObject<string>();
-            dict["Thumbnail"] = req["thumbnail"]?.ToObject<string>();
-            dict["Content"] = req["content"]?.ToObject<string>();
-            dict["Attachment"] = req["attachment"]?.ToObject<string>();
-            dict["IsPublic"] = req["ispublic"]?.ToObject<string>();
-
-            if (req["id"]?.ToObject<int>() > 0)
-            {
-                Dictionary<string, object> keys = new Dictionary<string, object>();
-                keys["id"] = req["id"];
-
-                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_messagesent", dict, keys);
-            }
-            else
-            {
-                dict["PublishTime"] = DateTime.Now;
-                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("t_messagesent", dict);
-            }
-
-            JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "提交成功";
-            res["id"] = req["id"];
-            return res;
+            return base.Set(req);
         }
 
 
@@ -193,26 +163,9 @@ AND IsPublic=1
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("DelMessage")]
-        public JObject DelMessage([FromBody] JObject req)
+        public override JObject Del([FromBody] JObject req)
         {
-            JObject res = new JObject();
-            var dict = new Dictionary<string, object>();
-            dict["IsDeleted"] = 1;
-            var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
-            var count = db.Update("t_messagesent", dict, keys);
-            if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+            return base.Del(req);
         }
 
         /// <summary>
@@ -369,6 +322,21 @@ AND IsPublic=1
             res["msg"] = "上传成功";
 
             return res;
+        }
+
+        public override Dictionary<string, object> GetReq(JObject req)
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["OrgnizationID"] = 1;
+            dict["PublishUserID"] = 4;
+            dict["Title"] = req["title"]?.ToObject<string>();
+            dict["Abstract"] = req["abstract"]?.ToObject<string>();
+            dict["Thumbnail"] = req["thumbnail"]?.ToObject<string>();
+            dict["Content"] = req["content"]?.ToObject<string>();
+            dict["Attachment"] = req["attachment"]?.ToObject<string>();
+            dict["IsPublic"] = req["ispublic"]?.ToObject<string>();
+
+            return dict;
         }
     }
 }

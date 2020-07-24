@@ -18,14 +18,26 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class OptionController : ControllerBase
+    public class OptionController : AbstractBLLController
     {
 
         private readonly ILogger<OptionController> _logger;
-        dbfactory db = new dbfactory();
+        public override string TableName => "t_option";
+
         public OptionController(ILogger<OptionController> logger)
         {
             _logger = logger;
+        }
+
+        /// <summary>
+        /// 获取“参数”列表
+        /// </summary>
+        /// <returns>JSON数组形式的“参数”信息</returns>
+        [HttpGet]
+        [Route("GetOptionListD")]
+        public override JObject GetList()
+        {
+            return GetOptionList(null);
         }
 
         /// <summary>
@@ -76,7 +88,7 @@ WHERE section=?p1
         /// <returns>JSON形式的某个“参数”信息</returns>
         [HttpGet]
         [Route("GetOption")]
-        public JObject GetOption(int id)
+        public override JObject Get(int id)
         {
             dbfactory db = new dbfactory();
             JObject res = db.GetOne(
@@ -109,36 +121,9 @@ WHERE id=?p1"
         /// <returns>JSON形式的响应状态信息</returns>
         [HttpPost]
         [Route("SetOption")]
-        public JObject SetOption([FromBody] JObject req)
+        public override JObject Set([FromBody] JObject req)
         {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["section"] = req["orgname"]?.ToObject<string>();
-            dict["name"] = req["orgcode"]?.ToObject<string>();
-            dict["value"] = req["certcode"]?.ToObject<string>();
-            dict["description"] = req["legalname"]?.ToObject<string>();
-            //dict["OrgnizationID"] = req["legalidcode"]?.ToObject<string>();
-           
-
-            if (req["id"]?.ToObject<int>() > 0)
-            {
-                Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_option", dict, condi);
-            }
-            else
-            {
-                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("t_option", dict);
-            }
-
-            JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "提交成功";
-            res["id"] = req["id"];
-            return res;
+            return base.Set(req);
         }
 
         /// <summary>
@@ -148,26 +133,23 @@ WHERE id=?p1"
         /// <returns>JSON形式的响应状态信息</returns>
         [HttpPost]
         [Route("DelOption")]
-        public JObject DelOption([FromBody] JObject req)
+        public override JObject Del([FromBody] JObject req)
         {
-            JObject res = new JObject();
-            var dict = new Dictionary<string, object>();
-            dict["IsDeleted"] = 1;
-            var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
-            var count = db.Update("t_option", dict, keys);
-            if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+            return base.Del(req);
+        }
+
+      
+
+        public override Dictionary<string, object> GetReq(JObject req)
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["section"] = req["orgname"]?.ToObject<string>();
+            dict["name"] = req["orgcode"]?.ToObject<string>();
+            dict["value"] = req["certcode"]?.ToObject<string>();
+            dict["description"] = req["legalname"]?.ToObject<string>();
+            //dict["OrgnizationID"] = req["legalidcode"]?.ToObject<string>();
+
+            return dict;
         }
     }
 }

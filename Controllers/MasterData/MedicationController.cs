@@ -18,13 +18,25 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class MedicationController : ControllerBase
+    public class MedicationController : AbstractBLLController
     {
         private readonly ILogger<MedicationController> _logger;
-        dbfactory db = new dbfactory();
+        public override string TableName => "t_medication";
+
         public MedicationController(ILogger<MedicationController> logger)
         {
             _logger = logger;
+        }
+
+        /// <summary>
+        /// 获取机构的“药品”列表
+        /// </summary>
+        /// <returns>JSON对象，包含相应的“药品”数组</returns>
+        [HttpGet]
+        [Route("GetMedicationListD")]
+        public override JObject GetList()
+        {
+            return GetMedicationList(10,0);
         }
 
         /// <summary>
@@ -69,7 +81,7 @@ LIMIT ?p1,?p2
         /// <returns>JSON对象，包含相应的“药品”信息</returns>
         [HttpGet]
         [Route("GetMedication")]
-        public JObject GetMedication(int id)
+        public override JObject Get(int id)
         {
             JObject res = db.GetOne(@"SELECT   
 IFNULL(ID,'') AS ID
@@ -103,7 +115,7 @@ WHERE ID=?p1",id);
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("SetMedication")]
-        public JObject SetMedication([FromBody] JObject req)
+        public override JObject Set([FromBody] JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["Name"] = req["name"]?.ToObject<string>();
@@ -147,7 +159,7 @@ WHERE ID=?p1",id);
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("DelMedication")]
-        public JObject DelMedication([FromBody] JObject req)
+        public override JObject Del([FromBody] JObject req)
         {
             JObject res = new JObject();
             var dict = new Dictionary<string, object>();
@@ -175,6 +187,23 @@ WHERE ID=?p1",id);
         {
             JObject res = db.GetOne("SELECT id,Name text,ESC code FROM t_medication where id=?p1", id);
             return res;
+        }
+
+      
+
+        public override Dictionary<string, object> GetReq(JObject req)
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["Name"] = req["name"]?.ToObject<string>();
+            dict["CommonName"] = req["commonname"]?.ToObject<string>();
+            dict["Specification"] = req["specification"]?.ToObject<string>();
+            dict["ESC"] = req["esc"]?.ToObject<string>();
+            dict["ProductionDate"] = req["productiondate"]?.ToObject<string>();
+            dict["ExpiryDate"] = req["expirydate"]?.ToObject<string>();
+            dict["Manufacturer"] = req["manufacturer"]?.ToObject<string>();
+
+
+            return dict;
         }
     }
 }

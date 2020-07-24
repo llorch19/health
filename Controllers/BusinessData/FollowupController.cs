@@ -5,6 +5,7 @@
  * Description: 对“随访”信息的增删查改
  * Comments
  */
+using health.common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -17,10 +18,11 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class FollowupController : ControllerBase
+    public class FollowupController : AbstractBLLController
     {
         private readonly ILogger<FollowupController> _logger;
-        dbfactory db = new dbfactory();
+        public override string TableName => "t_followup";
+
         public FollowupController(ILogger<FollowupController> logger)
         {
             _logger = logger;
@@ -29,11 +31,10 @@ namespace health.Controllers
         /// <summary>
         /// 获取机构的“随访”列表
         /// </summary>
-        /// <param name="orgid">检索指定机构的id</param>
         /// <returns>JSON对象，包含相应的“随访”数组</returns>
         [HttpGet]
         [Route("GetOrgFollowupList")]
-        public JObject GetOrgFollowupList(int orgid)
+        public override JObject GetList()
         {
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
@@ -54,7 +55,7 @@ LEFT JOIN t_patient
 ON t_followup.PatientID=t_patient.ID
 LEFT JOIN t_orgnization
 ON t_followup.OrgnizationID=t_orgnization.ID
-WHERE t_followup.OrgnizationID=?p1", orgid);
+WHERE t_followup.OrgnizationID=?p1", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -102,7 +103,7 @@ WHERE t_followup.PatientID=?p1",personid);
         /// <returns>JSON对象，包含相应的“随访”信息</returns>
         [HttpGet]
         [Route("GetFollowup")]
-        public JObject GetFollowup(int id)
+        public override JObject Get(int id)
         {
             JObject res = db.GetOne(@"
 SELECT 
@@ -133,36 +134,9 @@ WHERE ID=?p1
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("SetFollowup")]
-        public JObject SetFollowup([FromBody] JObject req)
+        public override JObject Set([FromBody] JObject req)
         {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["PatientID"] = req["patientid"]?.ToObject<int>();
-            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
-            dict["Time"] = req["time"]?.ToObject<DateTime>();
-            dict["PersonList"] = req["personlist"]?.ToObject<string>();
-            dict["Abstract"] = req["abstract"]?.ToObject<string>();
-            dict["Detail"] = req["detail"]?.ToObject<string>();
-
-            if (req["id"]?.ToObject<int>() > 0)
-            {
-                Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_followup", dict, condi);
-            }
-            else
-            {
-                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("t_followup", dict);
-            }
-
-            JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "提交成功";
-            res["id"] = req["id"];
-            return res;
+            return base.Set(req);
         }
 
 
@@ -175,26 +149,24 @@ WHERE ID=?p1
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("DelFollowup")]
-        public JObject DelFollowup([FromBody] JObject req)
+        public override JObject Del([FromBody] JObject req)
         {
-            JObject res = new JObject();
-            var dict = new Dictionary<string, object>();
-            dict["IsDeleted"] = 1;
-            var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
-            var count = db.Update("t_followup", dict, keys);
-            if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+            return base.Del(req);
+        }
+
+        public override Dictionary<string, object> GetReq(JObject req)
+        {
+
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["PatientID"] = req["patientid"]?.ToObject<int>();
+            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
+            dict["Time"] = req["time"]?.ToObject<DateTime>();
+            dict["PersonList"] = req["personlist"]?.ToObject<string>();
+            dict["Abstract"] = req["abstract"]?.ToObject<string>();
+            dict["Detail"] = req["detail"]?.ToObject<string>();
+
+
+            return dict;
         }
     }
 }
