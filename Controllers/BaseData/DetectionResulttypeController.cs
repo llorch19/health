@@ -34,7 +34,7 @@ namespace health.Controllers
             res["msg"] = "读取成功";
 
             dbfactory db = new dbfactory();
-            JArray rows = db.GetArray("select ID,ResultName from data_detectionresulttype");
+            JArray rows = db.GetArray("select ID,ResultName from data_detectionresulttype where isactive=1 and isdeleted=0");
 
             res["list"] = rows;
             return res;
@@ -50,7 +50,7 @@ namespace health.Controllers
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
-            JObject res = db.GetOne("select ID,ResultName from data_detectionresulttype where id=?p1", id);
+            JObject res = db.GetOne("select ID,ResultName from data_detectionresulttype where id=?p1 and isdeleted=0", id);
             if (res["id"] != null)
             {
                 res["status"] = 200;

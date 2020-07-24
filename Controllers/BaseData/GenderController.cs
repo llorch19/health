@@ -75,6 +75,12 @@ namespace health.Controllers
         [Route("SetGender")]
         public override JObject Set([FromBody] JObject req)
         {
+            if (req["code"].ToObject<string>().Length>1)
+            {
+                JObject res = new JObject();
+                res["status"] = 201;
+                res["msg"] = "编码长度不大于1";
+            }
             return base.Set(req);
         }
 

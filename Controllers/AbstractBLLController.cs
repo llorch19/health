@@ -29,6 +29,8 @@ namespace health.Controllers
             {
                 Dictionary<string, object> condi = new Dictionary<string, object>();
                 condi["id"] = req["id"];
+                condi["IsDeleted"] = 0;
+                condi["IsActive"] = 1;
                 dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update(TableName, dict, condi);
