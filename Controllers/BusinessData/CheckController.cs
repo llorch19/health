@@ -482,6 +482,7 @@ WHERE DetectionRecordID=?p1",checkid);
         /// 获取指定“检查编号”对应的图片
         /// </summary>
         /// <param name="checkid"></param>
+        /// <param name="index"></param>
         /// <returns></returns>
         [HttpGet("Get[controller]Pic/{checkid:int}/{index:int}")]
         public IActionResult GetFile(int checkid, int index)
@@ -496,7 +497,7 @@ WHERE DetectionRecordID=?p1",checkid);
             if (string.IsNullOrEmpty(filepath))
                 return NoContent();
 
-            string mimeType = "application/octet-stream";
+            string mimeType = FileHelpers.mimetype[Path.GetExtension(filepath)];
             var stream = new FileStream(filepath, FileMode.Open);
 
             StringBuilder bFileDownloadName = new StringBuilder();
