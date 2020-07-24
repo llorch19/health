@@ -138,6 +138,7 @@
  * - 代码风格方面，单行的if和循环语句要删除前后大括号 @norway  2020-07-13 17:31
  * - 给菜单项添加一个seq字段，方便前端操作           @xuedi   2020-07-14 11:50
  */
+using health.common;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -177,39 +178,41 @@ namespace health.Controllers
         public JObject Login(string username = "lqq", string password = "zf300122")
         {
             JObject res = new JObject();
-            JObject user = db.GetOne(@"
-SELECT 
-ID
+            JObject userdb = db.GetOne(@"
+SELECT t_user.id
+,ChineseName
 ,OrgnizationID
-,ProvinceID
-,CityID
-,CountyID
-,GroupId
+,t_orgnization.OrgName
 ,PasswordHash
-FROM
-t_user
-WHERE
-Username=?p1", username);
-            if (user["id"]==null 
-                || user["passwordhash"].ToObject<string>()!= util.Security.String2MD5(password))
+,t_user.IsActive
+,GroupId
+,t_user_group.cname
+from t_user 
+LEFT JOIN t_orgnization
+ON t_user.OrgnizationID=t_orgnization.ID
+LEFT JOIN t_user_group
+ON t_user.GroupId=t_user_group.id
+where Username=?p1 and t_user.IsDeleted=0
+", username);
+            if (userdb["id"]==null 
+                || userdb["passwordhash"].ToObject<string>()!= util.Security.String2MD5(password))
             {
                 res["status"] = 201;
-                res["msg"] = "登录失败";
+                res["msg"] = "用户名或密码有误";
                 return res;
             }
 
-
-           
+            bool active = userdb["isactive"]?.ToObject<int>() == 1;
+            if (!active)
+            {
+                res["status"] = 201;
+                res["msg"] = "用户尚未激活";
+                return res;
+            }
 
             var claimsIdentity = new ClaimsIdentity(new[]{
-                new Claim(ClaimTypes.Name, username),
-                new Claim("userid",user["id"]?.ToObject<string>()),
-                new Claim("orgnizationid",user["orgnizationid"]?.ToObject<string>()),
-                new Claim("provinceid",user["provinceid"]?.ToObject<string>()),
-                new Claim("cityid",user["cityid"]?.ToObject<string>()),
-                new Claim("countyid",user["countyid"]?.ToObject<string>()),
-                new Claim("countyid",user["countyid"]?.ToObject<string>()),
-                new Claim("groupid",user["groupid"]?.ToObject<string>())
+                new Claim(ClaimTypes.NameIdentifier, userdb["id"]?.ToObject<string>()),
+                new Claim(ClaimTypes.GroupSid,userdb["groupid"]?.ToObject<string>())
             });
 
 
@@ -218,10 +221,13 @@ Username=?p1", username);
             {
                 Subject = claimsIdentity,
                 Expires = DateTime.Now.AddMinutes(30),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("secretsecretsecret")), SecurityAlgorithms.HmacSha256),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Const.SecurityKey)), SecurityAlgorithms.HmacSha256),
             };
             var securityToken = handler.CreateToken(tokenDescriptor);
             var token = handler.WriteToken(securityToken);
+            res["user"] = userdb["chinesename"]?.ToObject<string>();
+            res["orgnization"] = userdb["orgname"]?.ToObject<string>();
+            res["group"] = userdb["cname"]?.ToObject<string>();
             res["token"] = token;
             res["status"] = 200;
             res["msg"] = "登录成功";
@@ -240,17 +246,7 @@ Username=?p1", username);
             //这是获取自定义参数的方法
             var authenticateResult = HttpContext.AuthenticateAsync().Result;
             var auth = authenticateResult?.Principal?.Claims;
-            JObject res = new JObject();
-            foreach (var c in auth)
-            {
-                res[c.Type]=c.Value;
-                if (c.Type=="exp")
-                {
-                    System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-                    dtDateTime = dtDateTime.AddSeconds(res[c.Type].ToObject<double>()).ToLocalTime();
-                    res["expiry"] = dtDateTime;
-                }
-            }
+            JObject res = HttpContext.GetUser();
 
             if (res.HasValues)
             {

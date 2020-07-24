@@ -2,6 +2,12 @@
   "ConnectStrings": {
     "default": "Database=ltbidatadb;Data Source=192.168.17.201;User Id=zfdbuser;Password=zZO1gcRvaO3;pooling=false;CharSet=utf8;port=3306"
   },
+  "sys": {
+    "memorycache": {
+      "SlidingExpiration": 30,
+      "AbsoluteExpiration": 60
+    }
+  },
   "person": {
     "upload": "D:/personupload",
     "filesize": "2097152",

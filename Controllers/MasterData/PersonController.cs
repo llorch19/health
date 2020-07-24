@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using util.mysql;
 
 namespace health.Controllers
@@ -41,13 +42,16 @@ namespace health.Controllers
         /// <returns>JSON数组形式的个人信息</returns>
         [HttpGet]
         [Route("GetPersonList")]
-        public JObject GetPersonList(int pageSize, int pageIndex)
+        public JObject GetPersonList(int pageSize = 10, int pageIndex = 0)
         {
             int offset = 0;
             if (pageIndex > 0)
                 offset = pageSize * (pageIndex - 1);
 
             JObject res = new JObject();
+
+            JObject user = HttpContext.GetUser();
+
 
             JArray rows = db.GetArray(
                 @"SELECT 
@@ -99,8 +103,9 @@ LEFT JOIN data_area County
 ON t_patient.CountyID=County.ID
 LEFT JOIN t_attandent
 ON t_patient.ID=t_attandent.PatientID
-LIMIT ?p1,?p2"
-                , offset, pageSize);
+WHERE t_patient.OrgnizationID=?p1
+LIMIT ?p2,?p3"
+                , user["orgnizationid"]?.ToObject<int>(), offset, pageSize);
 
             // TODO: BUGs here, can not read COUNT(*) which returns Int64
             res["total"] = db.GetOne("SELECT COUNT(*) as TOTAL FROM t_patient")["total"];
