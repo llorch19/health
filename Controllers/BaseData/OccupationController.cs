@@ -15,7 +15,7 @@ namespace health.Controllers
         private readonly ILogger<OccupationController> _logger;
         dbfactory db = new dbfactory();
 
-        public override string TableName => throw new NotImplementedException();
+        public override string TableName => "data_occupation";
 
         public OccupationController(ILogger<OccupationController> logger)
         {

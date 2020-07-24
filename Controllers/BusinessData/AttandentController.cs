@@ -183,6 +183,17 @@ AND t_attandent.IsDeleted=0", id);
         [Route("SetAttandent")]
         public override JObject Set([FromBody] JObject req)
         {
+            // 如果存在未转诊及出院信息，不允许新增就诊记录
+            JObject attand = db.GetOne(@"
+SELECT ID,IsDischarged,IsReferral,IsReferralFinish FROM t_attandent
+WHERE ID=?p1
+AND IsActive=1
+AND IsDeleted=0
+",req["id"]?.ToObject<int>()??0);
+            if (attand["id"]!=null)
+            {
+
+            }
             return base.Set(req);
         }
 

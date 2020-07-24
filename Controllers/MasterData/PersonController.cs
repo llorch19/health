@@ -117,6 +117,8 @@ ON t_patient.CountyID=County.ID
 LEFT JOIN t_attandent
 ON t_patient.ID=t_attandent.PatientID
 WHERE t_patient.OrgnizationID=?p1
+AND t_patient.IsActive=1
+AND t_patient.IsDeleted=0
 LIMIT ?p2,?p3"
                 , user["orgnizationid"]?.ToObject<int>(), offset, pageSize);
 
