@@ -107,7 +107,7 @@ namespace health.Controllers.BaseData
             else
             {
                 dict.Add("Username", req["username"].ToString());
-                dict["PasswordHash"] = util.Security.String2MD5(dict["pass"].ToString());
+                dict["PasswordHash"] = util.Security.String2MD5(req["pass"].ToString());
                 id = db.Insert("t_user", dict);
             }
             JObject res = new JObject();
