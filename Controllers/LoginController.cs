@@ -184,11 +184,12 @@ ID
 ,ProvinceID
 ,CityID
 ,CountyID
+,GroupId
 ,PasswordHash
 FROM
 t_user
 WHERE
-Username=?p1",username);
+Username=?p1", username);
             if (user["id"]==null 
                 || user["passwordhash"].ToObject<string>()!= util.Security.String2MD5(password))
             {
@@ -206,8 +207,11 @@ Username=?p1",username);
                 new Claim("orgnizationid",user["orgnizationid"]?.ToObject<string>()),
                 new Claim("provinceid",user["provinceid"]?.ToObject<string>()),
                 new Claim("cityid",user["cityid"]?.ToObject<string>()),
-                new Claim("countyid",user["countyid"]?.ToObject<string>())
+                new Claim("countyid",user["countyid"]?.ToObject<string>()),
+                new Claim("countyid",user["countyid"]?.ToObject<string>()),
+                new Claim("groupid",user["groupid"]?.ToObject<string>())
             });
+
 
             var handler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
