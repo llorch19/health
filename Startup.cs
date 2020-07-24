@@ -49,7 +49,7 @@ namespace health
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = "jonny",
                     ValidAudience = "jonny",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("secretsecretsecret"))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Const.SecurityKey))
                 };
             });
             #endregion

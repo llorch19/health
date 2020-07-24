@@ -168,7 +168,7 @@ namespace health.Controllers
             {
                 Subject = claimsIdentity,
                 Expires = DateTime.Now.AddMinutes(3),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("secretsecretsecret")), SecurityAlgorithms.HmacSha256),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Const.SecurityKey)), SecurityAlgorithms.HmacSha256),
             };
             var securityToken = handler.CreateToken(tokenDescriptor);
             var token = handler.WriteToken(securityToken);

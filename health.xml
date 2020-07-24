@@ -17,6 +17,31 @@
             <param name="obj"></param>
             <param name="node"></param>
         </member>
+        <member name="M:health.common.ClaimsReader.GetUser(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            扩展httpContext读取用户信息，获取的用户信息缓存在内存中
+            </summary>
+            <param name="httpContext"></param>
+            <returns></returns>
+        </member>
+        <member name="F:health.Const.SecurityKey">
+            <summary>
+            这里为了演示，写死一个密钥。实际生产环境可以从配置文件读取,这个是用网上工具随便生成的一个密钥
+            UFNcsmx6z0aJpQ3jiEZegvzB44bTvKBSF2Dxcc6FeU6rIgXO4ErvheFoDTKM7NFdgub9WK4SO5CgANUdKCZIeQRgQZyVtYJNQUf
+            </summary>
+        </member>
+        <member name="F:health.Const.Domain">
+            <summary>
+            站点地址
+            </summary>
+        </member>
+        <member name="F:health.Const.ValidAudience">
+            <summary>
+            受理人，之所以弄成可变的是为了用接口动态更改这个值以模拟强制Token失效
+            真实业务场景可以在数据库或者redis存一个和用户id相关的值，生成token和验证token的时候获取到持久化的值去校验
+            如果重新登陆，则刷新这个值
+            </summary>
+        </member>
         <member name="M:health.BaseData.AddressCategoryController.GetAddressCategoryList">
             <summary>
             获取“地址类型”列表
@@ -634,6 +659,55 @@
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
+        <member name="M:health.Controllers.NoticeController.GetNoticeList">
+            <summary>
+            获取“通知”列表
+            </summary>
+            <returns>JSON对象，包含相应的通知数组</returns>
+        </member>
+        <member name="M:health.Controllers.NoticeController.GetNotice(System.Int32)">
+            <summary>
+            获取“通知”信息
+            </summary>
+            <param name="id">指定的id</param>
+            <returns>JSON对象，包含相应的“通知”信息</returns>
+        </member>
+        <member name="M:health.Controllers.NoticeController.SetNotice(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            更改“通知”信息。如果id=0新增，如果id>0修改。
+            </summary>
+            <param name="req">在请求body中JSON形式的“通知”信息</param>
+            <returns>响应状态信息</returns>
+        </member>
+        <member name="M:health.Controllers.NoticeController.DelNotice(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            删除“通知”。
+            </summary>
+            <param name="req">在请求body中JSON形式的“通知”信息</param>
+            <returns>响应状态信息</returns>
+        </member>
+        <member name="M:health.Controllers.NoticeController.IsOrgUser">
+            <summary>
+            只有机构用户可以查看并编辑未发布的通知
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.NoticeController.UploadPics(Microsoft.AspNetCore.Http.IFormFile[],System.Threading.CancellationToken)">
+            <summary>
+            上传指定“通知”对应的图片
+            </summary>
+            <param name="files"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.NoticeController.UploadZip(Microsoft.AspNetCore.Http.IFormFile[],System.Threading.CancellationToken)">
+            <summary>
+            上传指定“通知”对应的附件
+            </summary>
+            <param name="files"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
         <member name="M:health.Controllers.ReadMessageController.GetList(System.Int32)">
             <summary>
             获取“未读消息”列表，[科普公告]菜单
@@ -645,7 +719,7 @@
             打开“未读消息”信息，点击[科普公告]中的一个“未读消息”
             </summary>
             <param name="msgid">指定消息的id</param>
-            <param name="userid">指定用户的id</param>
+            <param name="patientid">指定用户的id</param>
             <returns>JSON对象，包含相应的“未读消息”</returns>
         </member>
         <member name="M:health.Controllers.ReadMessageController.Set(Newtonsoft.Json.Linq.JObject)">
@@ -793,6 +867,20 @@
             <param name="checkid"></param>
             <param name="files"></param>
             <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.LoginController.Login(System.String,System.String)">
+            <summary>
+            机构用户登录接口
+            </summary>
+            <param name="username">机构用户登录帐号</param>
+            <param name="password">机构用户登录密码</param>
+            <returns></returns>
+        </member>
+        <member name="M:health.Controllers.LoginController.Show">
+            <summary>
+            打印机构用户的系统凭据
+            </summary>
             <returns></returns>
         </member>
         <member name="M:health.Controllers.CheckProductController.GetCheckProductList(System.Int32,System.Int32)">

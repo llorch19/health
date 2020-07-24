@@ -137,6 +137,7 @@
 })
  * - 代码风格方面，单行的if和循环语句要删除前后大括号 @norway  2020-07-13 17:31
  * - 给菜单项添加一个seq字段，方便前端操作           @xuedi   2020-07-14 11:50
+ * - 将登录信息保存在缓存中                        @norway     2020-07-24  11:30
  */
 using health.common;
 using Microsoft.AspNetCore.Authentication;
