@@ -149,8 +149,8 @@ where MessageID=?p1 and PatientID=?p2", msgid, patientid);
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["MessageID"] = req["messageid"]?.ToObject<int>();
             dict["PatientID"] = req["patientid"]?.ToObject<int>();
-            dict["OpenTime"] = req["opentime"]?.ToObject<DateTime>();
-            dict["FinishTime"] = req["finishtime"]?.ToObject<DateTime>();
+            dict["OpenTime"] = req.ToDateTime("opentime");
+            dict["FinishTime"] = req.ToDateTime("finishtime");
             dict["IsRead"] = req["isread"]?.ToObject<int>();
 
             if (req["id"]?.ToObject<int>() > 0)

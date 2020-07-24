@@ -216,18 +216,18 @@ WHERE ID=?p1", id);
             dict["Name"] = req["name"]?.ToObject<string>();
             dict["Code"] = req["code"]?.ToObject<string>();
             dict["Vaccine"] = req["vaccine"]?.ToObject<string>();
-            dict["VaccinationDateStart"] = req["vaccinationdatestart"]?.ToObject<DateTime>();
-            dict["VaccinationDateEnd"] = req["vaccinationdateend"]?.ToObject<DateTime>();
+            dict["VaccinationDateStart"] = req.ToDateTime("vaccinationdatestart");
+            dict["VaccinationDateEnd"] = req.ToDateTime("vaccinationdateend");
             dict["InjectionTimes"] = req["injectiontimes"]?.ToObject<int>();
             dict["IDCardNO"] = req["idcardno"]?.ToObject<string>();
             dict["Tel"] = req["tel"]?.ToObject<string>();
-            dict["BirthDate"] = req["birthdate"]?.ToObject<DateTime>();
+            dict["BirthDate"] = req.ToDateTime("birthdate");
             dict["Tstatus"] = req["tstatus"]?.ToObject<string>();
-            dict["AppointmentCreatedTime"] = req["appointmentcreatedtime"]?.ToObject<DateTime>();
+            dict["AppointmentCreatedTime"] = req.ToDateTime("appointmentcreatedtime");
             dict["IsCancel"] = req["iscancel"]?.ToObject<int>();
-            dict["CancelTime"] = req["canceltime"]?.ToObject<DateTime>();
+            dict["CancelTime"] = req.ToDateTime("canceltime");
             dict["IsComplete"] = req["iscomplete"]?.ToObject<int>();
-            dict["CompleteTime"] = req["completetime"]?.ToObject<DateTime>();
+            dict["CompleteTime"] = req.ToDateTime("completetime");
 
 
             return dict;

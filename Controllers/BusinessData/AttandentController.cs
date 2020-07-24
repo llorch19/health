@@ -203,13 +203,13 @@ WHERE ID=?p1", id);
             dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
             dict["SrcOrgID"] = req["srcorgid"]?.ToObject<int>();
             dict["DesOrgID"] = req["desorgid"]?.ToObject<int>();
-            dict["AdmissionTime"] = req["admissiontime"]?.ToObject<DateTime>();
+            dict["AdmissionTime"] = req.ToDateTime("admissiontime");
             dict["AdmissionType"] = req["admissiontype"]?.ToObject<string>();
             dict["IsDischarged"] = req["isdischarged"]?.ToObject<int>();
-            dict["DisChargeTime"] = req["dischargetime"]?.ToObject<DateTime>();
+            dict["DisChargeTime"] = req.ToDateTime("dischargetime");
             dict["IsReferral"] = req["isreferral"]?.ToObject<int>();
             dict["DesStatus"] = req["desstatus"]?.ToObject<string>();
-            dict["DesTime"] = req["destime"]?.ToObject<DateTime>();
+            dict["DesTime"] = req.ToDateTime("destime")
             dict["IsReferralCancel"] = req["isreferralcancel"]?.ToObject<int>();
             dict["IsReferralFinish"] = req["isreferralfinish"]?.ToObject<int>();
 

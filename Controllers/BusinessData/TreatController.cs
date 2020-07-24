@@ -383,11 +383,11 @@ WHERE ID=?p1
             //dict["DrugGroupNumber"] = req["druggroupnumber"]?.ToObject<int>();
             //dict["Tstatus"] = req["tstatus"]?.ToObject<string>();
             //dict["Prescriber"] = req["prescriber"]?.ToObject<int>();
-            //dict["PrescribeTime"] = req["prescribetime"]?.ToObject<DateTime>();
+            //dict["PrescribeTime"] = req.ToDateTime("prescribetime");
             //dict["PrescribeDepartment"] = req["prescribedepartment"]?.ToObject<string>();
             //dict["IsCancel"] = req["iscancel"]?.ToObject<int>();
             //dict["CancelTime"] = req["canceltime"]?.ToObject<DateTime>();
-            //dict["CompleteTime"] = req["completetime"]?.ToObject<DateTime>();
+            //dict["CompleteTime"] = req.ToDateTime("completetime");
             // TODO: 在这里添加add item逻辑
 
             TreatItemController itemControl = new TreatItemController(null);

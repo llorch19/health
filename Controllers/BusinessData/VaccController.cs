@@ -220,9 +220,9 @@ WHERE ID=?p1", id);
             dict["MedicationID"] = req["medicationid"]?.ToObject<int>();
             dict["MedicationDosageFormID"] = req["medicationdosageformid"]?.ToObject<int>();
             dict["MedicationPathwayID"] = req["medicationpathwayid"]?.ToObject<int>();
-            dict["OperationTime"] = req["operationtime"]?.ToObject<DateTime>();
-            dict["LeaveTime"] = req["leavetime"]?.ToObject<DateTime>();
-            dict["NextTime"] = req["nexttime"]?.ToObject<DateTime>();
+            dict["OperationTime"] = req.ToDateTime("operationtime");
+            dict["LeaveTime"] = req.ToDateTime("leavetime");
+            dict["NextTime"] = req.ToDateTime("nexttime");
             dict["Fstatus"] = req["fstatus"]?.ToObject<string>();
             dict["Ftime"] = req["ftime"]?.ToObject<int>();
 
