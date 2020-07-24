@@ -132,11 +132,14 @@ namespace health.Controllers.BaseData
 
             JObject res = new JObject();
             res["status"] = 200;
-            res["list"] = db.GetArray(string.Format(@"SELECT t1.id,ChineseName,Username,t2.AreaName Province,t3.AreaName City,t4.AreaName County,t5.cname GroupName from t_user t1
+            res["list"] = db.GetArray(string.Format(@"SELECT t1.id,ChineseName,Username,t2.AreaName Province,t3.AreaName City,t4.AreaName County,
+t5.cname GroupName,t1.IsActive,t1.PhoneNumber,t6.OrgName
+from t_user t1
 left JOIN data_area t2 on t1.ProvinceID=t2.id
 left JOIN data_area t3 on t1.CityID=t3.id
 left JOIN data_area t4 on t1.CountyID=t4.id
 inner join t_user_group t5 on t1.GroupId=t5.id
+inner join t_orgnization t6 on t1.OrgnizationID=t6.id
 order by t1.id desc LIMIT {0},{1}", offset, pagesize));
             return res;
         }
