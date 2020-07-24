@@ -283,6 +283,8 @@ WHERE ID=?p1",id);
             JObject itemObject = new JObject();
             //itemObject[""]
 
+            JObject res = new JObject();
+
             if (req["id"]?.ToObject<int>() > 0)
             {
                 Dictionary<string, object> condi = new Dictionary<string, object>();
@@ -290,18 +292,19 @@ WHERE ID=?p1",id);
                 dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update("t_detectionrecord", dict, condi);
+                res["id"] = req["id"];
             }
             else
             {
                 dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("t_detectionrecord", dict);
+                res["id"] = this.db.Insert("t_detectionrecord", dict);
             }
 
-            JObject res = new JObject();
+            
             res["status"] = 200;
             res["msg"] = "提交成功";
-            res["id"] = req["id"];
+            
             return res;
         }
 

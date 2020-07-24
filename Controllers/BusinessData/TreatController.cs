@@ -391,7 +391,7 @@ WHERE ID=?p1
             // TODO: 在这里添加add item逻辑
 
             TreatItemController itemControl = new TreatItemController(null);
-
+            JObject res = new JObject();
 
             if (req["id"]?.ToObject<int>() > 0)
             {
@@ -429,14 +429,14 @@ WHERE ID=?p1
 
                     db.Update("t_treatitem",subdict,subcondi);
                 }
-
+                res["id"] = req["id"];
             }
             else
             {
                 dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
                 var newId = this.db.Insert("t_treat", dict);
-
+                res["id"] = newId;
                 JObject itemReq = new JObject();
                 itemReq["id"] = 0;
                 itemReq["treatid"] = newId;
@@ -450,10 +450,10 @@ WHERE ID=?p1
                
             }
 
-            JObject res = new JObject();
+           
             res["status"] = 200;
             res["msg"] = "提交成功";
-            res["id"] = req["id"];
+            
             return res;
         }
 
