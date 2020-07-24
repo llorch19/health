@@ -9,10 +9,11 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class DetectionResultTypeController : ControllerBase
+    public class DetectionResultTypeController : AbstractBLLController
     {
         private readonly ILogger<DetectionResultTypeController> _logger;
-        dbfactory db = new dbfactory();
+        public override string TableName => "data_detectionresulttype";
+
         public DetectionResultTypeController(ILogger<DetectionResultTypeController> logger)
         {
             _logger = logger;
@@ -23,8 +24,8 @@ namespace health.Controllers
         /// </summary>
         /// <returns>JSON对象，包含“检测结果”的数组</returns>
         [HttpGet]
-        [Route("GetDetectionResultTypeList")]
-        public JObject GetDetectionResultTypeList(int id)
+        [Route("Get[controller]List")]
+        public override JObject GetList()
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
@@ -44,8 +45,8 @@ namespace health.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("GetDetectionResultType")]
-        public JObject GetDetectionResultType(int id)
+        [Route("Get[controller]")]
+        public override JObject Get(int id)
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
@@ -70,35 +71,10 @@ namespace health.Controllers
         /// </summary>
         /// <param name="req">JSON对象，包含待修改的“检测结果”信息</param>
         /// <returns>响应状态信息</returns>
-        [HttpPost("SetDetectionResultType")]
-        public JObject SetDetectionResultType([FromBody] JObject req)
+        [HttpPost("Set[controller]")]
+        public override JObject Set([FromBody] JObject req)
         {
-
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Code"] = req["code"]?.ToObject<string>();
-            dict["ResultName"] = req["resultname"]?.ToObject<string>();
-
-
-            if (req["id"].ToObject<int>() > 0)
-            {
-                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["LastUpdatedTime"] = DateTime.Now;
-                Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];
-                var tmp = this.db.Update("data_detectionresulttype", dict, condi);
-            }
-            else
-            {
-                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("data_detectionresulttype", dict);
-            }
-
-            JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "提交成功";
-            res["id"] = req["id"];
-            return res;
+            return base.Set(req);
         }
 
 
@@ -108,26 +84,9 @@ namespace health.Controllers
         /// <param name="req">JSON对象，包含待删除的“检测结果”信息</param>
         /// <returns>响应状态信息</returns>
         [HttpPost("DelDetectionResultType")]
-        public JObject DelDetectionResultType([FromBody] JObject req)
+        public override JObject Del([FromBody] JObject req)
         {
-            JObject res = new JObject();
-            var dict = new Dictionary<string, object>();
-            dict["IsDeleted"] = 1;
-            var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
-            var count = db.Update("data_detectionresulttype", dict, keys);
-            if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+            return base.Del(req);
         }
 
         [NonAction]
@@ -136,6 +95,15 @@ namespace health.Controllers
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,ResultName text from data_detectionresulttype where id=?p1", id);
             return res;
+        }
+
+        public override Dictionary<string, object> GetReq(JObject req)
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["Code"] = req["code"]?.ToObject<string>();
+            dict["ResultName"] = req["resultname"]?.ToObject<string>();
+
+            return dict;
         }
     }
 }

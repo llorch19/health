@@ -9,11 +9,12 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class MedicationDosageFormController : ControllerBase
+    public class MedicationDosageFormController : AbstractBLLController
     {
 
         private readonly ILogger<MedicationDosageFormController> _logger;
-        dbfactory db = new dbfactory();
+        public override string TableName => "data_medicationdosageform";
+
         public MedicationDosageFormController(ILogger<MedicationDosageFormController> logger)
         {
             _logger = logger;
@@ -25,7 +26,7 @@ namespace health.Controllers
         /// <returns>JSON对象，包含所有可用的“药物剂型”数组</returns>
         [HttpGet]
         [Route("GetMedicationDosageFormList")]
-        public JObject GetMedicationDosageFormList(int id)
+        public override JObject GetList()
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
@@ -48,7 +49,7 @@ select ID,Code,Name from data_medicationdosageform
         /// <returns>JSON对象，包含相应的“药物剂型”信息</returns>
         [HttpGet]
         [Route("GetMedicationDosageForm")]
-        public JObject GetMedicationDosageForm(int id)
+        public override JObject Get(int id)
         {
             JObject res = db.GetOne(@"
 select ID,Code,Name from data_medicationdosageform where id=?p1
@@ -73,33 +74,9 @@ select ID,Code,Name from data_medicationdosageform where id=?p1
         /// <param name="req">JSON对象，包含待修改的“药物剂型”信息</param>
         /// <returns>响应状态信息</returns>
         [HttpPost("SetMedicationDosageForm")]
-        public JObject SetMedicationDosageForm([FromBody] JObject req)
+        public override JObject Set([FromBody] JObject req)
         {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Code"] = req["code"]?.ToObject<string>();
-            dict["Name"] = req["name"]?.ToObject<string>();
-
-
-            if (req["id"].ToObject<int>() > 0)
-            {
-                dict["LastUpdatedBy"] = HttpContext.Connection.RemoteIpAddress.ToString();
-                dict["LastUpdatedTime"] = DateTime.Now;
-                Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];
-                var tmp = this.db.Update("data_medicationdosageform", dict, condi);
-            }
-            else
-            {
-                dict["CreatedBy"] = HttpContext.Connection.RemoteIpAddress.ToString();
-                dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("data_medicationdosageform", dict);
-            }
-
-            JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "提交成功";
-            res["id"] = req["id"];
-            return res;
+            return base.Set(req);
         }
 
 
@@ -109,26 +86,9 @@ select ID,Code,Name from data_medicationdosageform where id=?p1
         /// <param name="req">JSON对象，包含待删除的“药物剂型”信息</param>
         /// <returns>响应状态信息</returns>
         [HttpPost("DelMedicationDosageForm")]
-        public JObject DelMedicationDosageForm([FromBody] JObject req)
+        public override JObject Del([FromBody] JObject req)
         {
-            JObject res = new JObject();
-            var dict = new Dictionary<string, object>();
-            dict["IsDeleted"] = 1;
-            var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
-            var count = db.Update("data_medicationdosageform", dict, keys);
-            if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+            return base.Del(req);
         }
 
         [NonAction]
@@ -137,6 +97,15 @@ select ID,Code,Name from data_medicationdosageform where id=?p1
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,Name text from data_medicationdosageform where id=?p1", id);
             return res;
+        }
+
+        public override Dictionary<string, object> GetReq(JObject req)
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["Code"] = req["code"]?.ToObject<string>();
+            dict["Name"] = req["name"]?.ToObject<string>();
+
+            return dict;
         }
     }
 }

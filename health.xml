@@ -42,38 +42,17 @@
             如果重新登陆，则刷新这个值
             </summary>
         </member>
-        <member name="M:health.BaseData.AddressCategoryController.GetAddressCategoryList">
-            <summary>
-            获取“地址类型”列表
-            </summary>
-            <returns>JSON对象，包含所有可用的“地址类型”数组</returns>
-        </member>
-        <member name="M:health.BaseData.AddressCategoryController.GetAddressCategory(System.Int32)">
-            <summary>
-            获取“地址类型”信息
-            </summary>
-            <param name="id">指定id</param>
-            <returns>JSON对象，包含相应的“地址类型”信息</returns>
-        </member>
-        <member name="M:health.BaseData.AddressCategoryController.SetAddressCategory(Newtonsoft.Json.Linq.JObject)">
-            <summary>
-            修改“地址类型”
-            </summary>
-            <param name="req">JSON对象，包含待修改的“地址类型”信息</param>
-            <returns>响应状态信息</returns>
-        </member>
-        <member name="M:health.BaseData.AddressCategoryController.DelAddressCategory(Newtonsoft.Json.Linq.JObject)">
-            <summary>
-            删除“地址类型”
-            </summary>
-            <param name="req">JSON对象，包含待删除的“地址类型”信息</param>
-            <returns>响应状态信息</returns>
-        </member>
         <member name="M:health.Controllers.AreaController.GetAreaList(System.Int32)">
             <summary>
             获取“区域”列表
             </summary>
             <param name="parentId">指定parentId</param>
+            <returns>JSON对象，包含指定parentId的下属“区域”数组</returns>
+        </member>
+        <member name="M:health.Controllers.AreaController.GetList">
+            <summary>
+            获取“区域”列表
+            </summary>
             <returns>JSON对象，包含指定parentId的下属“区域”数组</returns>
         </member>
         <member name="M:health.Controllers.AreaController.GetBaseData">
@@ -82,20 +61,20 @@
             </summary>
             <returns>JSON对象，包含层级的区域列表</returns>
         </member>
-        <member name="M:health.Controllers.AreaController.GetArea(System.Int32)">
+        <member name="M:health.Controllers.AreaController.Get(System.Int32)">
             <summary>
             获取“区域”信息
             </summary>
             <returns>获取指定id的“区域”信息</returns>
         </member>
-        <member name="M:health.Controllers.AreaController.SetArea(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.AreaController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             修改“区域”
             </summary>
             <param name="req">JSON对象，包含待修改的“区域”信息</param>
             <returns>响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.AreaController.DelArea(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.AreaController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“区域”
             </summary>
@@ -1063,6 +1042,33 @@
             获取区域信息
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:health.BaseData.AddressCategoryController.GetList">
+            <summary>
+            获取“地址类型”列表
+            </summary>
+            <returns>JSON对象，包含所有可用的“地址类型”数组</returns>
+        </member>
+        <member name="M:health.BaseData.AddressCategoryController.Get(System.Int32)">
+            <summary>
+            获取“地址类型”信息
+            </summary>
+            <param name="id">指定id</param>
+            <returns>JSON对象，包含相应的“地址类型”信息</returns>
+        </member>
+        <member name="M:health.BaseData.AddressCategoryController.Set(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            修改“地址类型”
+            </summary>
+            <param name="req">JSON对象，包含待修改的“地址类型”信息</param>
+            <returns>响应状态信息</returns>
+        </member>
+        <member name="M:health.BaseData.AddressCategoryController.Del(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            删除“地址类型”
+            </summary>
+            <param name="req">JSON对象，包含待删除的“地址类型”信息</param>
+            <returns>响应状态信息</returns>
         </member>
     </members>
 </doc>

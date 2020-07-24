@@ -19,10 +19,11 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class AreaController : ControllerBase
+    public class AreaController : AbstractBLLController
     {
         private readonly ILogger<AreaController> _logger;
-        dbfactory db = new dbfactory();
+        public override string TableName => "data_area";
+
         public AreaController(ILogger<AreaController> logger)
         {
             _logger = logger;
@@ -34,7 +35,7 @@ namespace health.Controllers
         /// <param name="parentId">指定parentId</param>
         /// <returns>JSON对象，包含指定parentId的下属“区域”数组</returns>
         [HttpGet]
-        [Route("GetAreaList")]
+        [Route("GetAreaListH")]
         public JObject GetAreaList(int parentId)
         {
             JObject res = new JObject();
@@ -44,6 +45,19 @@ namespace health.Controllers
 
             return res;
         }
+
+
+        /// <summary>
+        /// 获取“区域”列表
+        /// </summary>
+        /// <returns>JSON对象，包含指定parentId的下属“区域”数组</returns>
+        [HttpGet]
+        [Route("GetAreaList")]
+        public override JObject GetList()
+        {
+            return GetAreaList(0);
+        }
+
 
         /// <summary>
         /// 获取层级的“区域”列表
@@ -68,7 +82,7 @@ namespace health.Controllers
         /// <returns>获取指定id的“区域”信息</returns>
         [HttpGet]
         [Route("GetArea")]
-        public JObject GetArea(int id)
+        public override JObject Get(int id)
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
@@ -94,32 +108,9 @@ namespace health.Controllers
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("SetArea")]
-        public JObject SetArea([FromBody] JObject req)
+        public override JObject Set([FromBody] JObject req)
         {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["AreaCode"] = req["areacode"]?.ToObject<string>();
-            dict["AreaName"] = req["areaname"]?.ToObject<string>();
-            dict["ParentID"] = req["parentid"]?.ToObject<int>();
-            dict["dingdingDept"] = req["dingdingdept"]?.ToObject<string>();
-            dict["cs"] = req["cs"]?.ToObject<int>();
-            dict["AreaCodeV2"] = req["areacodev2"]?.ToObject<string>();
-
-            if (req["id"]?.ToObject<int>() > 0)
-            {
-                Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];
-                var tmp = this.db.Update("data_area", dict, condi);
-            }
-            else
-            {
-                this.db.Insert("data_area", dict);
-            }
-
-            JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "提交成功";
-            res["id"] = req["id"];
-            return res;
+            return base.Set(req);
         }
 
 
@@ -130,26 +121,9 @@ namespace health.Controllers
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("DelArea")]
-        public JObject DelArea([FromBody] JObject req)
+        public override JObject Del([FromBody] JObject req)
         {
-            JObject res = new JObject();
-            var dict = new Dictionary<string, object>();
-            dict["IsDeleted"] = 1;
-            var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
-            var count = db.Update("data_area", dict, keys);
-            if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+            return base.Del(req);
         }
 
 
@@ -159,6 +133,19 @@ namespace health.Controllers
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,AreaName text from data_area where id=?p1", id);
             return res;
+        }
+
+        public override Dictionary<string, object> GetReq(JObject req)
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["AreaCode"] = req["areacode"]?.ToObject<string>();
+            dict["AreaName"] = req["areaname"]?.ToObject<string>();
+            dict["ParentID"] = req["parentid"]?.ToObject<int>();
+            dict["dingdingDept"] = req["dingdingdept"]?.ToObject<string>();
+            dict["cs"] = req["cs"]?.ToObject<int>();
+            dict["AreaCodeV2"] = req["areacodev2"]?.ToObject<string>();
+
+            return dict;
         }
     }
 }

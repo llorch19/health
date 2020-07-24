@@ -9,10 +9,11 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class GenderController : ControllerBase
+    public class GenderController : AbstractBLLController
     {
         private readonly ILogger<GenderController> _logger;
-        dbfactory db = new dbfactory();
+        public override string TableName => "data_gender";
+
         public GenderController(ILogger<GenderController> logger)
         {
             _logger = logger;
@@ -24,7 +25,7 @@ namespace health.Controllers
         /// <returns>JSON对象，包含所有可用的“性别”数组</returns>
         [HttpGet]
         [Route("GetGenderList")]
-        public JObject GetGenderList()
+        public override JObject GetList()
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
@@ -46,7 +47,7 @@ namespace health.Controllers
         /// <returns>JSON对象，包含相应的“性别”信息</returns>
         [HttpGet]
         [Route("GetGender")]
-        public JObject GetGender(int id)
+        public override JObject Get(int id)
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
@@ -72,33 +73,9 @@ namespace health.Controllers
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("SetGender")]
-        public JObject SetGender([FromBody] JObject req)
+        public override JObject Set([FromBody] JObject req)
         {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Code"] = req["code"]?.ToObject<string>();
-            dict["GenderName"] = req["gendername"]?.ToObject<string>();
-
-
-            if (req["id"].ToObject<int>() > 0)
-            {
-                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["LastUpdatedTime"] = DateTime.Now;
-                Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];
-                var tmp = this.db.Update("data_gender", dict, condi);
-            }
-            else
-            {
-                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("data_gender", dict);
-            }
-
-            JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "提交成功";
-            res["id"] = req["id"];
-            return res;
+            return base.Set(req);
         }
 
 
@@ -109,26 +86,9 @@ namespace health.Controllers
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("DelGender")]
-        public JObject DelGender([FromBody] JObject req)
+        public override JObject Del([FromBody] JObject req)
         {
-            JObject res = new JObject();
-            var dict = new Dictionary<string, object>();
-            dict["IsDeleted"] = 1;
-            var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
-            var count = db.Update("data_gender", dict, keys);
-            if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+            return base.Del(req);
         }
 
         [NonAction]
@@ -137,6 +97,15 @@ namespace health.Controllers
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,GenderName text from data_gender where id=?p1", id);
             return res;
+        }
+
+        public override Dictionary<string, object> GetReq(JObject req)
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["Code"] = req["code"]?.ToObject<string>();
+            dict["GenderName"] = req["gendername"]?.ToObject<string>();
+
+            return dict;
         }
     }
 }
