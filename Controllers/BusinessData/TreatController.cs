@@ -305,7 +305,7 @@ WHERE t_treatitem.IsDeleted=0
 
 
         /// <summary>
-        /// 获取“用药记录”信息
+        /// 获取“治疗记录”信息
         /// </summary>
         /// <param name="id">指定的id</param>
         /// <returns>JSON对象，包含相应的“用药记录”信息</returns>
@@ -356,7 +356,7 @@ AND IsDeleted=0
 
 
         /// <summary>
-        /// 更改“用药记录”信息。如果id=0新增，如果id>0修改。
+        /// 更改“治疗记录”信息。如果id=0新增，如果id>0修改。
         /// </summary>
         /// <param name="req">在请求body中JSON形式的“用药记录”信息</param>
         /// <returns>响应状态信息</returns>
@@ -365,8 +365,8 @@ AND IsDeleted=0
         public override JObject Set([FromBody] JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
-            dict["PatientID"] = req["patientid"]?.ToObject<int>();
+            dict["OrgnizationID"] = req.ToInt("orgnizationid");
+            dict["PatientID"] = req.ToInt("patientid");
             //dict["TreatName"] = req["treatname"]?.ToObject<string>();
             //dict["DiseaseCode"] = req["diseasecode"]?.ToObject<string>();
             //dict["PrescriptionCode"] = req["prescriptioncode"]?.ToObject<string>();
@@ -397,12 +397,12 @@ AND IsDeleted=0
                 {
                     JObject itemReq = new JObject();
                     itemReq["id"] = 0;
-                    itemReq["treatid"] = req["id"]?.ToObject<int>();
-                    itemReq["patientid"] = req["patientid"]?.ToObject<int>();
-                    itemReq["medicationid"] = req["medicationid"]?.ToObject<int>();
-                    itemReq["medicationpathwayid"] = req["medicationpathwayid"]?.ToObject<int>();
-                    itemReq["medicationdosageformid"] = req["medicationdosageformid"]?.ToObject<int>();
-                    itemReq["medicationfreqcategoryid"] = req["medicationfreqcategoryid"]?.ToObject<int>();
+                    itemReq["treatid"] = req.ToInt("id");
+                    itemReq["patientid"] = req.ToInt("patientid");
+                    itemReq["medicationid"] = req.ToInt("medicationid");
+                    itemReq["medicationpathwayid"] = req.ToInt("medicationpathwayid");
+                    itemReq["medicationdosageformid"] = req.ToInt("medicationdosageformid");
+                    itemReq["medicationfreqcategoryid"] = req.ToInt("medicationfreqcategoryid");
                     var rows = itemControl.SetTreatItem(new JObject[] { itemReq }).Aggregate((sum, p) => sum += p);
                 }
                 else
@@ -412,9 +412,9 @@ AND IsDeleted=0
 
                     Dictionary<string, object> subdict = new Dictionary<string, object>();
                     subdict["medicationid"] = req["medicationid"]?.ToObject<int>();
-                    subdict["medicationpathwayid"] = req["medicationpathwayid"]?.ToObject<int>();
-                    subdict["medicationdosageformid"] = req["medicationdosageformid"]?.ToObject<int>();
-                    subdict["medicationfreqcategoryid"] = req["medicationfreqcategoryid"]?.ToObject<int>();
+                    subdict["medicationpathwayid"] = req.ToInt("medicationpathwayid");
+                    subdict["medicationdosageformid"] = req.ToInt("medicationdosageformid");
+                    subdict["medicationfreqcategoryid"] = req.ToInt("medicationfreqcategoryid");
 
                     db.Update("t_treatitem",subdict,subcondi);
                 }
@@ -449,7 +449,7 @@ AND IsDeleted=0
 
 
         /// <summary>
-        /// 删除“用药记录”。
+        /// 删除“治疗记录”。
         /// </summary>
         /// <param name="req">在请求body中JSON形式的“用药记录”信息</param>
         /// <returns>响应状态信息</returns>
