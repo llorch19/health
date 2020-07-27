@@ -72,6 +72,7 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(t_treatitem.SingleDoseAmount,'') AS SingleDoseAmount
 ,IFNULL(t_treatitem.SingleDoseUnit,'') AS SingleDoseUnit
 ,IFNULL(t_treatitem.TotalDoseAmount,'') AS TotalDoseAmount
+,IFNULL(t_treat.IsActive,'') AS IsActive
 FROM t_treat
 LEFT JOIN t_orgnization
 ON t_treat.OrgnizationID=t_orgnization.ID
@@ -90,6 +91,7 @@ ON t_treatitem.MedicationFreqCategoryID=data_medicationfreqcategory.ID
 LEFT JOIN data_medicationpathway
 ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
 AND t_treat.OrgnizationID=?p1
+WHERE t_treat.IsDeleted=0
 ", orgid);
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -138,6 +140,7 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(t_treatitem.SingleDoseAmount,'') AS SingleDoseAmount
 ,IFNULL(t_treatitem.SingleDoseUnit,'') AS SingleDoseUnit
 ,IFNULL(t_treatitem.TotalDoseAmount,'') AS TotalDoseAmount
+,IFNULL(t_treatitem.IsActive,'') AS IsActive
 FROM t_treatitem
 LEFT JOIN t_treat
 ON t_treat.ID=t_treatitem.TreatID
@@ -156,6 +159,7 @@ ON t_treatitem.MedicationFreqCategoryID=data_medicationfreqcategory.ID
 LEFT JOIN data_medicationpathway
 ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
 AND t_treat.OrgnizationID=?p1
+WHERE t_treatitem.IsDeleted=0
 ", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -203,6 +207,7 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(t_treatitem.SingleDoseAmount,'') AS SingleDoseAmount
 ,IFNULL(t_treatitem.SingleDoseUnit,'') AS SingleDoseUnit
 ,IFNULL(t_treatitem.TotalDoseAmount,'') AS TotalDoseAmount
+,IFNULL(t_treat.IsActive,'') AS IsActive
 FROM t_treat
 LEFT JOIN t_orgnization
 ON t_treat.OrgnizationID=t_orgnization.ID
@@ -221,6 +226,7 @@ ON t_treatitem.MedicationFreqCategoryID=data_medicationfreqcategory.ID
 LEFT JOIN data_medicationpathway
 ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
 AND t_treat.PatientID=?p1
+WHERE t_treat.IsDeleted=0
 ", personid);
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -271,6 +277,7 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(t_treatitem.SingleDoseAmount,'') AS SingleDoseAmount
 ,IFNULL(t_treatitem.SingleDoseUnit,'') AS SingleDoseUnit
 ,IFNULL(t_treatitem.TotalDoseAmount,'') AS TotalDoseAmount
+,IFNULL(t_treatitem.IsActive,'') AS IsActive
 FROM t_treatitem
 LEFT JOIN t_treat
 ON t_treat.ID=t_treatitem.TreatID
@@ -289,6 +296,7 @@ ON t_treatitem.MedicationFreqCategoryID=data_medicationfreqcategory.ID
 LEFT JOIN data_medicationpathway
 ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
 AND t_treat.PatientID=?p1
+WHERE t_treatitem.IsDeleted=0
 ", personid);
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -321,8 +329,10 @@ IFNULL(ID,'') AS ID
 ,IFNULL(IsCancel,'') AS IsCancel
 ,IFNULL(CancelTime,'') AS CancelTime
 ,IFNULL(CompleteTime,'') AS CompleteTime
+,IFNULL(IsActive,'') AS IsActive
 FROM t_treat
 WHERE ID=?p1
+AND IsDeleted=0
 ", id);
             if (res["id"]==null)
             {

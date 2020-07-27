@@ -63,6 +63,7 @@ t_vacc.ID
 ,TempratureP
 ,TempratureN
 ,Effect
+,t_vacc.IsActive AS IsActive
 FROM t_vacc
 LEFT JOIN t_patient
 ON t_vacc.PatientID=t_patient.ID
@@ -76,7 +77,8 @@ LEFT JOIN data_medicationdosageform
 ON t_vacc.MedicationDosageFormID=data_medicationdosageform.ID
 LEFT JOIN data_medicationpathway
 ON t_vacc.MedicationPathwayID=data_medicationpathway.ID
-WHERE t_vacc.OrgnizationID=?p1", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
+WHERE t_vacc.OrgnizationID=?p1
+AND t_vacc.IsDeleted=0", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -116,6 +118,7 @@ t_vacc.ID
 ,TempratureP
 ,TempratureN
 ,Effect
+,t_vacc.IsActive AS IsActive
 FROM t_vacc
 LEFT JOIN t_patient
 ON t_vacc.PatientID=t_patient.ID
@@ -129,7 +132,8 @@ LEFT JOIN data_medicationdosageform
 ON t_vacc.MedicationDosageFormID=data_medicationdosageform.ID
 LEFT JOIN data_medicationpathway
 ON t_vacc.MedicationPathwayID=data_medicationpathway.ID
-WHERE t_vacc.PatientID=?p1", personid);
+WHERE t_vacc.PatientID=?p1
+AND t_vacc.IsDeleted=0", personid);
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -162,8 +166,10 @@ ID
 ,TempratureP
 ,TempratureN
 ,Effect
+,IsActive
 FROM t_vacc
-WHERE ID=?p1", id);
+WHERE ID=?p1
+and IsDeleted=0", id);
             PersonController person = new PersonController(null,null);
             res["person"] = person
                 .GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);

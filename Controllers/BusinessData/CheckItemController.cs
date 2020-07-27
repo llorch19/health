@@ -66,6 +66,7 @@ t_detectionrecorditem.ID
 ,observe.ChineseName AS observe
 ,ObserveTime
 ,ReferenceDescription
+,t_detectionrecorditem.IsActive AS IsActive
 FROM 
 t_detectionrecorditem
 LEFT JOIN t_patient
@@ -83,6 +84,7 @@ ON t_detectionrecorditem.Injecter=inject.ID
 LEFT JOIN t_user observe
 ON t_detectionrecorditem.Observer=observe.ID
 WHERE t_detectionrecorditem.OrgnizationID=?p1
+AND t_detectionrecorditem.IsDeleted=0
 ", orgid);
         }
 
@@ -124,6 +126,7 @@ t_detectionrecorditem.ID
 ,observe.ChineseName AS observe
 ,ObserveTime
 ,ReferenceDescription
+,t_detectionrecorditem.IsActive AS IsActive
 FROM 
 t_detectionrecorditem
 LEFT JOIN t_patient
@@ -141,6 +144,7 @@ ON t_detectionrecorditem.Injecter=inject.ID
 LEFT JOIN t_user observe
 ON t_detectionrecorditem.Observer=observe.ID
 WHERE t_detectionrecorditem.PatientID=?p1
+AND t_detectionrecorditem.IsDeleted=0
 ", personid);
         }
 
@@ -178,6 +182,7 @@ t_detectionrecorditem.ID
 ,observe.ChineseName AS observe
 ,ObserveTime
 ,ReferenceDescription
+,t_detectionrecorditem.IsActive AS IsActive
 FROM 
 t_detectionrecorditem
 LEFT JOIN t_patient
@@ -195,6 +200,7 @@ ON t_detectionrecorditem.Injecter=inject.ID
 LEFT JOIN t_user observe
 ON t_detectionrecorditem.Observer=observe.ID
 WHERE t_detectionrecorditem.DetectionRecordID=?p1
+AND ,t_detectionrecorditem.IsDeleted=0
 ", checkid);
         }
 
@@ -226,6 +232,7 @@ t_detectionrecorditem.ID
 ,Observer
 ,ObserveTime
 ,ReferenceDescription
+,t_detectionrecorditem.IsActive AS IsActive
 FROM 
 t_detectionrecorditem
 LEFT JOIN t_patient
@@ -234,7 +241,9 @@ LEFT JOIN t_orgnization
 ON t_detectionrecorditem.OrgnizationID=t_orgnization.ID
 LEFT JOIN data_detectionresulttype
 ON t_detectionrecorditem.DetectionResultTypeID=data_detectionresulttype.ID
-WHERE ID=?p1", id);
+WHERE ID=?p1
+AND t_detectionrecorditem.IsDeleted=0
+", id);
             PersonController person = new PersonController(null,null);
             res["person"] = person.GetPersonInfo(res["patientid"].ToObject<int>());
             res["submit"] = person.GetUserInfo(res["submitby"].ToObject<int>());

@@ -50,13 +50,13 @@ t_followup.ID
 ,t_followup.PersonList
 ,t_followup.Abstract
 ,t_followup.Detail
+,t_followup.IsActive
 FROM t_followup
 LEFT JOIN t_patient
 ON t_followup.PatientID=t_patient.ID
 LEFT JOIN t_orgnization
 ON t_followup.OrgnizationID=t_orgnization.ID
 WHERE t_followup.OrgnizationID=?p1
-AND t_followup.IsActive=1
 AND t_followup.IsDeleted=0", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -86,13 +86,13 @@ t_followup.ID
 ,t_followup.PersonList
 ,t_followup.Abstract
 ,t_followup.Detail
+,t_followup.IsActive
 FROM t_followup
 LEFT JOIN t_patient
 ON t_followup.PatientID=t_patient.ID
 LEFT JOIN t_orgnization
 ON t_followup.OrgnizationID=t_orgnization.ID
 WHERE t_followup.PatientID=?p1
-AND t_followup.IsActive=1
 AND t_followup.IsDeleted=0", personid);
             res["status"] = 200;
             res["msg"] = "读取成功";

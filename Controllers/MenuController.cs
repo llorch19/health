@@ -172,7 +172,7 @@ namespace health.Controllers
             JObject res = new JObject();
             res["status"] = 200;
             //  在这里添加判断usergroup的中间件，并将usergroup应用于筛选菜单的条件
-            JArray tmp = db.GetArray("select id,name,icon,label,pid,seq from t_menu where isactive=1 and isdeleted=0");
+            JArray tmp = db.GetArray("select id,name,icon,label,pid,seq from t_menu where isdeleted=0");
             JObject[] menus = new JObject[0];
             var input = tmp.ToObject<JObject[]>();
             BuildMenu(input.ToArray(), pid, ref menus);
@@ -198,7 +198,7 @@ namespace health.Controllers
             res["status"] = 200;
             //  在这里添加判断usergroup的中间件，并将usergroup应用于筛选菜单的条件
             int groupid = HttpContext.GetMyInfo<int>("groupid");
-            JArray tmp = db.GetArray("select id,name,icon,label,pid,seq from t_menu where isactive=1 and isdeleted=0 and usergroup=?p1",groupid);
+            JArray tmp = db.GetArray("select id,name,icon,label,pid,seq from t_menu where isdeleted=0 and usergroup=?p1",groupid);
             JObject[] menus = new JObject[0];
             var input = tmp.ToObject<JObject[]>();
             BuildMenu(input.ToArray(), 0, ref menus);
@@ -221,7 +221,7 @@ namespace health.Controllers
         public override JObject Get(int id)
         {
             //  在这里添加判断usergroup的中间件，并将usergroup应用于筛选菜单的条件
-            JObject res = db.GetOne("select id,name,icon,label,pid,seq,usergroup from t_menu where id=?p1 and isactive=1 and isdeleted=0");
+            JObject res = db.GetOne("select id,name,icon,label,pid,seq,usergroup from t_menu where id=?p1 and isdeleted=0");
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;

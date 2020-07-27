@@ -60,7 +60,9 @@ ID
 ,ESC
 ,ProductionDate
 ,ExpiryDate
+,IsActive
 FROM t_detectionproduct
+WHERE IsDeleted=0
 LIMIT ?p1,?p2
 ", offset, pageSize);
             res["list"] = rows;
@@ -92,8 +94,10 @@ ID
 ,ESC
 ,ProductionDate
 ,ExpiryDate
+,IsActive
 FROM t_detectionproduct
-WHERE ID=?p1", id);
+WHERE ID=?p1
+AND IsDeleted=0", id);
             if (res["id"] != null)
             {
                 res["status"] = 200;
@@ -141,7 +145,7 @@ WHERE ID=?p1", id);
         public JObject GetCheckProductInfo(int? id)
         {
             dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,Name text from t_detectionproduct where id=?p1", id);
+            JObject res = db.GetOne("select id,Name text from t_detectionproduct where id=?p1 and isdeleted=0", id);
             return res;
         }
 

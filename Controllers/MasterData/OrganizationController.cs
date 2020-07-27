@@ -78,6 +78,7 @@ one.ID
 ,IFNULL(city.AreaName,'') as City
 ,IFNULL(one.CountyID,'') as CountyID
 ,IFNULL(county.AreaName,'') as County
+,IFNULL(one.IsActive,'') as IsActive
 FROM t_orgnization one 
 LEFT JOIN t_orgnization parent
 ON one.ParentID=parent.ID
@@ -87,8 +88,7 @@ LEFT JOIN data_area city
 ON one.CityID=city.ID
 LEFT JOIN data_area county
 ON one.CountyID=county.ID
-WHERE one.IsActive=1
-AND one.IsDeleted=0
+WHERE one.IsDeleted=0
 LIMIT ?p1,?p2"
                 , offset, pageSize);
 
@@ -128,6 +128,7 @@ one.ID
 ,IFNULL(city.AreaName,'') as City
 ,IFNULL(one.CountyID,'') as CountyID
 ,IFNULL(county.AreaName,'') as County
+,IFNULL(one.IsActive,'') as IsActive
 FROM t_orgnization one 
 LEFT JOIN t_orgnization parent
 ON one.ParentID=parent.ID
@@ -140,6 +141,7 @@ ON one.CountyID=county.ID
 WHERE one.ProvinceID=?p1
 AND one.CityID=?p2
 AND one.CountyID=?p3
+AND one.IsDeleted=0
 "
                 , provinceid, cityid, countyid);
 
@@ -172,8 +174,10 @@ ID
 ,IFNULL(ProvinceID,'') as ProvinceID
 ,IFNULL(CityID,'') as CityID
 ,IFNULL(CountyID,'') as CountyID
+,IFNULL(IsActive,'') as IsActive
 FROM t_orgnization 
-WHERE ID=?p1"
+WHERE ID=?p1
+AND IsDeleted=0"
                 , id);
 
             if (res["id"]==null)

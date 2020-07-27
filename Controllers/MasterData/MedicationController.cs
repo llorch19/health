@@ -64,7 +64,9 @@ IFNULL(ID,'') AS ID
 ,IFNULL(ProductionDate,'') AS ProductionDate
 ,IFNULL(ExpiryDate,'') AS ExpiryDate
 ,IFNULL(Manufacturer,'') AS Manufacturer
+,IFNULL(t_medication.IsActive,'') AS IsActive
 FROM t_medication
+WHERE t_medication.IsDeleted=0
 LIMIT ?p1,?p2
 ", offset, pageSize);
             res["list"] = rows;
@@ -92,8 +94,10 @@ IFNULL(ID,'') AS ID
 ,IFNULL(ProductionDate,'') AS ProductionDate
 ,IFNULL(ExpiryDate,'') AS ExpiryDate
 ,IFNULL(Manufacturer,'') AS Manufacturer
+,IFNULL(t_medication.IsActive,'') AS IsActive
 FROM t_medication
-WHERE ID=?p1",id);
+WHERE ID=?p1
+AND t_medication.IsDeleted=0", id);
             if (res["id"]!=null)
             {
                 res["status"] = 200;

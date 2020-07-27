@@ -33,7 +33,7 @@ namespace health.Controllers
             res["status"] = 200;
             res["msg"] = "读取成功";
 
-            JArray rows = db.GetArray("select ID,Name,Introduction from data_treatmentoption where IsActive=1 and IsDeleted=0");
+            JArray rows = db.GetArray("select ID,Name,Introduction,IsActive from data_treatmentoption where  IsDeleted=0");
 
             res["list"] = rows;
             return res;
@@ -50,7 +50,7 @@ namespace health.Controllers
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
-            JObject res = db.GetOne("select ID,Name,Introduction from data_treatmentoption where id=?p1 and IsDeleted=0", id);
+            JObject res = db.GetOne("select ID,Name,Introduction,IsActive from data_treatmentoption where id=?p1 and IsDeleted=0", id);
             if (res["id"] != null)
             {
                 res["status"] = 200;

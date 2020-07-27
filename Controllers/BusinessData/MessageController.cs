@@ -65,13 +65,13 @@ IFNULL(t_messagesent.ID,'') as ID
 ,IFNULL(Content,'') as Content
 ,IFNULL(Attachment,'') as Attachment
 ,IFNULL(IsPublic,'') as IsPublic
+,IFNULL(t_messagesent.IsActive,'') AS IsActive
 FROM t_messagesent 
 LEFT JOIN t_user
 ON t_user.ID=t_messagesent.PublishUserID
 LEFT JOIN t_orgnization
 ON t_messagesent.OrgnizationID=t_orgnization.ID
-WHERE t_messagesent.IsActive=1
-AND t_messagesent.IsDeleted=0
+WHERE t_messagesent.IsDeleted=0
 ";
             if (!IsOrgUser())
             {
@@ -115,8 +115,10 @@ IFNULL(ID,'') AS ID
 ,IFNULL(Content,'') AS Content
 ,IFNULL(Attachment,'') as Attachment
 ,IFNULL(IsPublic,'') as IsPublic
+,IFNULL(IsActive,'') AS IsActive
 FROM t_messagesent 
-WHERE t_messagesent.ID=?p1";
+WHERE t_messagesent.ID=?p1
+AND t_messagesent.IsDeleted=0";
 
             if (!IsOrgUser())
                 sql += @"

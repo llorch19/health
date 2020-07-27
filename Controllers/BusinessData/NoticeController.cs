@@ -60,11 +60,13 @@ IFNULL(t_notice.ID,'') AS ID
 ,IFNULL(PublishTime,'') AS PublishTime
 ,IFNULL(Content,'') AS Content
 ,IFNULL(Attachment,'') AS Attachment
+,IFNULL(t_notice.IsActive,'') AS IsActive
 FROM t_notice
 LEFT JOIN t_orgnization
 ON t_notice.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_user
 ON t_notice.PublishUserID=t_user.ID
+WHERE t_notice.IsDeleted=0
 ";
 
             JArray list = db.GetArray(sql);
@@ -99,8 +101,10 @@ IFNULL(ID,'') AS ID
 ,IFNULL(PublishTime,'') AS PublishTime
 ,IFNULL(Content,'') AS Content
 ,IFNULL(Attachment,'') AS Attachment
+,IFNULL(t_notice.IsActive,'') AS IsActive
 FROM t_notice
-WHERE ID=?p1";
+WHERE ID=?p1
+AND t_notice.IsDeleted=0";
 
             JObject res = db.GetOne(sql, id);
             if (res["id"] != null)

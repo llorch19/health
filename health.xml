@@ -508,6 +508,7 @@
             获取指定“检查编号”对应的图片
             </summary>
             <param name="checkid"></param>
+            <param name="index"></param>
             <returns></returns>
         </member>
         <member name="M:health.Controllers.CheckController.GetFileList(System.Int32)">
@@ -953,38 +954,38 @@
             <param name="req">在请求body中JSON形式的“参数”信息</param>
             <returns>JSON形式的响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.OrgnizationController.GetList">
+        <member name="M:health.Controllers.OrganizationController.GetList">
             <summary>
             获取“机构”列表
             </summary>
             <returns>JSON数组形式的“机构”信息</returns>
         </member>
-        <member name="M:health.Controllers.OrgnizationController.GetOrgList(System.Int32,System.Int32)">
+        <member name="M:health.Controllers.OrganizationController.GetOrgList(System.Int32,System.Int32)">
             <summary>
             获取“机构”列表
             </summary>
             <returns>JSON数组形式的“机构”信息</returns>
         </member>
-        <member name="M:health.Controllers.OrgnizationController.GetOrgList(System.Int32,System.Int32,System.Int32)">
+        <member name="M:health.Controllers.OrganizationController.GetOrgList(System.Int32,System.Int32,System.Int32)">
             <summary>
             获取指定区县级行政地址下的“机构”列表
             </summary>
             <returns>JSON数组形式的“机构”信息</returns>
         </member>
-        <member name="M:health.Controllers.OrgnizationController.Get(System.Int32)">
+        <member name="M:health.Controllers.OrganizationController.Get(System.Int32)">
             <summary>
             获取“机构”信息
             </summary>
             <returns>JSON形式的某个“机构”信息</returns>
         </member>
-        <member name="M:health.Controllers.OrgnizationController.Set(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.OrganizationController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             更改“机构”信息。如果id=0新增，如果id>0修改。
             </summary>
             <param name="req">在请求body中JSON形式的“机构”信息</param>
             <returns>JSON形式的响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.OrgnizationController.Del(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.OrganizationController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“机构”信息
             </summary>
@@ -1037,14 +1038,26 @@
             <param name="pid">指定根菜单的id</param>
             <returns>JSON对象，递归地包含了相应的系统菜单</returns>
         </member>
-        <member name="M:health.Controllers.MenuController.SetMenu(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.MenuController.GetList">
+            <summary>
+            获取系统菜单列表
+            </summary>
+            <returns>JSON对象，递归地包含了相应的系统菜单</returns>
+        </member>
+        <member name="M:health.Controllers.MenuController.Get(System.Int32)">
+            <summary>
+            获取系统菜单列表
+            </summary>
+            <returns>JSON对象，递归地包含了相应的系统菜单</returns>
+        </member>
+        <member name="M:health.Controllers.MenuController.Set(Newtonsoft.Json.Linq.JObject)">
             <summary>
             更改“菜单”信息。如果id=0新增，如果id>0修改。
             </summary>
             <param name="req">在请求body中JSON形式的“菜单”信息</param>
             <returns>JSON形式的响应状态信息</returns>
         </member>
-        <member name="M:health.Controllers.MenuController.DelMenu(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:health.Controllers.MenuController.Del(Newtonsoft.Json.Linq.JObject)">
             <summary>
             删除“菜单”信息
             </summary>
@@ -1089,6 +1102,13 @@
             </summary>
             <param name="req">JSON对象，包含待删除的“地址类型”信息</param>
             <returns>响应状态信息</returns>
+        </member>
+        <member name="M:health.Middleware.NotLogin401MiddleWare.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            对白名单以外的所有Controller进行缓存检查，如果没有登录信息，就返回鉴权失败错误
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
         </member>
     </members>
 </doc>

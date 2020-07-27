@@ -35,9 +35,8 @@ namespace health.Controllers
             res["msg"] = "读取成功";
 
             JArray rows = db.GetArray(@"
-select ID,Code,Name from data_medicationdosageform
-where IsActive=1
-and IsDeleted=0
+select ID,Code,Name,IsActive from data_medicationdosageform
+where IsDeleted=0
 ");
 
             res["list"] = rows;
@@ -54,7 +53,7 @@ and IsDeleted=0
         public override JObject Get(int id)
         {
             JObject res = db.GetOne(@"
-select ID,Code,Name from data_medicationdosageform where id=?p1 and IsDeleted=0
+select ID,Code,Name,IsActive from data_medicationdosageform where id=?p1 and IsDeleted=0
 ", id);
             if (res["id"] != null)
             {

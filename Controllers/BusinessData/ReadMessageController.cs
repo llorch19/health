@@ -49,6 +49,7 @@ IFNULL(t_messagesent.ID,'') AS ID
 ,IFNULL(t_messagesent.Thumbnail,'') AS Thumbnail
 ,IFNULL(t_messagesent.Abstract,'') AS Abstract
 ,IFNULL(Content,'') AS Content
+,IFNULL(t_messagesent.IsActive,'') AS IsActive
 FROM t_messagesent
 LEFT JOIN t_user
 ON t_user.ID=t_messagesent.PublishUserID
@@ -58,6 +59,7 @@ WHERE t_messagesent.ID NOT IN(
 SELECT MessageID AS ID FROM t_messageread
 WHERE PatientID=1)
 AND t_messagesent.IsPublic = 1
+AND t_messagesent.IsDeleted = 0
 ");
             if (list.HasValues)
             {
@@ -101,7 +103,8 @@ from t_messagesent where id=?p1
             JObject read = db.GetOne(@"select ID
 from t_messageread 
 where messageid=?p1 
-and patientid=?p2", msgid, patientid);
+and patientid=?p2
+", msgid, patientid);
             if (read["id"] == null)
             {
                 // 未打开过消息则自动插入
@@ -121,8 +124,10 @@ IFNULL(ID,'') AS ID
 ,IFNULL(OpenTime,'') AS OpenTime
 ,IFNULL(FinishTime,'') AS FinishTime
 ,IFNULL(IsRead,'') AS IsRead 
+,IFNULL(IsActive,'') AS IsActive 
 FROM t_messageread
-where MessageID=?p1 and PatientID=?p2", msgid, patientid);
+where MessageID=?p1 and PatientID=?p2
+and isdeleted=0", msgid, patientid);
 
 
             PersonController person = new PersonController(null, null);

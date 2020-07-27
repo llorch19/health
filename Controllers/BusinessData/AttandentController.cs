@@ -56,6 +56,7 @@ IFNULL(t_attandent.ID, '') AS ID
 , IFNULL(DesTime, '') AS DesTime
 , IFNULL(IsReferralCancel, '') AS IsReferralCancel
 , IFNULL(IsReferralFinish, '') AS IsReferralFinish
+, IFNULL(t_attandent.IsActive,'') AS IsActive
 FROM t_attandent
 LEFT JOIN t_patient
 ON t_attandent.PatientID=t_patient.ID
@@ -66,7 +67,6 @@ ON t_attandent.SrcOrgID=src.ID
 LEFT JOIN t_orgnization des
 ON t_attandent.DesOrgID=des.id
 WHERE t_attandent.OrgnizationID=?p1
-AND t_attandent.IsActive=1
 AND t_attandent.IsDeleted=0", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -101,6 +101,7 @@ IFNULL(t_attandent.ID, '') AS ID
 , IFNULL(DesTime, '') AS DesTime
 , IFNULL(IsReferralCancel, '') AS IsReferralCancel
 , IFNULL(IsReferralFinish, '') AS IsReferralFinish
+, IFNULL(t_attandent.IsActive,'') AS IsActive
 FROM t_attandent
 LEFT JOIN t_patient
 ON t_attandent.PatientID=t_patient.ID
@@ -111,7 +112,6 @@ ON t_attandent.SrcOrgID=src.ID
 LEFT JOIN t_orgnization des
 ON t_attandent.DesOrgID=des.id
 WHERE t_attandent.PatientID=?p1
-AND t_attandent.IsActive=1
 AND t_attandent.IsDeleted=0", personid);
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -144,6 +144,7 @@ IFNULL(ID, '') AS ID
 , IFNULL(DesTime, '') AS DesTime
 , IFNULL(IsReferralCancel, '') AS IsReferralCancel
 , IFNULL(IsReferralFinish, '') AS IsReferralFinish
+, IFNULL(t_attandent.IsActive,'') AS IsActive
 FROM
 t_attandent
 WHERE ID=?p1

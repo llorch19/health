@@ -99,6 +99,7 @@ IFNULL(t_patient.ID,'') as ID
 ,IFNULL(City.AreaName,'') as City
 ,IFNULL(t_patient.CountyID,'') as CountyID
 ,IFNULL(County.AreaName,'') as County
+,IFNULL(t_patient.IsActive,'') as IsActive
 FROM t_patient 
 LEFT JOIN t_orgnization
 ON t_patient.PrimaryOrgnizationID=t_orgnization.ID
@@ -117,7 +118,6 @@ ON t_patient.CountyID=County.ID
 LEFT JOIN t_attandent
 ON t_patient.ID=t_attandent.PatientID
 WHERE t_patient.OrgnizationID=?p1
-AND t_patient.IsActive=1
 AND t_patient.IsDeleted=0
 LIMIT ?p2,?p3"
                 , user["orgnizationid"]?.ToObject<int>(), offset, pageSize);
@@ -179,10 +179,12 @@ IFNULL(t_patient.ID,'') as ID
 ,IFNULL(t_patient.ProvinceID,'') as ProvinceID
 ,IFNULL(t_patient.CityID,'') as CityID
 ,IFNULL(t_patient.CountyID,'') as CountyID
+,IFNULL(t_patient.IsActive,'') as IsActive
 FROM t_patient 
 LEFT JOIN t_attandent
 ON t_patient.ID=t_attandent.PatientID
-where t_patient.ID=?p1"
+where t_patient.ID=?p1
+and t_patient.IsDeleted=0"
                 , id);
             OrganizationController org = new OrganizationController(null);
             personinfo["primaryorg"] = org.GetOrgInfo(personinfo["primaryorgnizationid"].ToObject<int>());
@@ -212,7 +214,8 @@ IFNULL(t_detectionrecord.ID,'') as ID
 from t_detectionrecord
 LEFT JOIN data_detectionresulttype
 ON t_detectionrecord.DiagnoticsTypeID=data_detectionresulttype.ID
-and PatientID=?p1"
+and PatientID=?p1
+and t_detectionrecord.IsDeleted=0"
                 , id);
 
             res["treatinfo"] = db.GetArray(@"
@@ -225,7 +228,8 @@ LEFT JOIN t_medication
 ON t_treatitem.MedicationID=t_medication.ID
 LEFT JOIN t_treat
 ON t_treatitem.TreatID=t_treat.ID
-AND t_treat.PatientID=?p1",id);
+AND t_treat.PatientID=?p1
+AND t_treatitem.IsDeleted=0", id);
 
             // 随访信息
             res["followupinfo"] = db.GetArray(@"
@@ -236,7 +240,8 @@ IFNULL(ID,'') as ID
 ,IFNULL(Abstract,'') as Abstract
 FROM t_followup
 WHERE PatientID=?p1
-",id);
+AND t_followup.IsDeleted=0
+", id);
 
             res["vaccinfo"] = db.GetArray(@"
 SELECT 
@@ -246,6 +251,7 @@ IFNULL(t_vacc.ID,'') AS ID
 ,IFNULL(t_medication.ESC,'') AS ESC
 ,IFNULL(t_orgnization.OrgName,'') AS OrgName
 ,IFNULL(t_user.ChineseName,'') AS Operator
+,IFNULL(t_vacc.IsActive,'') AS IsActive
 FROM t_vacc
 LEFT JOIN t_medication
 ON t_vacc.MedicationID=t_medication.ID
@@ -254,6 +260,7 @@ ON t_vacc.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_user
 ON t_vacc.OperationUserID=t_user.ID
 AND t_vacc.PatientID=?p1
+AND t_vacc.IsDeleted=0
 ", id);
 
             if (res["personinfo"].HasValues)
@@ -321,7 +328,7 @@ AND t_vacc.PatientID=?p1
         [NonAction]
         public JObject GetPersonInfo(int? id)
         {
-            JObject res = db.GetOne("select id,FamilyName text,IDCardNO code from t_patient where id=?p1", id);
+            JObject res = db.GetOne("select id,FamilyName text,IDCardNO code from t_patient where id=?p1 and t_patient.IsDeleted=0", id);
             return res;
         }
 
@@ -329,7 +336,7 @@ AND t_vacc.PatientID=?p1
         [NonAction]
         public JObject GetUserInfo(int? id)
         {
-            JObject res = db.GetOne("select id,ChineseName text,IDCardNO code from t_user where id=?p1", id);
+            JObject res = db.GetOne("select id,ChineseName text,IDCardNO code from t_user where id=?p1 and t_user.IsDeleted=0", id);
             return res;
         }
 

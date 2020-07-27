@@ -31,7 +31,7 @@ namespace health.BaseData
             JObject res = new JObject();
             res["status"] = 200;
             res["msg"] = "读取成功";
-            res["list"] = db.GetArray("select ID,Code,AddressCategory from data_addresscategory WHERE IsActive=1 AND IsDeleted=0");
+            res["list"] = db.GetArray("select ID,Code,AddressCategory,IsActive from data_addresscategory WHERE IsDeleted=0");
             return res;
         }
 
@@ -43,7 +43,7 @@ namespace health.BaseData
         [HttpGet("GetAddressCategory")]
         public override JObject Get(int id)
         {
-            JObject res = db.GetOne("select ID,Code,AddressCategory from data_addresscategory where id=?p1 AND IsActive=1 AND IsDeleted=0", id);
+            JObject res = db.GetOne("select ID,Code,AddressCategory,IsActive from data_addresscategory where id=?p1 AND IsDeleted=0", id);
             if (res["id"] != null)
             {
                 res["status"] = 200;

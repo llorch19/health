@@ -4,8 +4,8 @@
  * Date  : 2020-07-14
  * Description: 对个人信息的增删查改
  * Comments
- * - 
- 
+ * -  GetList 和 Get返回 IsDeleted
+ *
  */
 
 using Microsoft.AspNetCore.Mvc;

@@ -36,9 +36,8 @@ namespace health.Controllers
             res["msg"] = "读取成功";
 
             JArray rows = db.GetArray(@"
-select id,Code,Name from data_idcategory
-where IsActive=1
-and IsDeleted=0
+select id,Code,Name,IsActive from data_idcategory
+where IsDeleted=0
 ");
 
             res["list"] = rows;
@@ -54,7 +53,7 @@ and IsDeleted=0
         [Route("GetIdCategory")]
         public override JObject Get(int id)
         {
-            JObject res = db.GetOne("select id,Code,Name from data_idcategory where id=?p1 and isdeleted=0", id);
+            JObject res = db.GetOne("select id,Code,Name,IsActive from data_idcategory where id=?p1 and isdeleted=0", id);
             if (res["id"] != null)
             {
                 res["status"] = 200;
