@@ -154,7 +154,7 @@ AND t_attandent.IsDeleted=0", id);
                
                 res["person"] = new PersonController(null,null)
                                .GetPersonInfo(res["personid"].ToObject<int>());
-                OrgnizationController org = new OrgnizationController(null);
+                OrganizationController org = new OrganizationController(null);
                 res["orgnization"] = org
                     .GetOrgInfo(res["orgnizationid"].ToObject<int>());
                 res["srcorg"] = org

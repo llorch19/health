@@ -221,7 +221,7 @@ WHERE ID=?p1
 AND t_detectionrecord.IsDeleted=0", id);
             res["person"] = new PersonController(null, null)
                 .GetPersonInfo(res["patientid"]?.ToObject<int>()??0);
-            res["orgnization"] = new OrgnizationController(null)
+            res["orgnization"] = new OrganizationController(null)
                 .GetOrgInfo(res["orgnizationid"]?.ToObject<int>()??0);
             res["recommend"] = new TreatmentOptionController(null)
                 .GetTreatOptionInfo(res["recommendedtreatid"]?.ToObject<int>() ?? 0);
@@ -380,7 +380,7 @@ AND t_detectionrecorditem.IsDeleted=0", checkid);
                 item["inject"] = person.GetUserInfo(item["injecter"]?.ToObject<int>() ?? 0);
                 item["observe"] = person.GetUserInfo(item["observer"]?.ToObject<int>() ?? 0);
 
-                item["orgnization"] = new OrgnizationController(null)
+                item["orgnization"] = new OrganizationController(null)
                     .GetOrgInfo(item["orgnizationid"]?.ToObject<int>() ?? 0);
                 item["product"] = new CheckProductController(null)
                     .GetCheckProductInfo(item["detectionproductid"]?.ToObject<int>() ?? 0);

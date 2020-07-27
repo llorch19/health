@@ -348,7 +348,7 @@ WHERE ID=?p1
             }
             else
             {
-                OrgnizationController org = new OrgnizationController(null);
+                OrganizationController org = new OrganizationController(null);
                 res["orgnization"] = org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
                 PersonController person = new PersonController(null, null);
                 res["person"] = person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);

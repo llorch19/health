@@ -173,7 +173,7 @@ LEFT JOIN t_attandent
 ON t_patient.ID=t_attandent.PatientID
 where t_patient.ID=?p1"
                 , id);
-            OrgnizationController org = new OrgnizationController(null);
+            OrganizationController org = new OrganizationController(null);
             personinfo["primaryorg"] = org.GetOrgInfo(personinfo["primaryorgnizationid"].ToObject<int>());
             personinfo["orgnization"] = org.GetOrgInfo(personinfo["orgnizationid"].ToObject<int>());
 

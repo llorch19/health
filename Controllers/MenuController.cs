@@ -138,6 +138,7 @@
  * - 代码风格方面，单行的if和循环语句要删除前后大括号 @norway  2020-07-13 17:31
  * - 给菜单项添加一个seq字段，方便前端操作           @xuedi   2020-07-14 11:50
  */
+using health.common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -149,9 +150,11 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class MenuController : ControllerBase
+    public class MenuController : AbstractBLLController
     {
         private readonly ILogger<MenuController> _logger;
+        public override string TableName => "t_menu";
+
         public MenuController(ILogger<MenuController> logger)
         {
             _logger = logger;
@@ -166,11 +169,10 @@ namespace health.Controllers
         [Route("GetMenu")]
         public JObject GetMenu(int pid)
         {
-            dbfactory db = new dbfactory();
             JObject res = new JObject();
             res["status"] = 200;
             //  在这里添加判断usergroup的中间件，并将usergroup应用于筛选菜单的条件
-            JArray tmp = db.GetArray("select id,name,icon,label,pid,seq from t_menu");
+            JArray tmp = db.GetArray("select id,name,icon,label,pid,seq from t_menu where isactive=1 and isdeleted=0");
             JObject[] menus = new JObject[0];
             var input = tmp.ToObject<JObject[]>();
             BuildMenu(input.ToArray(), pid, ref menus);
@@ -182,6 +184,50 @@ namespace health.Controllers
             res["msg"] = "读取成功";
             return res;
         }
+
+
+        /// <summary>
+        /// 获取系统菜单列表
+        /// </summary>
+        /// <returns>JSON对象，递归地包含了相应的系统菜单</returns>
+        [HttpGet]
+        [Route("GetMenuList")]
+        public override JObject GetList()
+        {
+            JObject res = new JObject();
+            res["status"] = 200;
+            //  在这里添加判断usergroup的中间件，并将usergroup应用于筛选菜单的条件
+            int groupid = HttpContext.GetMyInfo<int>("groupid");
+            JArray tmp = db.GetArray("select id,name,icon,label,pid,seq from t_menu where isactive=1 and isdeleted=0 and usergroup=?p1",groupid);
+            JObject[] menus = new JObject[0];
+            var input = tmp.ToObject<JObject[]>();
+            BuildMenu(input.ToArray(), 0, ref menus);
+            JArray list = new JArray();
+            foreach (var item in menus)
+                list.Add(item);
+
+            res.Add("list", list);
+            res["msg"] = "读取成功";
+            return res;
+        }
+
+
+        /// <summary>
+        /// 获取系统菜单列表
+        /// </summary>
+        /// <returns>JSON对象，递归地包含了相应的系统菜单</returns>
+        [HttpGet]
+        [Route("GetMenuId")]
+        public override JObject Get(int id)
+        {
+            //  在这里添加判断usergroup的中间件，并将usergroup应用于筛选菜单的条件
+            JObject res = db.GetOne("select id,name,icon,label,pid,seq,usergroup from t_menu where id=?p1 and isactive=1 and isdeleted=0");
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
+        }
+
+
 
         [NonAction]
         public void BuildMenu(JObject[] flat, int parentid, ref JObject[] tree)
@@ -228,54 +274,9 @@ namespace health.Controllers
         /// <returns>JSON形式的响应状态信息</returns>
         [HttpPost]
         [Route("SetMenu")]
-        public JObject SetMenu([FromBody] JObject req)
+        public override JObject Set([FromBody] JObject req)
         {
-            dbfactory db = new dbfactory();
-            JObject res = new JObject();
-            if (req["id"] != null)
-            {
-                req.Remove("children");
-                int id = req["id"].ToObject<int>();
-                if (id == 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    var rows = db.Insert("t_menu", dict);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "新增成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "无法新增数据";
-                    }
-                }
-                else if (id > 0)
-                {
-                    var dict = req.ToObject<Dictionary<string, object>>();
-                    dict.Remove("id");
-                    var keys = new Dictionary<string, object>();
-                    keys["id"] = req["id"];
-                    var rows = db.Update("t_menu", dict, keys);
-                    if (rows > 0)
-                    {
-                        res["status"] = 200;
-                        res["msg"] = "修改成功";
-                    }
-                    else
-                    {
-                        res["status"] = 201;
-                        res["msg"] = "修改失败";
-                    }
-                }
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "非法的请求";
-            }
-            return res;
+            return base.Set(req);
         }
 
         /// <summary>
@@ -285,25 +286,22 @@ namespace health.Controllers
         /// <returns>JSON形式的响应状态信息</returns>
         [HttpPost]
         [Route("DelMenu")]
-        public JObject DelMenu([FromBody] JObject req)
+        public override JObject Del([FromBody] JObject req)
         {
-            JObject res = new JObject();
-            req.Remove("children");
-            var dict = req.ToObject<Dictionary<string, object>>();
-            dbfactory db = new dbfactory();
-            var count = db.del("t_menu", dict);
-            if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+            return base.Del(req);
+        }
+
+        public override Dictionary<string, object> GetReq(JObject req)
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["name"] = req["name"]?.ToString();
+            dict["icon"] = req["icon"]?.ToString();
+            dict["label"] = req["label"]?.ToString();
+            dict["pid"] = req["pid"]?.ToString();
+            dict["usergroup"] = req["usergroup"]?.ToString();
+            dict["seq"] = req["seq"]?.ToString();
+
+            return dict;
         }
     }
 }

@@ -106,8 +106,9 @@ namespace health.Controllers
         /// </summary>
         /// <param name="req">JSON对象，包含待修改的“区域”信息</param>
         /// <returns>响应状态信息</returns>
-        [HttpPost]
-        [Route("SetArea")]
+        //[HttpPost]
+        //[Route("SetArea")]
+        [NonAction]
         public override JObject Set([FromBody] JObject req)
         {
             JObject res = new JObject();
@@ -153,8 +154,9 @@ namespace health.Controllers
         /// </summary>
         /// <param name="req">JSON对象，包含待删除的“区域”信息</param>
         /// <returns>响应状态信息</returns>
-        [HttpPost]
-        [Route("DelArea")]
+        //[HttpPost]
+        //[Route("DelArea")]
+        [NonAction]
         public override JObject Del([FromBody] JObject req)
         {
             JObject res = new JObject();

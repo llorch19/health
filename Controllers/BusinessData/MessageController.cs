@@ -71,7 +71,7 @@ ON t_user.ID=t_messagesent.PublishUserID
 LEFT JOIN t_orgnization
 ON t_messagesent.OrgnizationID=t_orgnization.ID
 WHERE t_messagesent.IsActive=1
-AND t_meesagesent.IsDeleted=0
+AND t_messagesent.IsDeleted=0
 ";
             if (!IsOrgUser())
             {
@@ -126,7 +126,7 @@ AND IsPublic=1
             JObject res = db.GetOne(sql, id);
             if (res["id"] != null)
             {
-                OrgnizationController org = new OrgnizationController(null);
+                OrganizationController org = new OrganizationController(null);
                 res["orgnization"] = org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
                 PersonController person = new PersonController(null, null);
                 res["publish"] = person.GetUserInfo(res["publishuserid"]?.ToObject<int>() ?? 0);

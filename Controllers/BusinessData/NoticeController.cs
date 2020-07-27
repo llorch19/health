@@ -105,7 +105,7 @@ WHERE ID=?p1";
             JObject res = db.GetOne(sql, id);
             if (res["id"] != null)
             {
-                OrgnizationController org = new OrgnizationController(null);
+                OrganizationController org = new OrganizationController(null);
                 res["orgnization"] = org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
                 PersonController person = new PersonController(null, null);
                 res["publish"] = person.GetUserInfo(res["publishuserid"]?.ToObject<int>() ?? 0);

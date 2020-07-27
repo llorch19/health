@@ -167,7 +167,7 @@ WHERE ID=?p1", id);
             PersonController person = new PersonController(null,null);
             res["person"] = person
                 .GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
-            res["org"] = new OrgnizationController(null)
+            res["org"] = new OrganizationController(null)
                 .GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
             res["operator"] = person
                 .GetUserInfo(res["operationuserid"]?.ToObject<int>() ?? 0);

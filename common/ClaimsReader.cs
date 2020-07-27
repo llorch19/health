@@ -57,5 +57,12 @@ namespace health.common
                 return new JObject();
             }
         }
+
+        public static T GetMyInfo<T>(this HttpContext httpContext,string key)
+        {
+            var user = GetUser(httpContext);
+            return user[key].ToObject<T>();
+        }
+
     }
 }

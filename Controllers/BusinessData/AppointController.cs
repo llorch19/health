@@ -170,7 +170,7 @@ WHERE ID=?p1
 AND t_appoint.IsDeleted=0", id);
             if (res["id"] != null)
             {
-                res["orgnization"] = new OrgnizationController(null)
+                res["orgnization"] = new OrganizationController(null)
                     .GetOrgInfo(res["orgnizationid"].ToObject<int>());
                 res["person"] = new PersonController(null,null)
                     .GetPersonInfo(res["patientid"].ToObject<int>());

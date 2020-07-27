@@ -21,12 +21,12 @@ namespace health.Controllers
 {
     [ApiController]
     [Route("api")]
-    public class OrgnizationController : AbstractBLLController
+    public class OrganizationController : AbstractBLLController
     {
-        private readonly ILogger<OrgnizationController> _logger;
+        private readonly ILogger<OrganizationController> _logger;
         public override string TableName => "t_orgnization";
 
-        public OrgnizationController(ILogger<OrgnizationController> logger)
+        public OrganizationController(ILogger<OrganizationController> logger)
         {
             _logger = logger;
         }

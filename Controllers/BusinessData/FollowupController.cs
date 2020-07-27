@@ -124,7 +124,7 @@ AND t_followup.IsDeleted=0
 ", id);
             res["person"] = new PersonController(null, null)
                 .GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
-            res["orgnization"] = new OrgnizationController(null)
+            res["orgnization"] = new OrganizationController(null)
                 .GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
             res["status"] = 200;
             res["msg"] = "读取成功";
