@@ -53,8 +53,6 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(t_treat.PatientID,'') AS PersonID
 ,IFNULL(t_patient.FamilyName,'') AS PersonName
 ,IFNULL(t_patient.IDCardNO,'') AS PersonIDCard
-,IFNULL(t_treat.GenderID,'') AS GenderID
-,IFNULL(data_gender.GenderName,'') AS GenderName
 ,IFNULL(DiseaseCode,'') AS DiseaseCode
 ,IFNULL(TreatName,'') AS TreatName
 ,IFNULL(DrugGroupNumber,'') AS DrugGroupNumber
@@ -79,8 +77,6 @@ LEFT JOIN t_orgnization
 ON t_treat.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_patient
 ON t_treat.PatientID=t_patient.ID
-LEFT JOIN data_gender
-ON t_treat.GenderID=data_gender.ID
 LEFT JOIN t_user prescribe
 ON t_treat.Prescriber=prescribe.ID
 LEFT JOIN t_treatitem
@@ -123,8 +119,6 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(t_treat.PatientID,'') AS PersonID
 ,IFNULL(t_patient.FamilyName,'') AS PersonName
 ,IFNULL(t_patient.IDCardNO,'') AS PersonIDCard
-,IFNULL(t_treat.GenderID,'') AS GenderID
-,IFNULL(data_gender.GenderName,'') AS GenderName
 ,IFNULL(DiseaseCode,'') AS DiseaseCode
 ,IFNULL(TreatName,'') AS TreatName
 ,IFNULL(DrugGroupNumber,'') AS DrugGroupNumber
@@ -151,8 +145,6 @@ LEFT JOIN t_orgnization
 ON t_treat.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_patient
 ON t_treat.PatientID=t_patient.ID
-LEFT JOIN data_gender
-ON t_treat.GenderID=data_gender.ID
 LEFT JOIN t_user prescribe
 ON t_treat.Prescriber=prescribe.ID
 LEFT JOIN t_medication
@@ -192,8 +184,6 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(t_treat.PatientID,'') AS PersonID
 ,IFNULL(t_patient.FamilyName,'') AS PersonName
 ,IFNULL(t_patient.IDCardNO,'') AS PersonIDCard
-,IFNULL(t_treat.GenderID,'') AS GenderID
-,IFNULL(data_gender.GenderName,'') AS GenderName
 ,IFNULL(DiseaseCode,'') AS DiseaseCode
 ,IFNULL(TreatName,'') AS TreatName
 ,IFNULL(DrugGroupNumber,'') AS DrugGroupNumber
@@ -218,8 +208,6 @@ LEFT JOIN t_orgnization
 ON t_treat.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_patient
 ON t_treat.PatientID=t_patient.ID
-LEFT JOIN data_gender
-ON t_treat.GenderID=data_gender.ID
 LEFT JOIN t_user prescribe
 ON t_treat.Prescriber=prescribe.ID
 LEFT JOIN t_treatitem
@@ -264,8 +252,6 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(t_treat.PatientID,'') AS PersonID
 ,IFNULL(t_patient.FamilyName,'') AS PersonName
 ,IFNULL(t_patient.IDCardNO,'') AS PersonIDCard
-,IFNULL(t_treat.GenderID,'') AS GenderID
-,IFNULL(data_gender.GenderName,'') AS GenderName
 ,IFNULL(DiseaseCode,'') AS DiseaseCode
 ,IFNULL(TreatName,'') AS TreatName
 ,IFNULL(DrugGroupNumber,'') AS DrugGroupNumber
@@ -292,8 +278,6 @@ LEFT JOIN t_orgnization
 ON t_treat.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_patient
 ON t_treat.PatientID=t_patient.ID
-LEFT JOIN data_gender
-ON t_treat.GenderID=data_gender.ID
 LEFT JOIN t_user prescribe
 ON t_treat.Prescriber=prescribe.ID
 LEFT JOIN t_medication
@@ -327,7 +311,6 @@ IFNULL(ID,'') AS ID
 ,IFNULL(OrgnizationID,'') AS OrgnizationID
 ,IFNULL(PrescriptionCode,'') AS PrescriptionCode
 ,IFNULL(PatientID,'') AS PatientID
-,IFNULL(GenderID,'') AS GenderID
 ,IFNULL(DiseaseCode,'') AS DiseaseCode
 ,IFNULL(TreatName,'') AS TreatName
 ,IFNULL(DrugGroupNumber,'') AS DrugGroupNumber
@@ -352,8 +335,6 @@ WHERE ID=?p1
                 res["orgnization"] = org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
                 PersonController person = new PersonController(null, null);
                 res["person"] = person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
-                GenderController gender = new GenderController(null);
-                res["gender"] = gender.GetGenderInfo(res["genderid"]?.ToObject<int>() ?? 0);
                 TreatItemController items = new TreatItemController(null);
                 res["items"] = items.GetTreatItemList(res["id"].ToObject<int>());
                 res["status"] = 200;
@@ -376,7 +357,6 @@ WHERE ID=?p1
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
             dict["PatientID"] = req["patientid"]?.ToObject<int>();
-            //dict["GenderID"] = req["genderid"]?.ToObject<int>();
             //dict["TreatName"] = req["treatname"]?.ToObject<string>();
             //dict["DiseaseCode"] = req["diseasecode"]?.ToObject<string>();
             //dict["PrescriptionCode"] = req["prescriptioncode"]?.ToObject<string>();
@@ -408,7 +388,6 @@ WHERE ID=?p1
                     JObject itemReq = new JObject();
                     itemReq["id"] = 0;
                     itemReq["treatid"] = req["id"]?.ToObject<int>();
-                    //itemReq["genderid"] = req["genderid"]?.ToObject<int>();
                     itemReq["patientid"] = req["patientid"]?.ToObject<int>();
                     itemReq["medicationid"] = req["medicationid"]?.ToObject<int>();
                     itemReq["medicationpathwayid"] = req["medicationpathwayid"]?.ToObject<int>();
@@ -440,7 +419,6 @@ WHERE ID=?p1
                 JObject itemReq = new JObject();
                 itemReq["id"] = 0;
                 itemReq["treatid"] = newId;
-                //itemReq["genderid"] = req["genderid"]?.ToObject<int>();
                 itemReq["patientid"] = req["patientid"]?.ToObject<int>();
                 itemReq["medicationid"] = req["medicationid"]?.ToObject<int>();
                 itemReq["medicationpathwayid"] = req["medicationpathwayid"]?.ToObject<int>();
