@@ -1,4 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿/*
+ * Title : 个人信息管理控制器
+ * Author: zudan
+ * Date  : 2020-07-14
+ * Description: 对个人信息的增删查改
+ * Comments
+ * - 
+ 
+ */
+
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -27,18 +37,34 @@ namespace health.Controllers
             var dict = GetReq(req);
             if (req["id"]?.ToObject<int>() > 0)
             {
-                Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];  // 指定了id才可以修改
-                condi["IsDeleted"] = 0;  // 未删除才可以修改
-                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
-                dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update(TableName, dict, condi);
-                res["id"] = req["id"];
+                //  只修改激活状态 Or 只修改业务数据
+                if (req.ContainsKey("isactive"))
+                {
+                    Dictionary<string, object> activeonly = new Dictionary<string, object>();
+                    activeonly["id"] = req["id"];  // 指定了id才可以修改
+
+                    dict.Clear();
+                    dict["isactive"] = req.ToInt("isactive");
+                    this.db.Update(TableName, dict, activeonly);
+                    res["id"] = req["id"];
+                }
+                else
+                {
+                    Dictionary<string, object> condi = new Dictionary<string, object>();
+                    condi["id"] = req["id"];  // 指定了id才可以修改
+                    condi["IsDeleted"] = 0;  // 未删除才可以修改
+                    dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
+                    dict["LastUpdatedTime"] = DateTime.Now;
+                    var tmp = this.db.Update(TableName, dict, condi);
+                    res["id"] = req["id"];
+                }
             }
             else
             {
                 dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
+                dict["IsActive"] = 0;
+                dict["IsDeleted"] = 0;
                 res["id"] = this.db.Insert(TableName, dict);
             }
 
