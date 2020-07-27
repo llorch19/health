@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.FileProviders;
 using util;
+using health.Middleware;
 
 namespace health
 {
@@ -121,6 +122,7 @@ namespace health
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseMiddleware<NotLogin401MiddleWare>();
 
             // 在生产环境当中，upload不可以static资源发放，应该以UploadController的形式发放
             app.UseStaticFiles(new StaticFileOptions

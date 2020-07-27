@@ -35,7 +35,7 @@ namespace health.common
             config conf = new config();
             dbfactory db = new dbfactory();
             IMemoryCache memoryCache = httpContext.RequestServices.GetService(typeof(IMemoryCache)) as IMemoryCache;
-            string controllername = httpContext.GetRouteData().Values["controller"].ToString();
+            string controllername = httpContext.GetRouteData()?.Values["controller"]?.ToString();
             if (int.TryParse(userid,out id))
             {
                 int slide = int.Parse(conf.GetValue("sys:memorycache:SlidingExpiration"));
