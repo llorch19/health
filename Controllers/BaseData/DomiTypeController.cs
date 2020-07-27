@@ -22,6 +22,7 @@ namespace health.Controllers
     {
 
         private readonly ILogger<DomiTypeController> _logger;
+        dbfactory db = new dbfactory();
         public override string TableName => "data_domitype";
 
         public DomiTypeController(ILogger<DomiTypeController> logger)
@@ -37,16 +38,21 @@ namespace health.Controllers
         [Route("GetDomiTypeList")]
         public override JObject GetList()
         {
-            //int id = 0;
-            //int.TryParse(HttpContext.Request.Query["id"],out id);
             JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-
-            dbfactory db = new dbfactory();
             JArray rows = db.GetArray("select ID,Name from data_domitype WHERE IsActive=1 AND IsDeleted=0");
 
-            res["list"] = rows;
+            if (rows.HasValues)
+            {
+                res["status"] = 200;
+                res["msg"] = "读取成功";
+                res["list"] = rows;
+            }
+            else
+            {
+                res["status"] = 201;
+                res["msg"] = "无法读取相应的数据";
+            }
+           
             return res;
         }
 
@@ -98,7 +104,7 @@ namespace health.Controllers
         }
 
         [NonAction]
-        public JObject GetDomiTypeInfo(int id)
+        public JObject GetDomiTypeInfo(int? id)
         {
             JObject res = db.GetOne("select id,Name text from data_domitype where id=?p1", id);
             return res;

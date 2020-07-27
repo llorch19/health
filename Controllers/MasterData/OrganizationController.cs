@@ -87,6 +87,8 @@ LEFT JOIN data_area city
 ON one.CityID=city.ID
 LEFT JOIN data_area county
 ON one.CountyID=county.ID
+WHERE one.IsActive=1
+AND one.IsDeleted=0
 LIMIT ?p1,?p2"
                 , offset, pageSize);
 
@@ -174,22 +176,22 @@ FROM t_orgnization
 WHERE ID=?p1"
                 , id);
 
-            AreaController area = new AreaController(null);
-            res["province"] = area.GetAreaInfo(res["provinceid"].ToObject<int>());
-            res["city"] = area.GetAreaInfo(res["cityid"].ToObject<int>());
-            res["county"] = area.GetAreaInfo(res["countyid"].ToObject<int>());
-            res["parent"] = this.GetOrgInfo(res["parentid"].ToObject<int>());
-
-            if (res["id"] != null)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-            }
-            else
+            if (res["id"]==null)
             {
                 res["status"] = 201;
                 res["msg"] = "查询不到对应的数据";
             }
+            else
+            {
+                AreaController area = new AreaController(null);
+                res["province"] = area.GetAreaInfo(res.ToInt("provinceid"));
+                res["city"] = area.GetAreaInfo(res.ToInt("cityid"));
+                res["county"] = area.GetAreaInfo(res.ToInt("countyid"));
+                res["parent"] = this.GetOrgInfo(res.ToInt("parentid")); 
+                res["status"] = 200;
+                res["msg"] = "读取成功";
+            }
+
             return res;
         }
 
@@ -218,7 +220,7 @@ WHERE ID=?p1"
         }
 
         [NonAction]
-        public JObject GetOrgInfo(int id)
+        public JObject GetOrgInfo(int? id)
         {
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,OrgName text,OrgCode code,CertCode register from t_orgnization where id=?p1", id);

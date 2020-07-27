@@ -98,7 +98,7 @@ namespace health.Controllers
         }
 
         [NonAction]
-        public JObject GetGenderInfo(int id)
+        public JObject GetGenderInfo(int? id)
         {
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,GenderName text from data_gender where id=?p1 and IsDeleted=0", id);

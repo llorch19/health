@@ -98,7 +98,7 @@ namespace health.Controllers
         }
 
         [NonAction]
-        public JObject GetNationInfo(int id)
+        public JObject GetNationInfo(int? id)
         {
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,Name text from data_nation where id=?p1 and IsDeleted=0", id);

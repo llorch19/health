@@ -82,7 +82,7 @@ namespace health.BaseData
         }
 
         [NonAction]
-        public JObject GetAddressCategoryInfo(int id)
+        public JObject GetAddressCategoryInfo(int? id)
         {
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,AddressCategory text from data_addresscategory where id=?p1 and isdeleted=0", id);

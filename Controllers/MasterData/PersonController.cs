@@ -319,7 +319,7 @@ AND t_vacc.PatientID=?p1
 
 
         [NonAction]
-        public JObject GetPersonInfo(int id)
+        public JObject GetPersonInfo(int? id)
         {
             JObject res = db.GetOne("select id,FamilyName text,IDCardNO code from t_patient where id=?p1", id);
             return res;
@@ -327,7 +327,7 @@ AND t_vacc.PatientID=?p1
 
 
         [NonAction]
-        public JObject GetUserInfo(int id)
+        public JObject GetUserInfo(int? id)
         {
             JObject res = db.GetOne("select id,ChineseName text,IDCardNO code from t_user where id=?p1", id);
             return res;

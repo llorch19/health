@@ -88,7 +88,7 @@ namespace health.Controllers
         }
 
         [NonAction]
-        public JObject GetTreatOptionInfo(int id)
+        public JObject GetTreatOptionInfo(int? id)
         {
             JObject res = db.GetOne("select id,Name text from data_treatmentoption where id=?p1 and IsDeleted=0", id);
             return res;

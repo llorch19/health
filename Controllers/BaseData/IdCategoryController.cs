@@ -95,7 +95,7 @@ and IsDeleted=0
         }
 
         [NonAction]
-        public JObject GetIdCategoryInfo(int id)
+        public JObject GetIdCategoryInfo(int? id)
         {
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,Name text from data_idcategory where id=?p1 and isdeleted=0", id);

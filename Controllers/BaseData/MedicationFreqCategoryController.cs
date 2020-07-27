@@ -92,7 +92,7 @@ namespace health.Controllers
 
 
         [NonAction]
-        public JObject GetFreqInfo(int id)
+        public JObject GetFreqInfo(int? id)
         {
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,ValueMessage text from data_medicationfreqcategory where id=?p1 and IsDeleted=0", id);

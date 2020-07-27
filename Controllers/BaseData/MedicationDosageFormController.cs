@@ -94,7 +94,7 @@ select ID,Code,Name from data_medicationdosageform where id=?p1 and IsDeleted=0
         }
 
         [NonAction]
-        public JObject GetDosageInfo(int id)
+        public JObject GetDosageInfo(int? id)
         {
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,Name text from data_medicationdosageform where id=?p1 and IsDeleted=0", id);

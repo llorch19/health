@@ -75,7 +75,7 @@ namespace health.common
             JObject res = db.GetOne("select id,cname text from t_user_group where id=?p1", gid);
             return res;
         }
-        public JObject GetAreaInfo(int id)
+        public JObject GetAreaInfo(int? id)
         {
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,AreaName text from data_area where id=?p1", id);

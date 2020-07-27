@@ -90,7 +90,7 @@ namespace health.Controllers
         }
 
         [NonAction]
-        public JObject GetResultTypeInfo(int id)
+        public JObject GetResultTypeInfo(int? id)
         {
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,ResultName text from data_detectionresulttype where id=?p1 and IsDeleted=0", id);

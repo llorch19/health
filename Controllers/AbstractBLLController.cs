@@ -28,9 +28,8 @@ namespace health.Controllers
             if (req["id"]?.ToObject<int>() > 0)
             {
                 Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];
-                condi["IsDeleted"] = 0;
-                condi["IsActive"] = 1;
+                condi["id"] = req["id"];  // 指定了id才可以修改
+                condi["IsDeleted"] = 0;  // 未删除才可以修改
                 dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update(TableName, dict, condi);

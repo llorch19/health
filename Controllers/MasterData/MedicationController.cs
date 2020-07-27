@@ -137,7 +137,7 @@ WHERE ID=?p1",id);
 
 
         [NonAction]
-        public JObject GetMedicationInfo(int id)
+        public JObject GetMedicationInfo(int? id)
         {
             JObject res = db.GetOne("SELECT id,Name text,ESC code FROM t_medication where id=?p1", id);
             return res;
