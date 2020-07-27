@@ -238,10 +238,10 @@ WHERE ID=?p1"
             dict["Address"] = req["address"]?.ToObject<string>();
             dict["Tel"] = req["tel"]?.ToObject<string>();
             dict["Coordinates"] = req["coordinates"]?.ToObject<string>();
-            dict["ParentID"] = req["parentid"]?.ToObject<int>();
-            dict["ProvinceID"] = req["provinceid"]?.ToObject<int>();
-            dict["CityID"] = req["cityid"]?.ToObject<int>();
-            dict["CountyID"] = req["countyid"]?.ToObject<int>();
+            dict["ParentID"] = req.ToInt("parentid");
+            dict["ProvinceID"] = req.ToInt("provinceid");
+            dict["CityID"] = req.ToInt("cityid");
+            dict["CountyID"] = req.ToInt("countyid");
 
 
             return dict;

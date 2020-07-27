@@ -23,5 +23,22 @@ namespace health
 
             return null;
         }
+
+
+        public static int? ToInt(this JObject jobj, string prop)
+        {
+            string data = jobj[prop]?.ToObject<string>();
+            if (jobj[prop] == null
+                || string.IsNullOrWhiteSpace(data)
+                || string.IsNullOrEmpty(data)
+                )
+                return null;
+
+            int dtOut;
+            if (int.TryParse(data, out dtOut))
+                return dtOut;
+
+            return null;
+        }
     }
 }

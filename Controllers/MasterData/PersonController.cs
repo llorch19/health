@@ -123,11 +123,22 @@ LIMIT ?p2,?p3"
                 , user["orgnizationid"]?.ToObject<int>(), offset, pageSize);
 
             // TODO: BUGs here, can not read COUNT(*) which returns Int64
-            res["total"] = db.GetOne("SELECT COUNT(*) as TOTAL FROM t_patient")["total"];
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            res["list"] = rows;
-            return res;
+            
+            if (rows.HasValues)
+            {
+                res["total"] = db.GetOne("SELECT COUNT(*) as TOTAL FROM t_patient")["total"];
+                res["status"] = 200;
+                res["msg"] = "读取成功";
+                res["list"] = rows;
+                return res;
+            }
+            else
+            {
+                res["status"] = 201;
+                res["msg"] = "无法读取相应的数据";
+                return res;
+            }
+            
         }
 
         /// <summary>
