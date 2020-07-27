@@ -20,6 +20,11 @@ namespace health.Middleware
         {
         }
 
+        /// <summary>
+        /// 对白名单以外的所有Controller进行缓存检查，如果没有登录信息，就返回鉴权失败错误
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public override async Task InvokeAsync(HttpContext context)
         {
 

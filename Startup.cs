@@ -122,7 +122,10 @@ namespace health
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseMiddleware<NotLogin401MiddleWare>();
+
+            // 使用中间件拦截未登录的请求，响应时间在10ms以内。
+            //app.UseMiddleware<NotLogin401MiddleWare>();
+
 
             // 在生产环境当中，upload不可以static资源发放，应该以UploadController的形式发放
             app.UseStaticFiles(new StaticFileOptions
