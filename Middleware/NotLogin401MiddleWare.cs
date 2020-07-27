@@ -1,7 +1,10 @@
 ﻿using health.common;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+using Org.BouncyCastle.Asn1;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -20,7 +23,9 @@ namespace health.Middleware
         public override async Task InvokeAsync(HttpContext context)
         {
 
-            if (context.GetUser()["id"]==null)
+            var controller = context.GetRouteValue("controller");
+            List<string> whitelist = new List<string>() { "Login" };
+            if (controller==null || (!whitelist.Contains(controller.ToString()) && context.GetUser()["id"] == null))
             {
                 JObject res = new JObject();
                 res["status"] = 401;
