@@ -35,7 +35,7 @@ namespace health.Controllers
         {
             JObject res = new JObject();
             var dict = GetReq(req);
-            if (req["id"]?.ToObject<int>() > 0)
+            if (req.ToInt("id") > 0)
             {
                 //  只修改激活状态 Or 只修改业务数据
                 if (req.ContainsKey("isactive"))
