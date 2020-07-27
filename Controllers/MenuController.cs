@@ -221,7 +221,7 @@ namespace health.Controllers
         public override JObject Get(int id)
         {
             //  在这里添加判断usergroup的中间件，并将usergroup应用于筛选菜单的条件
-            JObject res = db.GetOne("select id,name,icon,label,pid,seq,usergroup from t_menu where id=?p1 and isdeleted=0");
+            JObject res = db.GetOne("select id,name,icon,label,pid,seq,usergroup from t_menu where id=?p1 and isdeleted=0",id);
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
