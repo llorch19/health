@@ -7,13 +7,11 @@ using util.mysql;
 
 namespace health.Controllers
 {
-    [ApiController]
     [Route("api")]
     public class OccupationController : AbstractBLLController
     {
 
         private readonly ILogger<OccupationController> _logger;
-        dbfactory db = new dbfactory();
 
         public override string TableName => "data_occupation";
 

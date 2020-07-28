@@ -16,6 +16,10 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.FileProviders;
 using util;
 using health.Middleware;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Google.Protobuf.WellKnownTypes;
 
 namespace health
 {
@@ -32,10 +36,18 @@ namespace health
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers(
-                options=>options.Filters.Add<ZFExceptionFilter>()
-                )
+            services.AddScoped<IModelValidatorProvider, ZFModelValidatorProvider>();
+            services.AddControllers( options =>
+            {
+                options.Filters.Clear();
+                options.Filters.Add<ZFExceptionFilter>();
+                options.Filters.Add<ModelValidateFilter>();
+                options.ModelValidatorProviders.Clear();
+                options.ModelValidatorProviders.Add(services.BuildServiceProvider().GetService<IModelValidatorProvider>());
+            }
+            )
                     .AddNewtonsoftJson();
+            
             #region Auth 
             services.AddAuthentication(options =>
             {
@@ -102,6 +114,7 @@ namespace health
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
             config conf = new config();
 
             if (env.IsDevelopment())
@@ -137,6 +150,7 @@ namespace health
                     RequestPath = "/"+ conf.GetValue("user:static")
             }
             );
+
 
             app.UseEndpoints(endpoints =>
             {
