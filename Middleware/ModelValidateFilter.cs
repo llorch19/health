@@ -24,6 +24,8 @@ namespace health.Middleware
                 res["status"] = 201;
                 res["msg"] = "参数不正确";
                 string strRes = JsonConvert.SerializeObject(res);
+                context.HttpContext.Response.StatusCode = 200;
+                context.HttpContext.Response.ContentType = "application/json";
                 context.HttpContext.Response.WriteAsync(strRes).Wait();
             }
             
