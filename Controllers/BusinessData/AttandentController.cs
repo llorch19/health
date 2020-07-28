@@ -66,7 +66,7 @@ ON t_attandent.SrcOrgID=src.ID
 LEFT JOIN t_orgnization des
 ON t_attandent.DesOrgID=des.id
 WHERE t_attandent.OrgnizationID=?p1
-AND t_attandent.IsDeleted=0", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
+AND t_attandent.IsDeleted=0", HttpContext.GetUserInfo<int>("orgnizationid"));
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -75,12 +75,12 @@ AND t_attandent.IsDeleted=0", HttpContext.GetUser()["orgnizationid"]?.ToObject<i
         /// <summary>
         /// 获取个人的“就诊”历史
         /// </summary>
-        /// <param name="personid">检索指定个人的id</param>
         /// <returns>JSON对象，包含相应的“就诊”数组</returns>
         [HttpGet]
         [Route("GetPersonAttandentList")]
-        public JObject GetPersonAttandentList(int personid)
+        public JObject GetPersonAttandentList()
         {
+            int personid = HttpContext.GetPersonInfo<int>("id");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"SELECT 
 IFNULL(t_attandent.ID, '') AS ID

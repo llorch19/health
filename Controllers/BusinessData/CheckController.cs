@@ -45,8 +45,9 @@ namespace health.Controllers
         /// <returns>JSON对象，包含相应的“检测”数组</returns>
         [HttpGet]
         [Route("GetOrgCheckList")]
-        public JObject GetOrgCheckList(int orgid)
+        public JObject GetOrgCheckList()
         {
+            int orgid = HttpContext.GetUserInfo<int>("orgnizationid");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 
@@ -117,8 +118,9 @@ AND t_detectionrecord.IsDeleted=0
         /// <returns>JSON对象，包含相应的“检测”数组</returns>
         [HttpGet]
         [Route("GetPersonCheckList")]
-        public JObject GetPersonCheckList(int personid)
+        public JObject GetPersonCheckList()
         {
+            int personid = HttpContext.GetPersonInfo<int>("id");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 
@@ -294,14 +296,14 @@ AND t_detectionrecord.IsDeleted=0", id);
             {
                 Dictionary<string, object> condi = new Dictionary<string, object>();
                 condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
+                dict["LastUpdatedBy"] = StampUtil.GetUser(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update("t_detectionrecord", dict, condi);
                 res["id"] = req["id"];
             }
             else
             {
-                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
+                dict["CreatedBy"] = StampUtil.GetUser(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
                 res["id"] = this.db.Insert("t_detectionrecord", dict);
             }
@@ -471,7 +473,7 @@ AND t_detectionrecorditem.IsDeleted=0", checkid);
 
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["Pics"] = bPics.ToString();
-            dict["LastUpdatedBy"] = FilterUtil.GetUser(this.HttpContext);
+            dict["LastUpdatedBy"] = StampUtil.GetUser(this.HttpContext);
             dict["LastUpdatedTime"] = DateTime.Now;
             Dictionary<string, object> keys = new Dictionary<string, object>();
             keys["id"] = checkid;

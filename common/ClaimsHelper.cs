@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Asn1.X509.Qualified;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,7 +18,7 @@ using util.mysql;
 
 namespace health.common
 {
-    public static class ClaimsReader
+    public static class ClaimsHelper
     {
         /// <summary>
         /// 扩展httpContext读取用户信息，获取的用户信息缓存在内存中
@@ -68,7 +69,15 @@ namespace health.common
         public static T GetUserInfo<T>(this HttpContext httpContext,string key)
         {
             var user = GetUser(httpContext);
-            return user[key].ToObject<T>();
+            try
+            {
+                string s = user[key]?.ToObject<string>();
+                return (T)System.Convert.ChangeType(s, typeof(T));
+            }
+            catch (Exception ex)
+            {
+                return default(T);
+            }
         }
 
 

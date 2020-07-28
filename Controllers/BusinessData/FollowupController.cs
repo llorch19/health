@@ -56,7 +56,7 @@ ON t_followup.PatientID=t_patient.ID
 LEFT JOIN t_orgnization
 ON t_followup.OrgnizationID=t_orgnization.ID
 WHERE t_followup.OrgnizationID=?p1
-AND t_followup.IsDeleted=0", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
+AND t_followup.IsDeleted=0", HttpContext.GetUserInfo<int>("orgnizationid"));
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -69,8 +69,9 @@ AND t_followup.IsDeleted=0", HttpContext.GetUser()["orgnizationid"]?.ToObject<in
         /// <returns>JSON对象，包含相应的“随访”数组</returns>
         [HttpGet]
         [Route("GetPersonFollowupList")]
-        public JObject GetPersonFollowupList(int personid)
+        public JObject GetPersonFollowupList()
         {
+            int personid = HttpContext.GetPersonInfo<int>("id");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 

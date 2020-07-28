@@ -65,7 +65,7 @@ ON t_appoint.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_patient
 ON t_appoint.PatientID=t_patient.ID
 WHERE t_appoint.OrgnizationID=?p1
-AND t_appoint.IsDeleted=0", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
+AND t_appoint.IsDeleted=0", HttpContext.GetUserInfo<int>("orgnizationid"));
             if (list.HasValues)
             {
                 res["status"] = 200;
@@ -83,12 +83,12 @@ AND t_appoint.IsDeleted=0", HttpContext.GetUser()["orgnizationid"]?.ToObject<int
         /// <summary>
         /// 获取个人的“预约”历史
         /// </summary>
-        /// <param name="personid">检索指定个人的id</param>
         /// <returns>JSON对象，包含相应的“预约”数组</returns>
         [HttpGet]
         [Route("GetPersonAppointList")]
-        public JObject GetPersonAppointList(int personid)
+        public JObject GetPersonAppointList()
         {
+            int personid = HttpContext.GetPersonInfo<int>("id");
             JObject res = new JObject();
             JArray list = db.GetArray(@"SELECT   
 IFNULL(t_appoint.ID,'') AS ID
@@ -172,9 +172,9 @@ AND t_appoint.IsDeleted=0", id);
             if (res["id"] != null)
             {
                 res["orgnization"] = new OrganizationController(null)
-                    .GetOrgInfo(res["orgnizationid"].ToObject<int>());
+                    .GetOrgInfo(res.ToInt("orgnizationid"));
                 res["person"] = new PersonController(null,null)
-                    .GetPersonInfo(res["patientid"].ToObject<int>());
+                    .GetPersonInfo(res.ToInt("patientid"));
                 res["status"] = 200;
                 res["msg"] = "读取成功";
             }

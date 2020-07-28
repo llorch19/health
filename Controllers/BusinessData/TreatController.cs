@@ -386,7 +386,7 @@ AND IsDeleted=0
             {
                 Dictionary<string, object> condi = new Dictionary<string, object>();
                 condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
+                dict["LastUpdatedBy"] = StampUtil.GetUser(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update("t_treat", dict, condi);
 
@@ -421,7 +421,7 @@ AND IsDeleted=0
             }
             else
             {
-                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
+                dict["CreatedBy"] = StampUtil.GetUser(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
                 var newId = this.db.Insert("t_treat", dict);
                 res["id"] = newId;

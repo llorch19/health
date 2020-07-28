@@ -54,7 +54,7 @@ namespace health.Controllers
                     Dictionary<string, object> condi = new Dictionary<string, object>();
                     condi["id"] = req["id"];  // 指定了id才可以修改
                     condi["IsDeleted"] = 0;  // 未删除才可以修改
-                    dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
+                    dict["LastUpdatedBy"] = StampUtil.GetUser(HttpContext);
                     dict["LastUpdatedTime"] = DateTime.Now;
                     var tmp = this.db.Update(TableName, dict, condi);
                     res["id"] = req["id"];
@@ -62,7 +62,7 @@ namespace health.Controllers
             }
             else
             {
-                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
+                dict["CreatedBy"] = StampUtil.GetUser(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
                 dict["IsActive"] = 0;
                 dict["IsDeleted"] = 0;

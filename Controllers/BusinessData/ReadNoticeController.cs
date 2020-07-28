@@ -162,13 +162,13 @@ and isdeleted=0
             {
                 Dictionary<string, object> condi = new Dictionary<string, object>();
                 condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
+                dict["LastUpdatedBy"] = StampUtil.GetUser(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update("t_messageread", dict, condi);
             }
             else
             {
-                dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
+                dict["CreatedBy"] = StampUtil.GetUser(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
                 this.db.Insert("t_messageread", dict);
             }
@@ -195,7 +195,7 @@ and isdeleted=0
             JObject res = new JObject();
             var dict = new Dictionary<string, object>();
             dict["IsDeleted"] = 1;
-            dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
+            dict["LastUpdatedBy"] = StampUtil.GetUser(HttpContext);
             dict["LastUpdatedTime"] = DateTime.Now;
             var keys = new Dictionary<string, object>();
             keys["id"] = req["id"]?.ToObject<int>();

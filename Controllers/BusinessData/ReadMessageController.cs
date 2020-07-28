@@ -166,13 +166,13 @@ AND isdeleted=0", msgid, personid);
             {
                 Dictionary<string, object> condi = new Dictionary<string, object>();
                 condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = FilterUtil.GetPerson(HttpContext);
+                dict["LastUpdatedBy"] = StampUtil.GetPerson(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update("t_messageread", dict, condi);
             }
             else
             {
-                dict["CreatedBy"] = FilterUtil.GetPerson(HttpContext);
+                dict["CreatedBy"] = StampUtil.GetPerson(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
                 this.db.Insert("t_messageread", dict);
             }
@@ -199,7 +199,7 @@ AND isdeleted=0", msgid, personid);
             JObject res = new JObject();
             var dict = new Dictionary<string, object>();
             dict["IsDeleted"] = 1;
-            dict["LastUpdatedBy"] = FilterUtil.GetPerson(HttpContext);
+            dict["LastUpdatedBy"] = StampUtil.GetPerson(HttpContext);
             dict["LastUpdatedTime"] = DateTime.Now;
             var keys = new Dictionary<string, object>();
             keys["id"] = req["id"]?.ToObject<int>();

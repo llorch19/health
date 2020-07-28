@@ -77,7 +77,7 @@ ON t_vacc.MedicationDosageFormID=data_medicationdosageform.ID
 LEFT JOIN data_medicationpathway
 ON t_vacc.MedicationPathwayID=data_medicationpathway.ID
 WHERE t_vacc.OrgnizationID=?p1
-AND t_vacc.IsDeleted=0", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
+AND t_vacc.IsDeleted=0", HttpContext.GetUserInfo<int>("orgnizationid"));
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -90,8 +90,9 @@ AND t_vacc.IsDeleted=0", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>()
         /// <returns>JSON对象，包含相应的“接种记录”数组</returns>
         [HttpGet]
         [Route("GetPersonVaccList")]
-        public JObject GetPersonVaccList(int personid)
+        public JObject GetPersonVaccList()
         {
+            int personid = HttpContext.GetPersonInfo<int>("id");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 

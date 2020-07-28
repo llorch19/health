@@ -112,7 +112,7 @@ namespace health.Controllers
 
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["Pics"] = bPics.ToString();
-            dict["LastUpdatedBy"] = FilterUtil.GetUser(this.HttpContext);
+            dict["LastUpdatedBy"] = StampUtil.GetUser(this.HttpContext);
             dict["LastUpdatedTime"] = DateTime.Now;
             Dictionary<string, object> keys = new Dictionary<string, object>();
             keys["id"] = checkid;
