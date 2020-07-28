@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using health.common;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,16 @@ namespace health
             string remoteIpAddress = context?.Connection?.RemoteIpAddress?.ToString();
             if (context?.Request?.Headers?.ContainsKey("X-Forwarded-For")??false)
                 remoteIpAddress = context.Request.Headers["X-Forwarded-For"];
-            return remoteIpAddress;
+            return context.GetUserInfo<int>("id") + remoteIpAddress; ;
+        }
+
+
+        public static string GetPerson(HttpContext context)
+        {
+            string remoteIpAddress = context?.Connection?.RemoteIpAddress?.ToString();
+            if (context?.Request?.Headers?.ContainsKey("X-Forwarded-For") ?? false)
+                remoteIpAddress = context.Request.Headers["X-Forwarded-For"];
+            return context.GetPersonInfo<int>("id")+remoteIpAddress;
         }
     }
 }
