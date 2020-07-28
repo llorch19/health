@@ -38,7 +38,7 @@ namespace health
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IModelValidatorProvider, ZFModelValidatorProvider>();
-            services.AddScoped<ModelException>();
+            services.AddSingleton<ModelException>();
             services.AddControllers( options =>
             {
                 options.Filters.Clear();
