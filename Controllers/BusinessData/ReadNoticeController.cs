@@ -79,12 +79,12 @@ AND t_notice.IsDeleted = 0
         /// 打开“未读消息”信息，点击[科普公告]中的一个“未读消息”
         /// </summary>
         /// <param name="notid">指定消息的id</param>
-        /// <param name="userid">指定用户的id</param>
         /// <returns>JSON对象，包含相应的“未读消息”</returns>
         [HttpGet]
         [Route("Get[controller]")]
-        public JObject Get(int notid, int userid)
+        public JObject Get(int notid)
         {
+            int userid = HttpContext.GetUserInfo<int>("id");
             JObject res = db.GetOne(@"
 select 
 IFNULL(ID,'') AS ID 
