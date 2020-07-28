@@ -164,13 +164,13 @@ and isdeleted=0
                 condi["id"] = req["id"];
                 dict["LastUpdatedBy"] = StampUtil.GetUser(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_messageread", dict, condi);
+                var tmp = this.db.Update("t_noticeread", dict, condi);
             }
             else
             {
                 dict["CreatedBy"] = StampUtil.GetUser(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("t_messageread", dict);
+                this.db.Insert("t_noticeread", dict);
             }
 
             JObject res = new JObject();
@@ -199,7 +199,7 @@ and isdeleted=0
             dict["LastUpdatedTime"] = DateTime.Now;
             var keys = new Dictionary<string, object>();
             keys["id"] = req["id"]?.ToObject<int>();
-            var count = db.Update("t_messageread", dict, keys);
+            var count = db.Update("t_noticeread", dict, keys);
             if (count > 0)
             {
                 res["status"] = 200;
