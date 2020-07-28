@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -20,10 +21,11 @@ namespace health.Middleware
             // 删除apicontroller修饰符才可起效
             if (!context.ModelState.IsValid)
             {
-                var ex = context.HttpContext.RequestServices.GetService(typeof(ModelException)) as ModelException;
-                throw ex;
+                JObject res = new JObject();
+                res["status"] = 201;
+                res["msg"] = "参数不正确";
+                context.Result = new OkObjectResult(res);
             }
-            
         }
     }
 }
