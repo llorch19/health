@@ -13,12 +13,15 @@ namespace health.Middleware
     {
         public async Task OnExceptionAsync(ExceptionContext context)
         {
-            context.ExceptionHandled = true;
-            JObject resException = new JObject();
-            resException["status"] = 201;
-            resException["msg"] = "参数不正确";
-            context.HttpContext.Response.ContentType = "application/json";
-            await context.HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(resException));
+            if (!context.HttpContext.Response.HasStarted)
+            {
+                context.ExceptionHandled = true;
+                JObject resException = new JObject();
+                resException["status"] = 201;
+                resException["msg"] = "参数不正确";
+                context.HttpContext.Response.ContentType = "application/json";
+                await context.HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(resException));
+            }
         }
     }
 }

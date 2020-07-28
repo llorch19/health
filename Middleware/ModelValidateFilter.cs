@@ -20,13 +20,8 @@ namespace health.Middleware
             // 删除apicontroller修饰符才可起效
             if (!context.ModelState.IsValid)
             {
-                JObject res = new JObject();
-                res["status"] = 201;
-                res["msg"] = "参数不正确";
-                string strRes = JsonConvert.SerializeObject(res);
-                context.HttpContext.Response.StatusCode = 200;
-                context.HttpContext.Response.ContentType = "application/json";
-                context.HttpContext.Response.WriteAsync(strRes).Wait();
+                var ex = context.HttpContext.RequestServices.GetService(typeof(ModelException)) as ModelException;
+                throw ex;
             }
             
         }

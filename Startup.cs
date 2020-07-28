@@ -20,6 +20,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Google.Protobuf.WellKnownTypes;
+using System;
 
 namespace health
 {
@@ -37,6 +38,7 @@ namespace health
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IModelValidatorProvider, ZFModelValidatorProvider>();
+            services.AddScoped<ModelException>();
             services.AddControllers( options =>
             {
                 options.Filters.Clear();
