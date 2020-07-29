@@ -1,7 +1,7 @@
 """
 Author: lwxiao
 Date  : 2020-07-27
-Description: 注册用户信息管理
+Description: 自动测试接口有效性
 Comments
 """
 
