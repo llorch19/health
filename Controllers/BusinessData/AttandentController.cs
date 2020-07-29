@@ -215,19 +215,19 @@ AND IsDeleted=0
         public override Dictionary<string, object> GetReq(JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["PatientID"] = req["personid"]?.ToObject<int>();
-            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
-            dict["SrcOrgID"] = req["srcorgid"]?.ToObject<int>();
-            dict["DesOrgID"] = req["desorgid"]?.ToObject<int>();
+            dict["PatientID"] = req.ToInt("personid");
+            dict["OrgnizationID"] = req.ToInt("orgnizationid");
+            dict["SrcOrgID"] = req.ToInt("srcorgid");
+            dict["DesOrgID"] = req.ToInt("desorgid");
             dict["AdmissionTime"] = req.ToDateTime("admissiontime");
             dict["AdmissionType"] = req["admissiontype"]?.ToObject<string>();
-            dict["IsDischarged"] = req["isdischarged"]?.ToObject<int>();
+            dict["IsDischarged"] = req.ToInt("isdischarged");
             dict["DisChargeTime"] = req.ToDateTime("dischargetime");
-            dict["IsReferral"] = req["isreferral"]?.ToObject<int>();
+            dict["IsReferral"] = req.ToInt("isreferral");
             dict["DesStatus"] = req["desstatus"]?.ToObject<string>();
             dict["DesTime"] = req.ToDateTime("destime");
-            dict["IsReferralCancel"] = req["isreferralcancel"]?.ToObject<int>();
-            dict["IsReferralFinish"] = req["isreferralfinish"]?.ToObject<int>();
+            dict["IsReferralCancel"] = req.ToInt("isreferralcancel");
+            dict["IsReferralFinish"] = req.ToInt("isreferralfinish");
 
 
             return dict;

@@ -163,8 +163,8 @@ AND t_followup.IsDeleted=0
         {
 
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["PatientID"] = req["patientid"]?.ToObject<int>();
-            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
+            dict["PatientID"] = req.ToInt("patientid");
+            dict["OrgnizationID"] = req.ToInt("orgnizationid");
             dict["Time"] = req.ToDateTime("time");
             dict["PersonList"] = req["personlist"]?.ToObject<string>();
             dict["Abstract"] = req["abstract"]?.ToObject<string>();

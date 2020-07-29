@@ -169,10 +169,10 @@ and isdeleted=0
         public JObject Set([FromBody] JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            //dict["noticeid"] = req["noticeid"]?.ToObject<int>();
-            //dict["userid"] = req["userid"]?.ToObject<int>();
+            //dict["noticeid"] = req.ToInt("noticeid");
+            //dict["userid"] = req.ToInt("userid");
             dict["FinishTime"] = DateTime.Now;
-            dict["IsRead"] = req["isread"]?.ToObject<int>();
+            dict["IsRead"] = req.ToInt("isread");
 
             if (req["id"]?.ToObject<int>() > 0)
             {
