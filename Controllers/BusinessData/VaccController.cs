@@ -220,17 +220,17 @@ and IsDeleted=0", id);
         public override Dictionary<string, object> GetReq(JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["PatientID"] = req["patientid"]?.ToObject<int>();
-            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
-            dict["OperationUserID"] = req["operationuserid"]?.ToObject<int>();
-            dict["MedicationID"] = req["medicationid"]?.ToObject<int>();
-            dict["MedicationDosageFormID"] = req["medicationdosageformid"]?.ToObject<int>();
-            dict["MedicationPathwayID"] = req["medicationpathwayid"]?.ToObject<int>();
+            dict["PatientID"] = req.ToInt("patientid");
+            dict["OrgnizationID"] = req.ToInt("orgnizationid");
+            dict["OperationUserID"] = req.ToInt("operationuserid");
+            dict["MedicationID"] = req.ToInt("medicationid");
+            dict["MedicationDosageFormID"] = req.ToInt("medicationdosageformid");
+            dict["MedicationPathwayID"] = req.ToInt("medicationpathwayid");
             dict["OperationTime"] = req.ToDateTime("operationtime");
             dict["LeaveTime"] = req.ToDateTime("leavetime");
             dict["NextTime"] = req.ToDateTime("nexttime");
             dict["Fstatus"] = req["fstatus"]?.ToObject<string>();
-            dict["Ftime"] = req["ftime"]?.ToObject<int>();
+            dict["Ftime"] = req.ToInt("ftime");
 
 
             return dict;

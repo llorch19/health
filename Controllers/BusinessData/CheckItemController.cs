@@ -318,7 +318,7 @@ AND t_detectionrecorditem.IsDeleted=0
             var dict = new Dictionary<string, object>();
             dict["IsDeleted"] = 1;
             var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
+            keys["id"] = req.ToInt("id");
             var count = db.Update("t_detectionrecorditem", dict, keys);
             if (count > 0)
             {

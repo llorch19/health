@@ -369,12 +369,12 @@ AND IsDeleted=0
             //dict["TreatName"] = req["treatname"]?.ToObject<string>();
             //dict["DiseaseCode"] = req["diseasecode"]?.ToObject<string>();
             //dict["PrescriptionCode"] = req["prescriptioncode"]?.ToObject<string>();
-            //dict["DrugGroupNumber"] = req["druggroupnumber"]?.ToObject<int>();
+            //dict["DrugGroupNumber"] = req.ToInt("druggroupnumber");
             //dict["Tstatus"] = req["tstatus"]?.ToObject<string>();
-            //dict["Prescriber"] = req["prescriber"]?.ToObject<int>();
+            //dict["Prescriber"] = req.ToInt("prescriber");
             //dict["PrescribeTime"] = req.ToDateTime("prescribetime");
             //dict["PrescribeDepartment"] = req["prescribedepartment"]?.ToObject<string>();
-            //dict["IsCancel"] = req["iscancel"]?.ToObject<int>();
+            //dict["IsCancel"] = req.ToInt("iscancel");
             //dict["CancelTime"] = req["canceltime"]?.ToObject<DateTime>();
             //dict["CompleteTime"] = req.ToDateTime("completetime");
             // TODO: 在这里添加add item逻辑

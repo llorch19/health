@@ -250,12 +250,12 @@ AND t_detectionrecord.IsDeleted=0", id);
         public JObject SetCheck([FromBody] JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["PatientID"] = req["patientid"]?.ToObject<int>();
-            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
-            dict["RecommendedTreatID"] = req["recommendedtreatid"]?.ToObject<int>();
-            dict["ChosenTreatID"] = req["chosentreatid"]?.ToObject<int>();
+            dict["PatientID"] = req.ToInt("patientid");
+            dict["OrgnizationID"] = req.ToInt("orgnizationid");
+            dict["RecommendedTreatID"] = req.ToInt("recommendedtreatid");
+            dict["ChosenTreatID"] = req.ToInt("chosentreatid");
             dict["IsReexam"] = req["isreexam"]?.ToObject<Boolean>();
-            dict["GenderID"] = req["genderid"]?.ToObject<int>();
+            dict["GenderID"] = req.ToInt("genderid");
             dict["CheckType"] = req["checktype"]?.ToObject<string>();
             dict["DetectionNO"] = req["detectionno"]?.ToObject<string>();
             //dict["ClinicalNO"] = req["clinicalno"]?.ToObject<string>();
@@ -271,7 +271,7 @@ AND t_detectionrecord.IsDeleted=0", id);
             dict["SubjectiveResult"] = req["subjectiveresult"]?.ToObject<string>();
             dict["Pics"] = req["pics"]?.ToObject<string>();
             dict["Pdf"] = req["pdf"]?.ToObject<string>();
-            dict["DiagnoticsTypeID"] = req["diagnoticstypeid"]?.ToObject<int>();
+            dict["DiagnoticsTypeID"] = req.ToInt("diagnoticstypeid");
             dict["DiagnoticsTime"] = req.ToDateTime("diagnoticstime");
             dict["DiagnoticsBy"] = req["diagnoticsby"]?.ToObject<string>();
             dict["ReportTime"] = req.ToDateTime("reporttime");
@@ -331,7 +331,7 @@ AND t_detectionrecord.IsDeleted=0", id);
             var dict = new Dictionary<string, object>();
             dict["IsDeleted"] = 1;
             var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
+            keys["id"] = req.ToInt("id");
             var count = db.Update("t_detectionrecord", dict, keys);
             if (count > 0)
             {

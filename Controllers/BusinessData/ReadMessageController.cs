@@ -158,7 +158,7 @@ AND isdeleted=0", msgid, personid);
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["MessageID"] = req.ToInt("messageid");
-            dict["PatientID"] = req["patientid"]?.ToObject<int>();
+            dict["PatientID"] = req.ToInt("patientid");
             dict["FinishTime"] = DateTime.Now;
             dict["IsRead"] = req.ToInt("isread");
 
@@ -202,7 +202,7 @@ AND isdeleted=0", msgid, personid);
             dict["LastUpdatedBy"] = StampUtil.GetPerson(HttpContext);
             dict["LastUpdatedTime"] = DateTime.Now;
             var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
+            keys["id"] = req.ToInt("id");
             var count = db.Update("t_messageread", dict, keys);
             if (count > 0)
             {

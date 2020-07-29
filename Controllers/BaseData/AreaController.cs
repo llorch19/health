@@ -119,9 +119,9 @@ namespace health.Controllers
             //Dictionary<string, object> dict = new Dictionary<string, object>();
             //dict["AreaCode"] = req["areacode"]?.ToObject<string>();
             //dict["AreaName"] = req["areaname"]?.ToObject<string>();
-            //dict["ParentID"] = req["parentid"]?.ToObject<int>();
+            //dict["ParentID"] = req.ToInt("parentid");
             //dict["dingdingDept"] = req["dingdingdept"]?.ToObject<string>();
-            //dict["cs"] = req["cs"]?.ToObject<int>();
+            //dict["cs"] = req.ToInt("cs");
             //dict["AreaCodeV2"] = req["areacodev2"]?.ToObject<string>();
 
             //JObject res = new JObject();
@@ -178,9 +178,9 @@ namespace health.Controllers
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["AreaCode"] = req["areacode"]?.ToObject<string>();
             dict["AreaName"] = req["areaname"]?.ToObject<string>();
-            dict["ParentID"] = req["parentid"]?.ToObject<int>();
+            dict["ParentID"] = req.ToInt("parentid");
             dict["dingdingDept"] = req["dingdingdept"]?.ToObject<string>();
-            dict["cs"] = req["cs"]?.ToObject<int>();
+            dict["cs"] = req.ToInt("cs");
             dict["AreaCodeV2"] = req["areacodev2"]?.ToObject<string>();
 
             return dict;

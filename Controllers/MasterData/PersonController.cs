@@ -343,11 +343,11 @@ AND t_vacc.IsDeleted=0
         public override Dictionary<string, object> GetReq(JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
-            dict["PrimaryOrgnizationID"] = req["primaryorgnizationid"]?.ToObject<int>();
+            dict["OrgnizationID"] = req.ToInt("orgnizationid");
+            dict["PrimaryOrgnizationID"] = req.ToInt("primaryorgnizationid");
             dict["Tel"] = req["tel"]?.ToObject<string>();
             dict["IDCardNO"] = req["idcardno"]?.ToObject<string>();
-            dict["GenderID"] = req["genderid"]?.ToObject<int>();
+            dict["GenderID"] = req.ToInt("genderid");
             dict["FamilyName"] = req["familyname"]?.ToObject<string>();
             DateTime dt;
             if (DateTime.TryParse(req["birthday"].ToObject<string>(), out dt))
@@ -361,15 +361,15 @@ AND t_vacc.IsDeleted=0
             dict["DomicileType"] = req["domiciletype"]?.ToObject<string>();
             dict["DomicileDetail"] = req["domiciledetail"]?.ToObject<string>();
             dict["WorkUnitName"] = req["workunitname"]?.ToObject<string>();
-            dict["OccupationCategoryID"] = req["occupationcategoryid"]?.ToObject<int>();
+            dict["OccupationCategoryID"] = req.ToInt("occupationcategoryid");
             dict["Detainees"] = req["detainees"]?.ToObject<string>();
-            dict["AddressCategoryID"] = req["addresscategoryid"]?.ToObject<int>();
+            dict["AddressCategoryID"] = req.ToInt("addresscategoryid");
             dict["Address"] = req["address"]?.ToObject<string>();
             dict["GuardianName"] = req["guardianname"]?.ToObject<string>();
             dict["GuardianContact"] = req["guardiancontact"]?.ToObject<string>();
-            dict["ProvinceID"] = req["provinceid"]?.ToObject<int>();
-            dict["CityID"] = req["cityid"]?.ToObject<int>();
-            dict["CountyID"] = req["countyid"]?.ToObject<int>();
+            dict["ProvinceID"] = req.ToInt("provinceid");
+            dict["CityID"] = req.ToInt("cityid");
+            dict["CountyID"] = req.ToInt("countyid");
 
 
             return dict;

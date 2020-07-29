@@ -59,9 +59,10 @@ ON t_orgnization.ID=t_notice.OrgnizationID
 WHERE t_notice.ID NOT IN(
 SELECT NoticeID AS ID FROM t_noticeread
 WHERE UserID=?p1
-AND IsDeleted=0)
+AND IsDeleted=0
+AND IsRead=1)
 AND t_notice.IsDeleted = 0
-",userid);
+", userid);
             if (list.HasValues)
             {
                 res["status"] = 200;
@@ -169,10 +170,10 @@ and isdeleted=0
         public JObject Set([FromBody] JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            //dict["noticeid"] = req["noticeid"]?.ToObject<int>();
-            //dict["userid"] = req["userid"]?.ToObject<int>();
+            //dict["noticeid"] = req.ToInt("noticeid");
+            //dict["userid"] = req.ToInt("userid");
             dict["FinishTime"] = DateTime.Now;
-            dict["IsRead"] = req["isread"]?.ToObject<int>();
+            dict["IsRead"] = req.ToInt("isread");
 
             if (req["id"]?.ToObject<int>() > 0)
             {

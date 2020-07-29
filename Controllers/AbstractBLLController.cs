@@ -82,7 +82,7 @@ namespace health.Controllers
             dict["IsDeleted"] = 1;
             dict["IsActive"] = 0;
             var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
+            keys["id"] = req.ToInt("id");
             var count = db.Update(TableName, dict, keys);
             if (count > 0)
             {
