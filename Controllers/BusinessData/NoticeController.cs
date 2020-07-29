@@ -57,6 +57,7 @@ IFNULL(t_notice.ID,'') AS ID
 ,IFNULL(t_notice.PublishUserID,'') AS PublishUserID
 ,IFNULL(t_user.FamilyName,'') AS Publish
 ,IFNULL(PublishTime,'') AS PublishTime
+,IFNULL(t_notice.Title,'') AS Title
 ,IFNULL(Content,'') AS Content
 ,IFNULL(Attachment,'') AS Attachment
 ,IFNULL(t_notice.IsActive,'') AS IsActive
@@ -103,6 +104,7 @@ IFNULL(ID,'') AS ID
 ,IFNULL(OrgnizationID,'') AS OrgnizationID
 ,IFNULL(PublishUserID,'') AS PublishUserID
 ,IFNULL(PublishTime,'') AS PublishTime
+,IFNULL(Title,'') AS Title
 ,IFNULL(Content,'') AS Content
 ,IFNULL(Attachment,'') AS Attachment
 ,IFNULL(t_notice.IsActive,'') AS IsActive
@@ -316,10 +318,11 @@ AND t_notice.IsDeleted=0";
         public override Dictionary<string, object> GetReq(JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["OrgnizationID"] = 1;
-            dict["PublishUserID"] = 4;
+            dict["OrgnizationID"] = HttpContext.GetUserInfo<int>("orgnizationid");
+            dict["PublishUserID"] = HttpContext.GetUserInfo<int>("id"); ;
             dict["Content"] = req["content"]?.ToObject<string>();
             dict["Attachment"] = req["attachment"]?.ToObject<string>();
+            dict["Title"] = req["title"]?.ToObject<string>();
 
             return dict;
         }
