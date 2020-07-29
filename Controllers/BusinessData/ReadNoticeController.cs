@@ -115,6 +115,7 @@ and userid=?p2
                 newRead["OpenTime"] = DateTime.Now;
                 newRead["CreatedBy"] = StampUtil.Stamp(HttpContext);
                 newRead["CreatedTime"] = DateTime.Now;
+                newRead["IsRead"] = 1;
                 newRead["IsActive"] = 1;
                 newRead["IsDeleted"] = 0;
                 db.Insert("t_noticeread", newRead);
@@ -122,6 +123,7 @@ and userid=?p2
             else
             {
                 Dictionary<string, object> dict = new Dictionary<string, object>();
+                dict["IsRead"] = 1;
                 dict["IsDeleted"] = 0;
                 dict["IsActive"] = 1;
 

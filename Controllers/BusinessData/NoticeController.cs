@@ -60,15 +60,20 @@ IFNULL(t_notice.ID,'') AS ID
 ,IFNULL(Content,'') AS Content
 ,IFNULL(Attachment,'') AS Attachment
 ,IFNULL(t_notice.IsActive,'') AS IsActive
+,IFNULL(t_noticeread.IsRead,0) AS IsRead
 FROM t_notice
 LEFT JOIN t_orgnization
 ON t_notice.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_user
 ON t_notice.PublishUserID=t_user.ID
+LEFT JOIN t_noticeread
+ON t_notice.ID=t_noticeread.NoticeID
+AND t_noticeread.UserID=?p1
+AND t_noticeread.IsDeleted=0
 WHERE t_notice.IsDeleted=0
 ";
 
-            JArray list = db.GetArray(sql);
+            JArray list = db.GetArray(sql,HttpContext.GetUserInfo<int>("id"));
             if (list.HasValues)
             {
                 res["status"] = 200;
