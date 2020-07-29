@@ -59,9 +59,10 @@ ON t_orgnization.ID=t_notice.OrgnizationID
 WHERE t_notice.ID NOT IN(
 SELECT NoticeID AS ID FROM t_noticeread
 WHERE UserID=?p1
-AND IsDeleted=0)
+AND IsDeleted=0
+AND IsRead=1)
 AND t_notice.IsDeleted = 0
-",userid);
+", userid);
             if (list.HasValues)
             {
                 res["status"] = 200;
