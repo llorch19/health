@@ -29,7 +29,6 @@ namespace health.Controllers
     {
         private readonly ILogger<MessageController> _logger;
         IWebHostEnvironment _env;
-        dbfactory db = new dbfactory();
         config conf = new config();
         const string spliter = "$$";
         string[] permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };

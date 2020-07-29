@@ -65,7 +65,7 @@ ON t_appoint.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_patient
 ON t_appoint.PatientID=t_patient.ID
 WHERE t_appoint.OrgnizationID=?p1
-AND t_appoint.IsDeleted=0", HttpContext.GetUserInfo<int>("orgnizationid"));
+AND t_appoint.IsDeleted=0", HttpContext.GetUserInfo<int?>("orgnizationid"));
             if (list.HasValues)
             {
                 res["status"] = 200;
@@ -88,7 +88,7 @@ AND t_appoint.IsDeleted=0", HttpContext.GetUserInfo<int>("orgnizationid"));
         [Route("GetPersonAppointList")]
         public JObject GetPersonAppointList()
         {
-            int personid = HttpContext.GetPersonInfo<int>("id");
+            var personid = HttpContext.GetPersonInfo<int?>("id");
             JObject res = new JObject();
             JArray list = db.GetArray(@"SELECT   
 IFNULL(t_appoint.ID,'') AS ID
@@ -217,22 +217,22 @@ AND t_appoint.IsDeleted=0", id);
         public override Dictionary<string, object> GetReq(JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
-            dict["PatientID"] = req["patientid"]?.ToObject<int>();
+            dict["OrgnizationID"] = req.ToInt("orgnizationid");
+            dict["PatientID"] = req.ToInt("patientid");
             dict["Name"] = req["name"]?.ToObject<string>();
             dict["Code"] = req["code"]?.ToObject<string>();
             dict["Vaccine"] = req["vaccine"]?.ToObject<string>();
             dict["VaccinationDateStart"] = req.ToDateTime("vaccinationdatestart");
             dict["VaccinationDateEnd"] = req.ToDateTime("vaccinationdateend");
-            dict["InjectionTimes"] = req["injectiontimes"]?.ToObject<int>();
+            dict["InjectionTimes"] = req.ToInt("injectiontimes");
             dict["IDCardNO"] = req["idcardno"]?.ToObject<string>();
             dict["Tel"] = req["tel"]?.ToObject<string>();
             dict["BirthDate"] = req.ToDateTime("birthdate");
             dict["Tstatus"] = req["tstatus"]?.ToObject<string>();
             dict["AppointmentCreatedTime"] = req.ToDateTime("appointmentcreatedtime");
-            dict["IsCancel"] = req["iscancel"]?.ToObject<int>();
+            dict["IsCancel"] = req.ToInt("iscancel");
             dict["CancelTime"] = req.ToDateTime("canceltime");
-            dict["IsComplete"] = req["iscomplete"]?.ToObject<int>();
+            dict["IsComplete"] = req.ToInt("iscomplete");
             dict["CompleteTime"] = req.ToDateTime("completetime");
 
 

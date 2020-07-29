@@ -35,7 +35,7 @@ namespace health.Controllers
         [Route("Get[controller]List")]
         public JObject GetList()
         {
-            int personid = HttpContext.GetPersonInfo<int>("id");
+            var personid = HttpContext.GetPersonInfo<int?>("id");
             JObject res = new JObject();
             JArray list = db.GetArray(@"
 -- Get Unread Messages By Patient Id
@@ -86,7 +86,7 @@ AND t_messagesent.IsDeleted = 0
         [Route("Get[controller]")]
         public JObject Get(int msgid)
         {
-            int personid = HttpContext.GetPersonInfo<int>("id");
+            var personid = HttpContext.GetPersonInfo<int?>("id");
             JObject res = db.GetOne(@"
 SELECT 
 IFNULL(ID,'') AS ID 
@@ -158,7 +158,7 @@ AND isdeleted=0", msgid, personid);
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["MessageID"] = req.ToInt("messageid");
-            dict["PatientID"] = req["patientid"]?.ToObject<int>();
+            dict["PatientID"] = req.ToInt("patientid");
             dict["FinishTime"] = DateTime.Now;
             dict["IsRead"] = req.ToInt("isread");
 
@@ -202,7 +202,7 @@ AND isdeleted=0", msgid, personid);
             dict["LastUpdatedBy"] = StampUtil.GetPerson(HttpContext);
             dict["LastUpdatedTime"] = DateTime.Now;
             var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
+            keys["id"] = req.ToInt("id");
             var count = db.Update("t_messageread", dict, keys);
             if (count > 0)
             {

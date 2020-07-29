@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.DataProtection.KeyManagement.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Asn1.X509.Qualified;
 using System;
@@ -69,6 +70,7 @@ namespace health.common
         public static T GetUserInfo<T>(this HttpContext httpContext,string key)
         {
             var user = GetUser(httpContext);
+            ILogger logger = httpContext.RequestServices.GetService(typeof(ILogger)) as ILogger;
             try
             {
                 string s = user[key]?.ToObject<string>();
@@ -76,6 +78,7 @@ namespace health.common
             }
             catch (Exception ex)
             {
+                logger?.LogCritical(ex.Message);
                 return default(T);
             }
         }
@@ -132,8 +135,19 @@ namespace health.common
         public static T GetPersonInfo<T>(this HttpContext httpContext, string key)
         {
             var user = GetPerson(httpContext);
-            return user[key].ToObject<T>();
+            return user.ContainsKey(key)
+                ?user[key].ToObject<T>()
+                :default(T);
         }
 
+
+        public static string GetRole(this HttpContext httpContext)
+        {
+            string role = httpContext
+                .User
+                .Claims
+                .FirstOrDefault(claim=>claim.Type==ClaimTypes.Role)?.Value;
+            return role;
+        }
     }
 }

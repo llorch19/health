@@ -36,7 +36,7 @@ namespace health.Controllers
         [Route("Get[controller]List")]
         public JObject GetList()
         {
-            var userid = HttpContext.GetUserInfo<int>("id");
+            var userid = HttpContext.GetUserInfo<int?>("id");
             JObject res = new JObject();
             JArray list = db.GetArray(@"
 -- Get Unread notice By User Id
@@ -59,9 +59,10 @@ ON t_orgnization.ID=t_notice.OrgnizationID
 WHERE t_notice.ID NOT IN(
 SELECT NoticeID AS ID FROM t_noticeread
 WHERE UserID=?p1
-AND IsDeleted=0)
+AND IsDeleted=0
+AND IsRead=1)
 AND t_notice.IsDeleted = 0
-",userid);
+", userid);
             if (list.HasValues)
             {
                 res["status"] = 200;
@@ -86,7 +87,7 @@ AND t_notice.IsDeleted = 0
         [Route("Get[controller]")]
         public JObject Get(int notid)
         {
-            int userid = HttpContext.GetUserInfo<int>("id");
+            var userid = HttpContext.GetUserInfo<int?>("id");
             JObject res = db.GetOne(@"
 select 
 IFNULL(ID,'') AS ID 
@@ -115,6 +116,7 @@ and userid=?p2
                 newRead["OpenTime"] = DateTime.Now;
                 newRead["CreatedBy"] = StampUtil.Stamp(HttpContext);
                 newRead["CreatedTime"] = DateTime.Now;
+                newRead["IsRead"] = 1;
                 newRead["IsActive"] = 1;
                 newRead["IsDeleted"] = 0;
                 db.Insert("t_noticeread", newRead);
@@ -122,6 +124,7 @@ and userid=?p2
             else
             {
                 Dictionary<string, object> dict = new Dictionary<string, object>();
+                dict["IsRead"] = 1;
                 dict["IsDeleted"] = 0;
                 dict["IsActive"] = 1;
 
@@ -167,10 +170,10 @@ and isdeleted=0
         public JObject Set([FromBody] JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            //dict["noticeid"] = req["noticeid"]?.ToObject<int>();
-            //dict["userid"] = req["userid"]?.ToObject<int>();
+            //dict["noticeid"] = req.ToInt("noticeid");
+            //dict["userid"] = req.ToInt("userid");
             dict["FinishTime"] = DateTime.Now;
-            dict["IsRead"] = req["isread"]?.ToObject<int>();
+            dict["IsRead"] = req.ToInt("isread");
 
             if (req["id"]?.ToObject<int>() > 0)
             {
@@ -215,7 +218,7 @@ and isdeleted=0
             var keys = new Dictionary<string, object>();
             JObject lookup = db.GetOne("SELECT ID FROM t_noticeread WHERE NoticeID=?p1 AND UserID=?p2 AND IsDeleted=0"
                 ,req.ToInt("id")
-                ,HttpContext.GetUserInfo<int>("id"));
+                ,HttpContext.GetUserInfo<int?>("id"));
             keys["id"] = lookup.ToInt("id");
             var count = db.Update("t_noticeread", dict, keys);
             if (count > 0)

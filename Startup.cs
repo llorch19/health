@@ -37,19 +37,18 @@ namespace health
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IModelValidatorProvider, ZFModelValidatorProvider>();
-            services.AddSingleton<ModelException>();
+            services.AddSingleton<FastFailException>();
             services.AddControllers( options =>
             {
                 options.Filters.Clear();
                 options.Filters.Add<ZFExceptionFilter>();
                 options.Filters.Add<ModelValidateFilter>();
                 options.ModelValidatorProviders.Clear();
-                options.ModelValidatorProviders.Add(services.BuildServiceProvider().GetService<IModelValidatorProvider>());
+                options.ModelValidatorProviders.Add(new ZFModelValidatorProvider());
             }
-            )
-                    .AddNewtonsoftJson();
+            ).AddNewtonsoftJson();
             
+
             #region Auth 
             services.AddAuthentication(options =>
             {

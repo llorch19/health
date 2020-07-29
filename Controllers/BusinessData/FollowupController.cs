@@ -56,7 +56,7 @@ ON t_followup.PatientID=t_patient.ID
 LEFT JOIN t_orgnization
 ON t_followup.OrgnizationID=t_orgnization.ID
 WHERE t_followup.OrgnizationID=?p1
-AND t_followup.IsDeleted=0", HttpContext.GetUserInfo<int>("orgnizationid"));
+AND t_followup.IsDeleted=0", HttpContext.GetUserInfo<int?>("orgnizationid"));
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -65,13 +65,12 @@ AND t_followup.IsDeleted=0", HttpContext.GetUserInfo<int>("orgnizationid"));
         /// <summary>
         /// 获取个人的“随访”历史
         /// </summary>
-        /// <param name="personid">检索指定个人的id</param>
         /// <returns>JSON对象，包含相应的“随访”数组</returns>
         [HttpGet]
         [Route("GetPersonFollowupList")]
         public JObject GetPersonFollowupList()
         {
-            int personid = HttpContext.GetPersonInfo<int>("id");
+            var personid = HttpContext.GetPersonInfo<int?>("id");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 
@@ -163,8 +162,8 @@ AND t_followup.IsDeleted=0
         {
 
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["PatientID"] = req["patientid"]?.ToObject<int>();
-            dict["OrgnizationID"] = req["orgnizationid"]?.ToObject<int>();
+            dict["PatientID"] = req.ToInt("patientid");
+            dict["OrgnizationID"] = req.ToInt("orgnizationid");
             dict["Time"] = req.ToDateTime("time");
             dict["PersonList"] = req["personlist"]?.ToObject<string>();
             dict["Abstract"] = req["abstract"]?.ToObject<string>();

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -15,12 +16,13 @@ namespace health.Middleware
         {
             if (!context.HttpContext.Response.HasStarted)
             {
+                
                 context.ExceptionHandled = true;
                 JObject resException = new JObject();
                 resException["status"] = 201;
                 resException["msg"] = "参数不正确";
-                context.HttpContext.Response.ContentType = "application/json";
-                await context.HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(resException));
+                context.Result = new OkObjectResult(resException);
+                await Task.CompletedTask;
             }
         }
     }

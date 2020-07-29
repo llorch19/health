@@ -17,7 +17,7 @@ namespace health
             string remoteIpAddress = context?.Connection?.RemoteIpAddress?.ToString();
             if (context?.Request?.Headers?.ContainsKey("X-Forwarded-For")??false)
                 remoteIpAddress = context.Request.Headers["X-Forwarded-For"];
-            return context.GetUserInfo<int>("id") + remoteIpAddress; ;
+            return context.GetUserInfo<int?>("id") + remoteIpAddress; ;
         }
 
 
@@ -26,7 +26,7 @@ namespace health
             string remoteIpAddress = context?.Connection?.RemoteIpAddress?.ToString();
             if (context?.Request?.Headers?.ContainsKey("X-Forwarded-For") ?? false)
                 remoteIpAddress = context.Request.Headers["X-Forwarded-For"];
-            return context.GetPersonInfo<int>("id")+remoteIpAddress;
+            return context.GetPersonInfo<int?>("id")+remoteIpAddress;
         }
 
         public static string Stamp(HttpContext context)
@@ -39,7 +39,7 @@ namespace health
                 case "user":
                     return GetUser(context);
                 default:
-                    throw context.RequestServices.GetService(typeof(ModelException)) as ModelException;
+                    throw context.RequestServices.GetService(typeof(FastFailException)) as FastFailException;
             }
         }
     }
