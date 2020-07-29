@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Renci.SshNet.Messages;
+using Renci.SshNet.Security;
 using System;
 using System.Collections.Generic;
 using util.mysql;
@@ -57,7 +58,8 @@ LEFT JOIN t_orgnization
 ON t_orgnization.ID=t_notice.OrgnizationID
 WHERE t_notice.ID NOT IN(
 SELECT NoticeID AS ID FROM t_noticeread
-WHERE UserID=?p1)
+WHERE UserID=?p1
+AND IsDeleted=0)
 AND t_notice.IsDeleted = 0
 ",userid);
             if (list.HasValues)
@@ -111,9 +113,21 @@ and userid=?p2
                 newRead["NoticeID"] = notid;
                 newRead["UserID"] = userid;
                 newRead["OpenTime"] = DateTime.Now;
-                newRead["CreatedBy"] = userid;
+                newRead["CreatedBy"] = StampUtil.Stamp(HttpContext);
                 newRead["CreatedTime"] = DateTime.Now;
+                newRead["IsActive"] = 1;
+                newRead["IsDeleted"] = 0;
                 db.Insert("t_noticeread", newRead);
+            }
+            else
+            {
+                Dictionary<string, object> dict = new Dictionary<string, object>();
+                dict["IsDeleted"] = 0;
+                dict["IsActive"] = 1;
+
+                Dictionary<string, object> keys = new Dictionary<string, object>();
+                keys["id"] = read.ToInt("id");
+                db.Update("t_noticeread", dict, keys);
             }
 
             res = db.GetOne(@"
@@ -132,7 +146,7 @@ and isdeleted=0
 
 
             PersonController user = new PersonController(null, null);
-            res["user"] = user.GetPersonInfo(res["userid"]?.ToObject<int>()??0);
+            res["user"] = user.GetUserInfo(res["userid"]?.ToObject<int>()??0);
 
             NoticeController notice = new NoticeController(null, null);
             res["notice"] = notice.Get(notid);
@@ -153,8 +167,8 @@ and isdeleted=0
         public JObject Set([FromBody] JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["noticeid"] = req["noticeid"]?.ToObject<int>();
-            dict["userid"] = req["userid"]?.ToObject<int>();
+            //dict["noticeid"] = req["noticeid"]?.ToObject<int>();
+            //dict["userid"] = req["userid"]?.ToObject<int>();
             dict["FinishTime"] = DateTime.Now;
             dict["IsRead"] = req["isread"]?.ToObject<int>();
 
@@ -162,13 +176,13 @@ and isdeleted=0
             {
                 Dictionary<string, object> condi = new Dictionary<string, object>();
                 condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = StampUtil.GetUser(HttpContext);
+                dict["LastUpdatedBy"] = StampUtil.Stamp(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update("t_noticeread", dict, condi);
             }
             else
             {
-                dict["CreatedBy"] = StampUtil.GetUser(HttpContext);
+                dict["CreatedBy"] = StampUtil.Stamp(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
                 this.db.Insert("t_noticeread", dict);
             }
@@ -195,10 +209,14 @@ and isdeleted=0
             JObject res = new JObject();
             var dict = new Dictionary<string, object>();
             dict["IsDeleted"] = 1;
-            dict["LastUpdatedBy"] = StampUtil.GetUser(HttpContext);
+            dict["IsActive"] = 0;
+            dict["LastUpdatedBy"] = StampUtil.Stamp(HttpContext);
             dict["LastUpdatedTime"] = DateTime.Now;
             var keys = new Dictionary<string, object>();
-            keys["id"] = req["id"]?.ToObject<int>();
+            JObject lookup = db.GetOne("SELECT ID FROM t_noticeread WHERE NoticeID=?p1 AND UserID=?p2 AND IsDeleted=0"
+                ,req.ToInt("id")
+                ,HttpContext.GetUserInfo<int>("id"));
+            keys["id"] = lookup.ToInt("id");
             var count = db.Update("t_noticeread", dict, keys);
             if (count > 0)
             {

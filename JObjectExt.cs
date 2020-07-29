@@ -34,6 +34,16 @@ namespace health
                 )
                 return null;
 
+            if (data.ToUpperInvariant()=="TRUE")
+            {
+                return 1;
+            }
+
+            if (data.ToUpperInvariant() == "FALSE")
+            {
+                return 0;
+            }
+
             int dtOut;
             if (int.TryParse(data, out dtOut))
                 return dtOut;

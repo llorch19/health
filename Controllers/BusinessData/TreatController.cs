@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using util.mysql;
 
@@ -101,7 +102,6 @@ WHERE t_treat.IsDeleted=0
         /// <summary>
         /// 获取机构的“治疗用药记录”列表
         /// </summary>
-        /// <param name="orgid">检索指定机构的id</param>
         /// <returns>JSON对象，包含相应的“用药记录”数组</returns>
         [HttpGet]
         [Route("GetOrgTreatList")]
@@ -385,8 +385,8 @@ AND IsDeleted=0
             if (req["id"]?.ToObject<int>() > 0)
             {
                 Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = StampUtil.GetUser(HttpContext);
+                condi["id"] = req.ToInt("id");
+                dict["LastUpdatedBy"] = StampUtil.Stamp(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update("t_treat", dict, condi);
 
@@ -407,10 +407,10 @@ AND IsDeleted=0
                 else
                 {
                     Dictionary<string, object> subcondi = new Dictionary<string, object>();
-                    subcondi["id"] = item["id"]?.ToObject<int>();
+                    subcondi["id"] = ((JObject)item).ToInt("id");
 
                     Dictionary<string, object> subdict = new Dictionary<string, object>();
-                    subdict["medicationid"] = req["medicationid"]?.ToObject<int>();
+                    subdict["medicationid"] = req.ToInt("medicationid");
                     subdict["medicationpathwayid"] = req.ToInt("medicationpathwayid");
                     subdict["medicationdosageformid"] = req.ToInt("medicationdosageformid");
                     subdict["medicationfreqcategoryid"] = req.ToInt("medicationfreqcategoryid");
@@ -421,18 +421,18 @@ AND IsDeleted=0
             }
             else
             {
-                dict["CreatedBy"] = StampUtil.GetUser(HttpContext);
+                dict["CreatedBy"] = StampUtil.Stamp(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
                 var newId = this.db.Insert("t_treat", dict);
                 res["id"] = newId;
                 JObject itemReq = new JObject();
                 itemReq["id"] = 0;
                 itemReq["treatid"] = newId;
-                itemReq["patientid"] = req["patientid"]?.ToObject<int>();
-                itemReq["medicationid"] = req["medicationid"]?.ToObject<int>();
-                itemReq["medicationpathwayid"] = req["medicationpathwayid"]?.ToObject<int>();
-                itemReq["medicationdosageformid"] = req["medicationdosageformid"]?.ToObject<int>();
-                itemReq["medicationfreqcategoryid"] = req["medicationfreqcategoryid"]?.ToObject<int>();
+                itemReq["patientid"] = req.ToInt("patientid");
+                itemReq["medicationid"] = req.ToInt("medicationid");
+                itemReq["medicationpathwayid"] = req.ToInt("medicationpathwayid");
+                itemReq["medicationdosageformid"] = req.ToInt("medicationdosageformid");
+                itemReq["medicationfreqcategoryid"] = req.ToInt("medicationfreqcategoryid");
                 var rows = itemControl.SetTreatItem(new JObject[] { itemReq }).Aggregate((sum, p) => sum += p);
                
             }
