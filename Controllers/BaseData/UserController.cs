@@ -95,7 +95,7 @@ namespace health.Controllers.BaseData
             dict.Add("CityID", req["cityid"].ToObject<int>());
             dict.Add("CountyID", req["countyid"].ToObject<int>());
             dict.Add("GroupId", req["groupid"].ToObject<int>());
-            dict.Add("OrgnizationID", req["orgid"].ToObject<int>());
+            dict.Add("OrgnizationID", req["orgnizationid"].ToObject<int>());
             dict.Add("IsActive", req["isactive"].ToObject<int>());
             if (id > 0)
             {
