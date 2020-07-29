@@ -132,8 +132,19 @@ namespace health.common
         public static T GetPersonInfo<T>(this HttpContext httpContext, string key)
         {
             var user = GetPerson(httpContext);
-            return user[key].ToObject<T>();
+            return user.ContainsKey(key)
+                ?user[key].ToObject<T>()
+                :default(T);
         }
 
+
+        public static string GetRole(this HttpContext httpContext)
+        {
+            string role = httpContext
+                .User
+                .Claims
+                .FirstOrDefault(claim=>claim.Type==ClaimTypes.Role)?.Value;
+            return role;
+        }
     }
 }

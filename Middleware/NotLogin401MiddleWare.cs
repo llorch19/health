@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Crypto.Tls;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -27,25 +28,51 @@ namespace health.Middleware
         /// <returns></returns>
         public override async Task InvokeAsync(HttpContext context)
         {
+           
 
             var controller = context.GetRouteValue("controller");
             List<string> whitelist = new List<string>() { "Login" };
-            if (controller==null || (!whitelist.Contains(controller.ToString()) && context.GetUser()["id"] == null))
+            if (controller != null
+                && whitelist.Contains(controller.ToString()))
             {
-                JObject res = new JObject();
-                res["status"] = 401;
-                res["msg"] = "鉴权失败";
-                context.Response.StatusCode = 200;
-                context.Response.ContentType = "application/json;charset=utf-8";
-                await context.Response.WriteAsync(
-                    JsonConvert.SerializeObject(res)
-                    );
+                await this._next(context);
+                return;
             }
-            else
+               
+            
+
+
+            bool hasLogin = false;
+            switch (context.GetRole())
             {
-                // Call the next delegate/middleware in the pipeline
+                case "person":
+                    hasLogin = context.GetPerson()["id"] != null;
+                    break;
+                case "user":
+                    hasLogin = context.GetUser()["id"] != null;
+                    break;
+                default:
+                    break;
+            }
+
+            if (hasLogin)
+            {
                 await _next(context);
+                return;
             }
+
+            JObject res = new JObject();
+            res["status"] = 401;
+            res["msg"] = "鉴权失败";
+            if (context.Response.HasStarted)
+            {
+                return;
+            }
+            context.Response.StatusCode = 200;
+            context.Response.ContentType = "application/json;charset=utf-8";
+            await context.Response.WriteAsync(
+                JsonConvert.SerializeObject(res)
+                );
         }
     }
 }

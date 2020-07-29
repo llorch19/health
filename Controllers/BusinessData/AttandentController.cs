@@ -37,7 +37,8 @@ namespace health.Controllers
         public override JObject GetList()
         {
             JObject res = new JObject();
-            res["list"] = db.GetArray(@"SELECT 
+            res["list"] = db.GetArray(@"
+SELECT 
 IFNULL(t_attandent.ID, '') AS ID
 , IFNULL(PatientID, '') AS PersonID
 , IFNUll(t_attandent.OrgnizationID, '') AS OrgnizationID
@@ -80,7 +81,7 @@ AND t_attandent.IsDeleted=0", HttpContext.GetUserInfo<int>("orgnizationid"));
         [Route("GetPersonAttandentList")]
         public JObject GetPersonAttandentList()
         {
-            int personid = HttpContext.GetPersonInfo<int>("id");
+            int? personid = HttpContext.GetPersonInfo<int?>("id");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"SELECT 
 IFNULL(t_attandent.ID, '') AS ID
@@ -111,7 +112,8 @@ ON t_attandent.SrcOrgID=src.ID
 LEFT JOIN t_orgnization des
 ON t_attandent.DesOrgID=des.id
 WHERE t_attandent.PatientID=?p1
-AND t_attandent.IsDeleted=0", personid);
+AND t_attandent.IsDeleted=0
+AND t_attandent.IsActive=1", personid);
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -189,10 +191,10 @@ SELECT ID,IsDischarged,IsReferral,IsReferralFinish FROM t_attandent
 WHERE ID=?p1
 AND IsActive=1
 AND IsDeleted=0
-",req["id"]?.ToObject<int>()??0);
+",req.ToInt("id"));
             if (attand["id"]!=null)
             {
-
+                // 存在只更新
             }
             return base.Set(req);
         }

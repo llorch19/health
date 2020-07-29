@@ -140,6 +140,7 @@
  * - 将登录信息保存在缓存中                        @norway     2020-07-24  11:30
  */
 using health.common;
+using health.Middleware;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -156,7 +157,6 @@ using util.mysql;
 
 namespace health.Controllers
 {
-    [ApiController]
     [Route("api")]
     public class LoginController : ControllerBase
     {
@@ -353,6 +353,22 @@ where t_patient.id=1
             }
 
             return res;
+        }
+
+
+
+
+        /// <summary>
+        /// 打印个人用户的系统凭据
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("ShowException")]
+        [Authorize]
+        public JObject ShowException()
+        {
+            var ex = HttpContext.RequestServices.GetService(typeof(ModelException)) as ModelException;
+            throw ex;
         }
     }
 }
