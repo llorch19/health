@@ -36,7 +36,7 @@ namespace health.Controllers
         [Route("Get[controller]List")]
         public JObject GetList()
         {
-            var userid = HttpContext.GetUserInfo<int>("id");
+            var userid = HttpContext.GetUserInfo<int?>("id");
             JObject res = new JObject();
             JArray list = db.GetArray(@"
 -- Get Unread notice By User Id
@@ -87,7 +87,7 @@ AND t_notice.IsDeleted = 0
         [Route("Get[controller]")]
         public JObject Get(int notid)
         {
-            int userid = HttpContext.GetUserInfo<int>("id");
+            var userid = HttpContext.GetUserInfo<int?>("id");
             JObject res = db.GetOne(@"
 select 
 IFNULL(ID,'') AS ID 
@@ -218,7 +218,7 @@ and isdeleted=0
             var keys = new Dictionary<string, object>();
             JObject lookup = db.GetOne("SELECT ID FROM t_noticeread WHERE NoticeID=?p1 AND UserID=?p2 AND IsDeleted=0"
                 ,req.ToInt("id")
-                ,HttpContext.GetUserInfo<int>("id"));
+                ,HttpContext.GetUserInfo<int?>("id"));
             keys["id"] = lookup.ToInt("id");
             var count = db.Update("t_noticeread", dict, keys);
             if (count > 0)

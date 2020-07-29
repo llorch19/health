@@ -35,7 +35,7 @@ namespace health.Controllers
         [Route("Get[controller]List")]
         public JObject GetList()
         {
-            int personid = HttpContext.GetPersonInfo<int>("id");
+            var personid = HttpContext.GetPersonInfo<int?>("id");
             JObject res = new JObject();
             JArray list = db.GetArray(@"
 -- Get Unread Messages By Patient Id
@@ -86,7 +86,7 @@ AND t_messagesent.IsDeleted = 0
         [Route("Get[controller]")]
         public JObject Get(int msgid)
         {
-            int personid = HttpContext.GetPersonInfo<int>("id");
+            var personid = HttpContext.GetPersonInfo<int?>("id");
             JObject res = db.GetOne(@"
 SELECT 
 IFNULL(ID,'') AS ID 

@@ -74,7 +74,7 @@ AND t_noticeread.IsDeleted=0
 WHERE t_notice.IsDeleted=0
 ";
 
-            JArray list = db.GetArray(sql,HttpContext.GetUserInfo<int>("id"));
+            JArray list = db.GetArray(sql,HttpContext.GetUserInfo<int?>("id"));
             if (list.HasValues)
             {
                 res["status"] = 200;
@@ -318,8 +318,8 @@ AND t_notice.IsDeleted=0";
         public override Dictionary<string, object> GetReq(JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["OrgnizationID"] = HttpContext.GetUserInfo<int>("orgnizationid");
-            dict["PublishUserID"] = HttpContext.GetUserInfo<int>("id"); ;
+            dict["OrgnizationID"] = HttpContext.GetUserInfo<int?>("orgnizationid");
+            dict["PublishUserID"] = HttpContext.GetUserInfo<int?>("id"); ;
             dict["Content"] = req["content"]?.ToObject<string>();
             dict["Attachment"] = req["attachment"]?.ToObject<string>();
             dict["Title"] = req["title"]?.ToObject<string>();

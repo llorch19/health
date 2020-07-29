@@ -367,7 +367,7 @@ where t_patient.id=1
         [Authorize]
         public JObject ShowException()
         {
-            var ex = HttpContext.RequestServices.GetService(typeof(ModelException)) as ModelException;
+            var ex = HttpContext.RequestServices.GetService(typeof(FastFailException)) as FastFailException;
             throw ex;
         }
     }

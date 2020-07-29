@@ -67,7 +67,7 @@ ON t_attandent.SrcOrgID=src.ID
 LEFT JOIN t_orgnization des
 ON t_attandent.DesOrgID=des.id
 WHERE t_attandent.OrgnizationID=?p1
-AND t_attandent.IsDeleted=0", HttpContext.GetUserInfo<int>("orgnizationid"));
+AND t_attandent.IsDeleted=0", HttpContext.GetUserInfo<int?>("orgnizationid"));
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -81,7 +81,7 @@ AND t_attandent.IsDeleted=0", HttpContext.GetUserInfo<int>("orgnizationid"));
         [Route("GetPersonAttandentList")]
         public JObject GetPersonAttandentList()
         {
-            int? personid = HttpContext.GetPersonInfo<int?>("id");
+            var personid = HttpContext.GetPersonInfo<int?>("id");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"SELECT 
 IFNULL(t_attandent.ID, '') AS ID

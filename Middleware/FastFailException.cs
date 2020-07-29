@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace health.Middleware
 {
-    public class ModelException:Exception
+    public class FastFailException:Exception
     {
         public override string Message => "参数错误";
     }

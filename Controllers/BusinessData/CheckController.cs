@@ -41,13 +41,12 @@ namespace health.Controllers
         /// <summary>
         /// 获取机构的“检测”列表
         /// </summary>
-        /// <param name="orgid">检索指定机构的id</param>
         /// <returns>JSON对象，包含相应的“检测”数组</returns>
         [HttpGet]
         [Route("GetOrgCheckList")]
         public JObject GetOrgCheckList()
         {
-            int orgid = HttpContext.GetUserInfo<int>("orgnizationid");
+            var orgid = HttpContext.GetUserInfo<int?>("orgnizationid");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 
@@ -114,13 +113,12 @@ AND t_detectionrecord.IsDeleted=0
         /// <summary>
         /// 获取个人的“检测”历史
         /// </summary>
-        /// <param name="personid">检索指定个人的id</param>
         /// <returns>JSON对象，包含相应的“检测”数组</returns>
         [HttpGet]
         [Route("GetPersonCheckList")]
         public JObject GetPersonCheckList()
         {
-            int personid = HttpContext.GetPersonInfo<int>("id");
+            var personid = HttpContext.GetPersonInfo<int?>("id");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 

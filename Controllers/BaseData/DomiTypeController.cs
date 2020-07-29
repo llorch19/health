@@ -21,7 +21,6 @@ namespace health.Controllers
     {
 
         private readonly ILogger<DomiTypeController> _logger;
-        dbfactory db = new dbfactory();
         public override string TableName => "data_domitype";
 
         public DomiTypeController(ILogger<DomiTypeController> logger)

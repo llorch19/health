@@ -65,7 +65,7 @@ ON t_appoint.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_patient
 ON t_appoint.PatientID=t_patient.ID
 WHERE t_appoint.OrgnizationID=?p1
-AND t_appoint.IsDeleted=0", HttpContext.GetUserInfo<int>("orgnizationid"));
+AND t_appoint.IsDeleted=0", HttpContext.GetUserInfo<int?>("orgnizationid"));
             if (list.HasValues)
             {
                 res["status"] = 200;
@@ -88,7 +88,7 @@ AND t_appoint.IsDeleted=0", HttpContext.GetUserInfo<int>("orgnizationid"));
         [Route("GetPersonAppointList")]
         public JObject GetPersonAppointList()
         {
-            int personid = HttpContext.GetPersonInfo<int>("id");
+            var personid = HttpContext.GetPersonInfo<int?>("id");
             JObject res = new JObject();
             JArray list = db.GetArray(@"SELECT   
 IFNULL(t_appoint.ID,'') AS ID
