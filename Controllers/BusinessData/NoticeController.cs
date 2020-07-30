@@ -72,6 +72,7 @@ ON t_notice.ID=t_noticeread.NoticeID
 AND t_noticeread.UserID=?p1
 AND t_noticeread.IsDeleted=0
 WHERE t_notice.IsDeleted=0
+ORDER BY t_notice.ID
 ";
 
             JArray list = db.GetArray(sql,HttpContext.GetUserInfo<int?>("id"));
@@ -320,6 +321,10 @@ AND t_notice.IsDeleted=0";
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["OrgnizationID"] = HttpContext.GetUserInfo<int?>("orgnizationid");
             dict["PublishUserID"] = HttpContext.GetUserInfo<int?>("id"); ;
+            if (req.ToInt("publishtime")==0)
+            {
+                dict["PublishTime"] = DateTime.Now;
+            }
             dict["Content"] = req["content"]?.ToObject<string>();
             dict["Attachment"] = req["attachment"]?.ToObject<string>();
             dict["Title"] = req["title"]?.ToObject<string>();

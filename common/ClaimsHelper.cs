@@ -74,7 +74,11 @@ namespace health.common
             try
             {
                 string s = user[key]?.ToObject<string>();
-                return (T)System.Convert.ChangeType(s, typeof(T));
+                var nullabletype=Nullable.GetUnderlyingType(typeof(T));
+                if (nullabletype==null)
+                    return (T)System.Convert.ChangeType(s, typeof(T));
+                else
+                    return (T)System.Convert.ChangeType(s, nullabletype);
             }
             catch (Exception ex)
             {
