@@ -1,3 +1,6 @@
+using System;
+using util.mysql;
+
 namespace health
 {
     public static class Const

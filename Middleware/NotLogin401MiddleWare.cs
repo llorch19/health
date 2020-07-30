@@ -42,18 +42,7 @@ namespace health.Middleware
             
 
 
-            bool hasLogin = false;
-            switch (context.GetRole())
-            {
-                case "person":
-                    hasLogin = context.GetPerson()["id"] != null;
-                    break;
-                case "user":
-                    hasLogin = context.GetUser()["id"] != null;
-                    break;
-                default:
-                    break;
-            }
+            bool hasLogin = context.GetIdentityInfo<int?>("id")==null?false:true;
 
             if (hasLogin)
             {

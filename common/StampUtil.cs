@@ -12,16 +12,16 @@ namespace health
 {
     public class StampUtil
     {
-        public static string GetUser(HttpContext context)
+        public static string StampUser(HttpContext context)
         {
             string remoteIpAddress = context?.Connection?.RemoteIpAddress?.ToString();
             if (context?.Request?.Headers?.ContainsKey("X-Forwarded-For")??false)
                 remoteIpAddress = context.Request.Headers["X-Forwarded-For"];
-            return context.GetUserInfo<int?>("id") + remoteIpAddress; ;
+            return context.GetIdentityInfo<int?>("id") + remoteIpAddress; ;
         }
 
 
-        public static string GetPerson(HttpContext context)
+        public static string StampPerson(HttpContext context)
         {
             string remoteIpAddress = context?.Connection?.RemoteIpAddress?.ToString();
             if (context?.Request?.Headers?.ContainsKey("X-Forwarded-For") ?? false)
@@ -35,9 +35,9 @@ namespace health
             switch (role)
             {
                 case "person":
-                    return GetPerson(context);
+                    return StampPerson(context);
                 case "user":
-                    return GetUser(context);
+                    return StampUser(context);
                 default:
                     throw context.RequestServices.GetService(typeof(FastFailException)) as FastFailException;
             }

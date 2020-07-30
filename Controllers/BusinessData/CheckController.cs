@@ -294,14 +294,14 @@ AND t_detectionrecord.IsDeleted=0", id);
             {
                 Dictionary<string, object> condi = new Dictionary<string, object>();
                 condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = StampUtil.GetUser(HttpContext);
+                dict["LastUpdatedBy"] = StampUtil.StampUser(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update("t_detectionrecord", dict, condi);
                 res["id"] = req["id"];
             }
             else
             {
-                dict["CreatedBy"] = StampUtil.GetUser(HttpContext);
+                dict["CreatedBy"] = StampUtil.StampUser(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
                 res["id"] = this.db.Insert("t_detectionrecord", dict);
             }
@@ -471,7 +471,7 @@ AND t_detectionrecorditem.IsDeleted=0", checkid);
 
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["Pics"] = bPics.ToString();
-            dict["LastUpdatedBy"] = StampUtil.GetUser(this.HttpContext);
+            dict["LastUpdatedBy"] = StampUtil.StampUser(this.HttpContext);
             dict["LastUpdatedTime"] = DateTime.Now;
             Dictionary<string, object> keys = new Dictionary<string, object>();
             keys["id"] = checkid;

@@ -65,7 +65,7 @@ ON t_appoint.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_patient
 ON t_appoint.PatientID=t_patient.ID
 WHERE t_appoint.OrgnizationID=?p1
-AND t_appoint.IsDeleted=0", HttpContext.GetUserInfo<int?>("orgnizationid"));
+AND t_appoint.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
             if (list.HasValues)
             {
                 res["status"] = 200;
