@@ -46,7 +46,7 @@ namespace health.Controllers
         [Route("GetOrgCheckList")]
         public JObject GetOrgCheckList()
         {
-            var orgid = HttpContext.GetUserInfo<int?>("orgnizationid");
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 
@@ -118,7 +118,7 @@ AND t_detectionrecord.IsDeleted=0
         [Route("GetPersonCheckList")]
         public JObject GetPersonCheckList()
         {
-            var personid = HttpContext.GetPersonInfo<int?>("id");
+            var personid = HttpContext.GetIdentityInfo<int?>("id");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 
@@ -294,14 +294,14 @@ AND t_detectionrecord.IsDeleted=0", id);
             {
                 Dictionary<string, object> condi = new Dictionary<string, object>();
                 condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = StampUtil.StampUser(HttpContext);
+                dict["LastUpdatedBy"] = StampUtil.Stamp(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update("t_detectionrecord", dict, condi);
                 res["id"] = req["id"];
             }
             else
             {
-                dict["CreatedBy"] = StampUtil.StampUser(HttpContext);
+                dict["CreatedBy"] = StampUtil.Stamp(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
                 res["id"] = this.db.Insert("t_detectionrecord", dict);
             }
@@ -471,7 +471,7 @@ AND t_detectionrecorditem.IsDeleted=0", checkid);
 
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["Pics"] = bPics.ToString();
-            dict["LastUpdatedBy"] = StampUtil.StampUser(this.HttpContext);
+            dict["LastUpdatedBy"] = StampUtil.Stamp(this.HttpContext);
             dict["LastUpdatedTime"] = DateTime.Now;
             Dictionary<string, object> keys = new Dictionary<string, object>();
             keys["id"] = checkid;

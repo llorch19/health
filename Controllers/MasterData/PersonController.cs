@@ -62,8 +62,6 @@ namespace health.Controllers
 
             JObject res = new JObject();
 
-            JObject user = HttpContext.GetUser();
-
 
             JArray rows = db.GetArray(
                 @"SELECT 
@@ -119,7 +117,7 @@ ON t_patient.ID=t_attandent.PatientID
 WHERE t_patient.OrgnizationID=?p1
 AND t_patient.IsDeleted=0
 LIMIT ?p2,?p3"
-                , user["orgnizationid"]?.ToObject<int>(), offset, pageSize);
+                , HttpContext.GetIdentityInfo<int?>("orgnizationid"), offset, pageSize);
 
             // TODO: BUGs here, can not read COUNT(*) which returns Int64
             

@@ -77,7 +77,7 @@ ON t_vacc.MedicationDosageFormID=data_medicationdosageform.ID
 LEFT JOIN data_medicationpathway
 ON t_vacc.MedicationPathwayID=data_medicationpathway.ID
 WHERE t_vacc.OrgnizationID=?p1
-AND t_vacc.IsDeleted=0", HttpContext.GetUserInfo<int?>("orgnizationid"));
+AND t_vacc.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -91,7 +91,7 @@ AND t_vacc.IsDeleted=0", HttpContext.GetUserInfo<int?>("orgnizationid"));
         [Route("GetPersonVaccList")]
         public JObject GetPersonVaccList()
         {
-            var personid = HttpContext.GetPersonInfo<int?>("id");
+            var personid = HttpContext.GetIdentityInfo<int?>("id");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 

@@ -196,7 +196,7 @@ namespace health.Controllers
             JObject res = new JObject();
             res["status"] = 200;
             //  在这里添加判断usergroup的中间件，并将usergroup应用于筛选菜单的条件
-            var groupid = HttpContext.GetUserInfo<int?>("groupid");
+            var groupid = HttpContext.GetIdentityInfo<int?>("groupid");
             JArray tmp = db.GetArray("select id,name,icon,label,pid,seq from t_menu where isdeleted=0 and usergroup=?p1",groupid);
             JObject[] menus = new JObject[0];
             var input = tmp.ToObject<JObject[]>();

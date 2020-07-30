@@ -35,7 +35,7 @@ namespace health.Controllers
         [Route("Get[controller]List")]
         public JObject GetList()
         {
-            var personid = HttpContext.GetPersonInfo<int?>("id");
+            var personid = HttpContext.GetIdentityInfo<int?>("id");
             JObject res = new JObject();
             JArray list = db.GetArray(@"
 -- Get Unread Messages By Patient Id
@@ -86,7 +86,7 @@ AND t_messagesent.IsDeleted = 0
         [Route("Get[controller]")]
         public JObject Get(int msgid)
         {
-            var personid = HttpContext.GetPersonInfo<int?>("id");
+            var personid = HttpContext.GetIdentityInfo<int?>("id");
             JObject res = db.GetOne(@"
 SELECT 
 IFNULL(ID,'') AS ID 
@@ -166,13 +166,13 @@ AND isdeleted=0", msgid, personid);
             {
                 Dictionary<string, object> condi = new Dictionary<string, object>();
                 condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = StampUtil.StampPerson(HttpContext);
+                dict["LastUpdatedBy"] = StampUtil.Stamp(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update("t_messageread", dict, condi);
             }
             else
             {
-                dict["CreatedBy"] = StampUtil.StampPerson(HttpContext);
+                dict["CreatedBy"] = StampUtil.Stamp(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
                 this.db.Insert("t_messageread", dict);
             }
@@ -199,7 +199,7 @@ AND isdeleted=0", msgid, personid);
             JObject res = new JObject();
             var dict = new Dictionary<string, object>();
             dict["IsDeleted"] = 1;
-            dict["LastUpdatedBy"] = StampUtil.StampPerson(HttpContext);
+            dict["LastUpdatedBy"] = StampUtil.Stamp(HttpContext);
             dict["LastUpdatedTime"] = DateTime.Now;
             var keys = new Dictionary<string, object>();
             keys["id"] = req.ToInt("id");

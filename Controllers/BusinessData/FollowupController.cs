@@ -56,7 +56,7 @@ ON t_followup.PatientID=t_patient.ID
 LEFT JOIN t_orgnization
 ON t_followup.OrgnizationID=t_orgnization.ID
 WHERE t_followup.OrgnizationID=?p1
-AND t_followup.IsDeleted=0", HttpContext.GetUserInfo<int?>("orgnizationid"));
+AND t_followup.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -70,7 +70,7 @@ AND t_followup.IsDeleted=0", HttpContext.GetUserInfo<int?>("orgnizationid"));
         [Route("GetPersonFollowupList")]
         public JObject GetPersonFollowupList()
         {
-            var personid = HttpContext.GetPersonInfo<int?>("id");
+            var personid = HttpContext.GetIdentityInfo<int?>("id");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 

@@ -159,7 +159,7 @@ LEFT JOIN data_medicationpathway
 ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
 AND t_treat.OrgnizationID=?p1
 WHERE t_treatitem.IsDeleted=0
-", HttpContext.GetUser()["orgnizationid"]?.ToObject<int>());
+", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;

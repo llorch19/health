@@ -88,7 +88,7 @@ AND t_appoint.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
         [Route("GetPersonAppointList")]
         public JObject GetPersonAppointList()
         {
-            var personid = HttpContext.GetPersonInfo<int?>("id");
+            var personid = HttpContext.GetIdentityInfo<int?>("id");
             JObject res = new JObject();
             JArray list = db.GetArray(@"SELECT   
 IFNULL(t_appoint.ID,'') AS ID

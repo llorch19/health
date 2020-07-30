@@ -42,7 +42,7 @@ namespace health
             {
                 options.Filters.Clear();
                 options.Filters.Add<ZFExceptionFilter>();
-                options.Filters.Add<ModelValidateFilter>();
+                options.Filters.Add<ModelInvalid201Filter>();
                 options.ModelValidatorProviders.Clear();
                 options.ModelValidatorProviders.Add(new ZFModelValidatorProvider());
             }

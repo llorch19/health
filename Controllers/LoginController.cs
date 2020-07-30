@@ -238,64 +238,8 @@ where Username=?p1 and t_user.IsDeleted=0
 
 
 
-        /// <summary>
-        /// 个人用户登录接口
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("GetDummyPerson")]
-        public JObject PersonLogin()
-        {
-            JObject res = new JObject();
-            JObject userdb = db.GetOne(@"
-SELECT t_patient.id,FamilyName,PrimaryOrgnizationID,t_orgnization.OrgName,IDCardNO,IDCategoryID,data_idcategory.`Name`,t_patient.IsActive
-FROM t_patient
-LEFT JOIN t_orgnization
-ON t_patient.PrimaryOrgnizationID=t_orgnization.ID
-LEFT JOIN data_idcategory
-ON t_patient.IDCategoryID=data_idcategory.ID
-where t_patient.id=1
-");
-            if (userdb["id"] == null
-                )
-            {
-                res["status"] = 201;
-                res["msg"] = "用户名或密码有误";
-                return res;
-            }
+       
 
-            bool active = userdb["isactive"]?.ToObject<int>() == 1;
-            if (!active)
-            {
-                res["status"] = 201;
-                res["msg"] = "用户尚未激活";
-                return res;
-            }
-
-            var claimsIdentity = new ClaimsIdentity(new[]{
-                new Claim(ClaimTypes.NameIdentifier, userdb["id"]?.ToObject<string>()),
-                new Claim(ClaimTypes.Role,"person"),
-                new Claim(ClaimTypes.PrimaryGroupSid,userdb["primaryorgnizationid"]?.ToObject<string>())
-            });
-
-
-            var handler = new JwtSecurityTokenHandler();
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = claimsIdentity,
-                Expires = DateTime.Now.AddMinutes(30),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Const.SecurityKey)), SecurityAlgorithms.HmacSha256),
-            };
-            var securityToken = handler.CreateToken(tokenDescriptor);
-            var token = handler.WriteToken(securityToken);
-            res["user"] = userdb["familyname"]?.ToObject<string>();
-            res["primaryorgnization"] = userdb["orgname"]?.ToObject<string>();
-            res["idcard"] = userdb["idcardno"]?.ToObject<string>();
-            res["token"] = token;
-            res["status"] = 200;
-            res["msg"] = "登录成功";
-            return res;
-        }
 
 
         /// <summary>
@@ -303,43 +247,13 @@ where t_patient.id=1
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("ShowUser")]
+        [Route("ShowClaims")]
         [Authorize]
-        public JObject ShowUser()
+        public JObject ShowClaims()
         {
             //这是获取自定义参数的方法
             var authenticateResult = HttpContext.AuthenticateAsync().Result;
-            var auth = authenticateResult?.Principal?.Claims;
-            JObject res = HttpContext.GetUser();
-
-            if (res.HasValues)
-            {
-                res["status"] = 200;
-                res["msg"] = "鉴权成功";
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "鉴权失败";
-            }
-
-            return res;
-        }
-
-
-        /// <summary>
-        /// 打印个人用户的系统凭据
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("ShowPerson")]
-        [Authorize]
-        public JObject ShowPerson()
-        {
-            //这是获取自定义参数的方法
-            var authenticateResult = HttpContext.AuthenticateAsync().Result;
-            var auth = authenticateResult?.Principal?.Claims;
-            JObject res = HttpContext.GetPerson();
+            JObject res = JObject.FromObject(HttpContext.GetRequestClaims());
 
             if (res.HasValues)
             {

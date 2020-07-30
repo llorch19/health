@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace health.Middleware
 {
-    public class ModelValidateFilter : IActionFilter
+    public class ModelInvalid201Filter : IActionFilter
     {
         public void OnActionExecuted(ActionExecutedContext context)
         {
@@ -23,7 +23,7 @@ namespace health.Middleware
             {
                 JObject res = new JObject();
                 res["status"] = 201;
-                res["msg"] = "参数不正确";
+                res["msg"] = "调用参数不正确";
                 context.Result = new OkObjectResult(res);
             }
         }
