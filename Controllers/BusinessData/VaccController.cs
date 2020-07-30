@@ -34,7 +34,7 @@ namespace health.Controllers
         /// </summary>
         /// <returns>JSON对象，包含相应的“接种记录”数组</returns>
         [HttpGet]
-        [Route("GetOrgVaccList")]
+        [Route("Get[controller]List")]
         public override JObject GetList()
         {
             JObject res = new JObject();
@@ -82,62 +82,7 @@ AND t_vacc.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
             res["msg"] = "读取成功";
             return res;
         }
-
-        /// <summary>
-        /// 获取个人的“接种记录”历史
-        /// </summary>
-        /// <returns>JSON对象，包含相应的“接种记录”数组</returns>
-        [HttpGet]
-        [Route("GetPersonVaccList")]
-        public JObject GetPersonVaccList()
-        {
-            var personid = HttpContext.GetIdentityInfo<int?>("id");
-            JObject res = new JObject();
-            res["list"] = db.GetArray(@"
-SELECT 
-t_vacc.ID
-,PatientID
-,t_patient.FamilyName AS Person
-,t_vacc.OrgnizationID
-,t_orgnization.OrgName AS OrgName
-,OperationUserID
-,t_user.ChineseName AS Operator
-,MedicationID
-,t_medication.`Name` AS Medication
-,t_medication.`CommonName` AS CommonName
-,MedicationDosageFormID
-,data_medicationdosageform.`Name` AS Dosage
-,MedicationPathwayID
-,data_medicationpathway.`Name` AS Pathway
-,Ftime
-,OperationTime
-,LeaveTime
-,NextTime
-,Fstatus
-,TempratureP
-,TempratureN
-,Effect
-,t_vacc.IsActive AS IsActive
-FROM t_vacc
-LEFT JOIN t_patient
-ON t_vacc.PatientID=t_patient.ID
-LEFT JOIN t_orgnization
-ON t_vacc.OrgnizationID=t_orgnization.ID
-LEFT JOIN t_user
-ON t_vacc.OperationUserID=t_user.ID
-LEFT JOIN t_medication
-ON t_vacc.MedicationID=t_medication.ID
-LEFT JOIN data_medicationdosageform
-ON t_vacc.MedicationDosageFormID=data_medicationdosageform.ID
-LEFT JOIN data_medicationpathway
-ON t_vacc.MedicationPathwayID=data_medicationpathway.ID
-WHERE t_vacc.PatientID=?p1
-AND t_vacc.IsDeleted=0", personid);
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            return res;
-        }
-
+      
 
         /// <summary>
         /// 获取“接种记录”信息
@@ -145,7 +90,7 @@ AND t_vacc.IsDeleted=0", personid);
         /// <param name="id">指定的id</param>
         /// <returns>JSON对象，包含相应的“接种记录”信息</returns>
         [HttpGet]
-        [Route("GetVacc")]
+        [Route("Get[controller]")]
         public override JObject Get(int id)
         {
             JObject res = db.GetOne(@"
@@ -195,7 +140,7 @@ and IsDeleted=0", id);
         /// <param name="req">在请求body中JSON形式的“接种记录”信息</param>
         /// <returns>响应状态信息</returns>
         [HttpPost]
-        [Route("SetVacc")]
+        [Route("Set[controller]")]
         public override JObject Set([FromBody] JObject req)
         {
             return base.Set(req);
@@ -210,7 +155,7 @@ and IsDeleted=0", id);
         /// <param name="req">在请求body中JSON形式的“接种记录”信息</param>
         /// <returns>响应状态信息</returns>
         [HttpPost]
-        [Route("DelVacc")]
+        [Route("Del[controller]")]
         public override JObject Del([FromBody] JObject req)
         {
             return base.Del(req);

@@ -39,7 +39,7 @@ namespace health.Controllers
         /// </summary>
         /// <returns>JSON对象，包含相应的“检测产品”数组</returns>
         [HttpGet]
-        [Route("GetCheckProductList")]
+        [Route("Get[controller]List")]
         public JObject GetCheckProductList(int pageSize,int pageIndex)
         {
             int offset = 0;
@@ -79,7 +79,7 @@ LIMIT ?p1,?p2
         /// <param name="id">指定的id</param>
         /// <returns>JSON对象，包含相应的“检测产品”信息</returns>
         [HttpGet]
-        [Route("GetCheckProduct")]
+        [Route("Get[controller]")]
         public override JObject Get(int id)
         {
             JObject res = db.GetOne(@"SELECT 
@@ -117,7 +117,7 @@ AND IsDeleted=0", id);
         /// <param name="req">在请求body中JSON形式的“检测产品”信息</param>
         /// <returns>响应状态信息</returns>
         [HttpPost]
-        [Route("SetCheckProduct")]
+        [Route("Set[controller]")]
         public override JObject Set([FromBody] JObject req)
         {
             return base.Set(req);
@@ -132,7 +132,7 @@ AND IsDeleted=0", id);
         /// <param name="req">在请求body中JSON形式的“检测产品”信息</param>
         /// <returns>响应状态信息</returns>
         [HttpPost]
-        [Route("DelCheckProduct")]
+        [Route("Del[controller]")]
         public override JObject Del([FromBody] JObject req)
         {
             return base.Del(req);

@@ -43,8 +43,8 @@ namespace health.Controllers
         /// </summary>
         /// <returns>JSON对象，包含相应的“检测”数组</returns>
         [HttpGet]
-        [Route("GetOrgCheckList")]
-        public JObject GetOrgCheckList()
+        [Route("GetCheckList")]
+        public JObject GetList()
         {
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             JObject res = new JObject();
@@ -110,77 +110,7 @@ AND t_detectionrecord.IsDeleted=0
             return res;
         }
 
-        /// <summary>
-        /// 获取个人的“检测”历史
-        /// </summary>
-        /// <returns>JSON对象，包含相应的“检测”数组</returns>
-        [HttpGet]
-        [Route("GetPersonCheckList")]
-        public JObject GetPersonCheckList()
-        {
-            var personid = HttpContext.GetIdentityInfo<int?>("id");
-            JObject res = new JObject();
-            res["list"] = db.GetArray(@"
-SELECT 
-t_detectionrecord.ID
-,CheckType
-,PatientID AS PersonID
-,t_patient.FamilyName AS PersonName
-,t_detectionrecord.OrgnizationID
-,t_orgnization.OrgName AS OrgName
-,RecommendedTreatID
-,recom.`Name` AS Recommend
-,ChosenTreatID
-,chosen.`Name` AS Chosen
-,t_patient.Tel AS PersonTel
-,IsReexam
-,t_detectionrecord.GenderID
-,data_gender.GenderName 
-,SubmitBy
-,submit.ChineseName AS Submitter
-,SubmitTime
-,t_orgnization.OrgCode
-,DetectionNO
-,ClinicalNO
-,Pics
-,Pdf
-,DiagnoticsTypeID
-,data_detectionresulttype.ResultName
-,DiagnoticsTime
-,DiagnoticsBy
-,diagnotics.ChineseName AS Diagnoser
-,ReportTime
-,ReportBy
-,report.ChineseName AS Reporter
-,Reference
-, IFNULL(t_detectionrecord.IsActive,'') AS IsActive
-FROM 
-t_detectionrecord
-LEFT JOIN t_patient
-ON t_detectionrecord.PatientID=t_patient.ID
-LEFT JOIN t_orgnization
-ON t_detectionrecord.OrgnizationID=t_orgnization.ID
-LEFT JOIN data_treatmentoption recom
-ON t_detectionrecord.RecommendedTreatID=recom.ID
-LEFT JOIN data_treatmentoption chosen
-ON t_detectionrecord.ChosenTreatID=chosen.ID
-LEFT JOIN data_gender
-ON t_detectionrecord.GenderID=data_gender.ID
-LEFT JOIN t_user submit
-ON t_detectionrecord.SubmitBy=submit.ID
-LEFT JOIN t_user diagnotics
-ON t_detectionrecord.DiagnoticsBy=diagnotics.ID
-LEFT JOIN t_user report
-ON t_detectionrecord.ReportBy=report.ID
-LEFT JOIN data_detectionresulttype
-ON t_detectionrecord.DiagnoticsTypeID=data_detectionresulttype.ID
-WHERE t_detectionrecord.PatientID=?p1
-AND t_detectionrecord.IsDeleted=0
-", personid);
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            return res;
-        }
+      
 
 
         /// <summary>
