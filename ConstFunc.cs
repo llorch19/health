@@ -14,25 +14,6 @@ namespace health
         /// <summary>
         /// How to Get an identity from db
         /// </summary>
-        public static readonly Func<dbfactory, object[], JObject> GetPersonIdentityFunc = 
-            (db,args) => db.GetOne(@"
-SELECT 
-id
-,OrgnizationID
-,PrimaryOrgnizationID
-,IDCardNO
-,IDCategoryID
-,OccupationCategoryID
-,AddressCategoryID
-,ProvinceID
-,CityID
-,CountyID 
-FROM t_patient 
-where id=?p1
-", args);
-        /// <summary>
-        /// How to Get an identity from db
-        /// </summary>
         public static readonly Func<dbfactory, object[], JObject> GetIdentityFunc =
             (db, args) => db.GetOne(@"
 SELECT 
@@ -45,17 +26,6 @@ id
 FROM t_user 
 where id=?p1
 ", args);
-
-        /// <summary>
-        /// How to Get function arguments from httpcontext
-        /// </summary>
-        public static readonly Func<HttpContext, object[]> GetPersonIdentityArgsFunc =
-            context => new object[]
-            {   context.User.Claims
-                .FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)
-                ?.Value
-                ,
-            };
 
         /// <summary>
         /// How to Get function arguments from httpcontext
@@ -73,6 +43,6 @@ where id=?p1
         /// <summary>
         /// What's the name of 
         /// </summary>
-        public const string IdentityEntry = "SysPerson_";
+        public const string IdentityEntry = "SysUser_";
     }
 }

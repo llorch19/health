@@ -214,7 +214,6 @@ where Username=?p1 and t_user.IsDeleted=0
             var claimsIdentity = new ClaimsIdentity(new[]{
                 new Claim(ClaimTypes.NameIdentifier, userdb["id"]?.ToObject<string>()),
                 new Claim(ClaimTypes.GroupSid,userdb["groupid"]?.ToObject<string>()),
-                new Claim(ClaimTypes.Role,"user")
             });
 
 
