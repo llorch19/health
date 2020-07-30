@@ -73,7 +73,7 @@ namespace health
             #region swagger
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "API接口文档", Version = "v1" });
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Web端API接口文档", Version = "v1" });
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
@@ -96,7 +96,7 @@ namespace health
                 });
                 // 为 Swagger JSON and UI设置xml文档注释路径
                 var basePath = HostEnvironment.ContentRootPath;//获取应用程序所在目录（绝对，不受工作目录影响，建议采用此方法获取路径）
-                var xmlPath = Path.Combine(basePath, "health.xml");
+                var xmlPath = Path.Combine(basePath, "health.web.xml");
                 c.IncludeXmlComments(xmlPath);
             });
             #endregion
@@ -128,7 +128,7 @@ namespace health
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Web端");
             });
 
             app.UseHttpsRedirection();
