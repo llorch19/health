@@ -487,7 +487,7 @@ namespace health.common
             return files.Length == results.Count;
         }
 
-        public static string[] UploadFiles(IFormFile[] files,string uploadir,CancellationToken cancellationToken)
+        public static string[] UploadStorage(IFormFile[] files,string uploadir,CancellationToken cancellationToken)
         {
             List<string> results = new List<string>();
 

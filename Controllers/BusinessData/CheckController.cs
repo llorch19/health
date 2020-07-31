@@ -369,7 +369,7 @@ AND t_detectionrecorditem.IsDeleted=0", checkid);
 
             JObject picsJObject = new JObject();
             var bOk = files.Length > 0 && FileHelpers.CheckFiles(files, _permittedExtensions, cancellationToken);
-            string[] results = bOk? FileHelpers.UploadFiles(files,uploadir,cancellationToken):new string[0];
+            string[] results = bOk? FileHelpers.UploadStorage(files,uploadir,cancellationToken):new string[0];
 
             for (int actionIndex = 0; actionIndex < results.Length; actionIndex++)
                 picsJObject[KeyGenFunc(checkid)(actionIndex.ToString())] = Path.GetFullPath(results[actionIndex]);
