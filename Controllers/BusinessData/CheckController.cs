@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Asn1.X509;
 using System;
@@ -370,37 +371,42 @@ AND t_detectionrecorditem.IsDeleted=0", checkid);
             if (!Directory.Exists(uploadir))
                 Directory.CreateDirectory(uploadir);
 
+            JObject picsJObject = new JObject();
             StringBuilder bPics = new StringBuilder();
-
-            foreach (var f in files)
+            MemoryStream[] msArray = new MemoryStream[files?.Length??0];
+            for (int checkIndex = 0; checkIndex < files?.Length && !cancellationToken.IsCancellationRequested; checkIndex++)
             {
-                string filepath = Path.Combine(uploadir, Path.GetRandomFileName() + Path.GetExtension(f.FileName));
-                while (System.IO.File.Exists(filepath))
-                    filepath = Path.Combine(uploadir, Path.GetRandomFileName() + Path.GetExtension(f.FileName));
-
-                using (var memoryStream = new MemoryStream())
+                using (msArray[checkIndex] = new MemoryStream())
                 {
-                    f.CopyTo(memoryStream);
-                    if (!FileHelpers.IsValidFileExtensionAndSignature(f.FileName, memoryStream, permittedExtensions))
+                    files[checkIndex].CopyTo(msArray[checkIndex]);
+                    if (!FileHelpers.IsValidFileExtensionAndSignature(files[checkIndex].FileName, msArray[checkIndex], permittedExtensions))
                     {
                         res["status"] = 201;
-                        res["msg"] = f.FileName + " 不能上传";
+                        res["msg"] = files[checkIndex].FileName + " 不能上传";
                         return res;
                     }
-                    else
-                    {
-                        using (var fileStream = new FileStream(filepath, FileMode.Create))
-                            f.CopyTo(fileStream);
-                    }
                 }
+            }
 
-                bPics.Append(Path.GetFullPath(filepath));
-                bPics.Append(spliter);
+            for (int actionIndex = 0; actionIndex < files?.Length && !cancellationToken.IsCancellationRequested; actionIndex++)
+            {
+                string filepath = Path.Combine(uploadir, Path.GetRandomFileName() + Path.GetExtension(files[actionIndex].FileName));
+                while (System.IO.File.Exists(filepath))
+                    filepath = Path.Combine(uploadir, Path.GetRandomFileName() + Path.GetExtension(files[actionIndex].FileName));
+
+                using (var fileStream = new FileStream(filepath, FileMode.Create))
+                {
+                    files[actionIndex].CopyTo(fileStream);
+                }
+                    
+
+                picsJObject[actionIndex.ToString()] = Path.GetFullPath(filepath);
             }
 
 
+
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Pics"] = bPics.ToString();
+            dict["Pics"] = picsJObject.ToString();
             dict["LastUpdatedBy"] = StampUtil.Stamp(this.HttpContext);
             dict["LastUpdatedTime"] = DateTime.Now;
             Dictionary<string, object> keys = new Dictionary<string, object>();
@@ -429,11 +435,11 @@ AND t_detectionrecorditem.IsDeleted=0", checkid);
         {
             JObject check = db.GetOne(@"SELECT ReportTime,Pics FROM t_detectionrecord WHERE ID=?p1 AND IsDeleted=0", checkid);
             JObject res = new JObject();
-            string[] pics = check["pics"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries);
-            if (index >= pics?.Length)
+            var pics = JsonConvert.DeserializeObject<Dictionary<string, string>>(check["pics"]?.ToObject<string>());
+            if (pics?.Keys == null)
                 return NoContent();
 
-            string filepath = pics?[index];
+            string filepath = pics?[index.ToString()];
             if (string.IsNullOrEmpty(filepath))
                 return NoContent();
 
@@ -462,14 +468,14 @@ AND t_detectionrecorditem.IsDeleted=0", checkid);
         public JObject GetFileList(int checkid)
         {
             JObject tmp = db.GetOne(@"SELECT Pics FROM t_detectionrecord WHERE ID=?p1 AND IsDeleted=0", checkid);
-            string[] pics = tmp["pics"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries);
+            var pics = JsonConvert.DeserializeObject<Dictionary<string,string>>(tmp["pics"]?.ToObject<string>());
             JArray array = new JArray();
-            for (int i = 0; i < pics?.Length; i++)
+            foreach (var key in  pics?.Keys)
             {
                 var tmpl = ControllerContext.ActionDescriptor.AttributeRouteInfo.Template;
                 tmpl = tmpl.Replace("{checkid:int}", "{0}/{1}");
                 tmpl = tmpl.Replace("Upload","Get");
-                var url = string.Format(tmpl,checkid,i);
+                var url = string.Format(tmpl,checkid,key);
                 array.Add(url);
             }
             JObject res = new JObject();

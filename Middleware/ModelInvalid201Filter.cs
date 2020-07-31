@@ -23,7 +23,7 @@ namespace health.Middleware
             {
                 JObject res = new JObject();
                 res["status"] = 201;
-                res["msg"] = "调用参数不正确";
+                res["msg"] = "访问错误，请更换请求参数后再试。";
                 context.Result = new OkObjectResult(res);
             }
         }

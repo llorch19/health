@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,22 +26,11 @@ namespace health.Middleware
             }
         }
 
-        public interface ISelfValidatableModel
-        {
-            string Validate();
-        }
 
-        public class ZFModelValidator<T> : IModelValidator where T : ISelfValidatableModel
+        public class ZFModelValidator<T> : IModelValidator 
         {
             public IEnumerable<ModelValidationResult> Validate(ModelValidationContext context)
             {
-                var model = (T)context.Model;
-                var error = model.Validate();
-
-                if (!string.IsNullOrEmpty(error))
-                {
-                    return new List<ModelValidationResult>{new ModelValidationResult(model.ToString(), error)};
-                }
                 return Enumerable.Empty<ModelValidationResult>();
             }
         }
