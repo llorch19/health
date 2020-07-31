@@ -32,7 +32,7 @@ namespace health.Controllers
         private readonly ILogger<CheckController> _logger;
         dbfactory db = new dbfactory();
         const string spliter = "$$";
-        string[] permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
+        string[] _permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
 
         public CheckController(ILogger<CheckController> logger)
         {
@@ -332,7 +332,7 @@ AND t_detectionrecorditem.IsDeleted=0", checkid);
         /// <param name="files"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpPost("Upload[controller]Pics/{checkid:int}")]
+        [HttpPost("Upload[controller]Pics")]
         public JObject UploadFile(
          int checkid,
          IFormFile[] files,
@@ -367,42 +367,12 @@ AND t_detectionrecorditem.IsDeleted=0", checkid);
                 return res;
             }
 
-
-            if (!Directory.Exists(uploadir))
-                Directory.CreateDirectory(uploadir);
-
             JObject picsJObject = new JObject();
-            StringBuilder bPics = new StringBuilder();
-            MemoryStream[] msArray = new MemoryStream[files?.Length??0];
-            for (int checkIndex = 0; checkIndex < files?.Length && !cancellationToken.IsCancellationRequested; checkIndex++)
-            {
-                using (msArray[checkIndex] = new MemoryStream())
-                {
-                    files[checkIndex].CopyTo(msArray[checkIndex]);
-                    if (!FileHelpers.IsValidFileExtensionAndSignature(files[checkIndex].FileName, msArray[checkIndex], permittedExtensions))
-                    {
-                        res["status"] = 201;
-                        res["msg"] = files[checkIndex].FileName + " 不能上传";
-                        return res;
-                    }
-                }
-            }
+            var bOk = files.Length > 0 && FileHelpers.CheckFiles(files, _permittedExtensions, cancellationToken);
+            string[] results = bOk? FileHelpers.UploadFiles(files,uploadir,cancellationToken):new string[0];
 
-            for (int actionIndex = 0; actionIndex < files?.Length && !cancellationToken.IsCancellationRequested; actionIndex++)
-            {
-                string filepath = Path.Combine(uploadir, Path.GetRandomFileName() + Path.GetExtension(files[actionIndex].FileName));
-                while (System.IO.File.Exists(filepath))
-                    filepath = Path.Combine(uploadir, Path.GetRandomFileName() + Path.GetExtension(files[actionIndex].FileName));
-
-                using (var fileStream = new FileStream(filepath, FileMode.Create))
-                {
-                    files[actionIndex].CopyTo(fileStream);
-                }
-                    
-
-                picsJObject[actionIndex.ToString()] = Path.GetFullPath(filepath);
-            }
-
+            for (int actionIndex = 0; actionIndex < results.Length; actionIndex++)
+                picsJObject[KeyGenFunc(checkid)(actionIndex.ToString())] = Path.GetFullPath(results[actionIndex]);
 
 
             Dictionary<string, object> dict = new Dictionary<string, object>();
@@ -424,13 +394,28 @@ AND t_detectionrecorditem.IsDeleted=0", checkid);
             return res;
         }
 
+        private Func<string, string> KeyGenFunc(int checkid)
+        {
+            config conf = new config();
+            string domain = conf.GetValue("sys:domain");
+            return index => index.ToString();
+        }
+
+        private Func<string, string> UrlGenFunc(int checkid)
+        {
+            config conf = new config();
+            string domain = conf.GetValue("sys:domain");
+            return index => string.Format("{0}/api/GetCheckPic?checkid={1}&index={2}",domain,checkid,index);
+        }
+
+
         /// <summary>
         /// 获取指定“检查编号”对应的图片
         /// </summary>
         /// <param name="checkid"></param>
         /// <param name="index"></param>
         /// <returns></returns>
-        [HttpGet("Get[controller]Pic/{checkid:int}/{index:int}")]
+        [HttpGet("Get[controller]Pic")]
         public IActionResult GetFile(int checkid, int index)
         {
             JObject check = db.GetOne(@"SELECT ReportTime,Pics FROM t_detectionrecord WHERE ID=?p1 AND IsDeleted=0", checkid);
@@ -439,7 +424,7 @@ AND t_detectionrecorditem.IsDeleted=0", checkid);
             if (pics?.Keys == null)
                 return NoContent();
 
-            string filepath = pics?[index.ToString()];
+            string filepath = pics?.ToArray()?.FirstOrDefault(pic=>pic.Key==index.ToString()).Value;
             if (string.IsNullOrEmpty(filepath))
                 return NoContent();
 
@@ -448,7 +433,7 @@ AND t_detectionrecorditem.IsDeleted=0", checkid);
 
             StringBuilder bFileDownloadName = new StringBuilder();
             bFileDownloadName.Append(check["reporttime"]?.ToObject<DateTime>().ToString("yyyymmdd"));
-            bFileDownloadName.Append(".");
+            bFileDownloadName.Append("-");
             bFileDownloadName.Append(index);
             bFileDownloadName.Append(Path.GetExtension(filepath));
             return new FileStreamResult(stream, mimeType)
@@ -464,7 +449,7 @@ AND t_detectionrecorditem.IsDeleted=0", checkid);
         /// <param name="checkid"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("Get[controller]Pics/{checkid:int}")]
+        [Route("Get[controller]Pics")]
         public JObject GetFileList(int checkid)
         {
             JObject tmp = db.GetOne(@"SELECT Pics FROM t_detectionrecord WHERE ID=?p1 AND IsDeleted=0", checkid);
@@ -472,11 +457,7 @@ AND t_detectionrecorditem.IsDeleted=0", checkid);
             JArray array = new JArray();
             foreach (var key in  pics?.Keys)
             {
-                var tmpl = ControllerContext.ActionDescriptor.AttributeRouteInfo.Template;
-                tmpl = tmpl.Replace("{checkid:int}", "{0}/{1}");
-                tmpl = tmpl.Replace("Upload","Get");
-                var url = string.Format(tmpl,checkid,key);
-                array.Add(url);
+                array.Add(UrlGenFunc(checkid)(key));
             }
             JObject res = new JObject();
             res["list"] = array;

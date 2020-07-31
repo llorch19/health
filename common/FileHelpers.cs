@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace health.common
@@ -53,7 +54,7 @@ namespace health.common
 
         public static readonly Dictionary<string, string> mimetype = new Dictionary<string, string>()
         {
-            {".323", "text/h323"},
+        {".323", "text/h323"},
         {".asx", "video/x-ms-asf"},
         {".acx", "application/internet-property-stream"},
         {".ai", "application/postscript"},
@@ -250,7 +251,6 @@ namespace health.common
         {".z", "application/x-compress"},
         {".zip", "application/x-zip-compressed"},
         {".*", "application/octet-stream"},
-
         };
 
         // **WARNING!**
@@ -468,6 +468,46 @@ namespace health.common
                 return signatures.Any(signature =>
                     headerBytes.Take(signature.Length).SequenceEqual(signature));
             }
+        }
+    
+        public static bool CheckFiles(IFormFile[] files, string[] permittedExtensions, CancellationToken cancellationToken)
+        {
+            List<string> results = new List<string>();
+            for (int checkIndex = 0; checkIndex < files?.Length && !cancellationToken.IsCancellationRequested; checkIndex++)
+            {
+                using (var memory = new MemoryStream())
+                {
+                    files[checkIndex].CopyTo(memory);
+                    if (FileHelpers.IsValidFileExtensionAndSignature(files[checkIndex].FileName, memory, permittedExtensions))
+                    {
+                        results.Add(files[checkIndex].FileName);
+                    }
+                }
+            }
+            return files.Length == results.Count;
+        }
+
+        public static string[] UploadFiles(IFormFile[] files,string uploadir,CancellationToken cancellationToken)
+        {
+            List<string> results = new List<string>();
+
+            if (!Directory.Exists(uploadir) && !cancellationToken.IsCancellationRequested)
+                Directory.CreateDirectory(uploadir);
+
+            for (int actionIndex = 0; actionIndex < files?.Length && !cancellationToken.IsCancellationRequested; actionIndex++)
+            {
+                string filepath = Path.Combine(uploadir, Path.GetRandomFileName() + Path.GetExtension(files[actionIndex].FileName));
+                while (System.IO.File.Exists(filepath))
+                    filepath = Path.Combine(uploadir, Path.GetRandomFileName() + Path.GetExtension(files[actionIndex].FileName));
+
+                using (var fileStream = new FileStream(filepath, FileMode.Create))
+                {
+                    files[actionIndex].CopyTo(fileStream);
+                }
+
+                results.Add(Path.GetFullPath(filepath));
+            }
+            return results.ToArray();           
         }
     }
 }

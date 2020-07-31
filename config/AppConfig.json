@@ -6,7 +6,8 @@
     "memorycache": {
       "SlidingExpiration": 30,
       "AbsoluteExpiration": 60
-    }
+    },
+    "domain": ""
   },
   "person": {
     "upload": "D:/personupload",

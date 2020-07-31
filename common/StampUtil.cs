@@ -15,9 +15,9 @@ namespace health
         public static string Stamp(HttpContext context)
         {
             string remoteIpAddress = context?.Connection?.RemoteIpAddress?.ToString();
-            if (context?.Request?.Headers?.ContainsKey("X-Forwarded-For")??false)
+            if (context?.Request?.Headers?.ContainsKey("X-Forwarded-For") ?? false)
                 remoteIpAddress = context.Request.Headers["X-Forwarded-For"];
-            return context.GetIdentityInfo<int?>("id") + remoteIpAddress; ;
+            return ConstFunc.IdentityEntry + context.GetIdentityInfo<int?>("id") + remoteIpAddress; ;
         }
     }
 }
