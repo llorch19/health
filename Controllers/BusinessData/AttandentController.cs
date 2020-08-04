@@ -75,6 +75,52 @@ AND t_attandent.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid")
 
 
         /// <summary>
+        /// 获取个人的“就诊”列表
+        /// </summary>
+        /// <param name="personid">请求的个人id</param>
+        /// <returns>JSON对象，包含相应的“就诊”数组</returns>
+        [HttpGet]
+        [Route("GetAttandentListP")]
+        public JObject GetListP(int personid)
+        {
+            JObject res = new JObject();
+            res["list"] = db.GetArray(@"
+SELECT 
+IFNULL(t_attandent.ID, '') AS ID
+, IFNULL(PatientID, '') AS PersonID
+, IFNUll(t_attandent.OrgnizationID, '') AS OrgnizationID
+, IFNULL(t_orgnization.OrgName,'') AS OrgName
+, IFNULL(SrcOrgID, '') AS SrcOrgID
+, IFNULL(src.OrgName,'') AS SrcOrgName
+, IFNULL(DesOrgID, '') AS DesOrgID
+, IFNULL(des.OrgName,'') AS DesOrgName
+, IFNULL(AdmissionTime, '') AS AdmissionTime
+, IFNULL(AdmissionType, '') AS AdmissionType
+, IFNULL(IsDischarged, '') AS IsDischarged
+, IFNULL(DischargeTime, '') AS DischargeTime
+, IFNULL(IsReferral, '') AS IsReferral
+, IFNULL(DesStatus, '') AS DesStatus
+, IFNULL(DesTime, '') AS DesTime
+, IFNULL(IsReferralCancel, '') AS IsReferralCancel
+, IFNULL(IsReferralFinish, '') AS IsReferralFinish
+, IFNULL(t_attandent.IsActive,'') AS IsActive
+FROM t_attandent
+LEFT JOIN t_patient
+ON t_attandent.PatientID=t_patient.ID
+LEFT JOIN t_orgnization
+ON t_attandent.OrgnizationID=t_orgnization.ID
+LEFT JOIN t_orgnization src
+ON t_attandent.SrcOrgID=src.ID
+LEFT JOIN t_orgnization des
+ON t_attandent.DesOrgID=des.id
+WHERE t_attandent.PatientID=?p1
+AND t_attandent.IsDeleted=0", personid);
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
+        }
+
+        /// <summary>
         /// 获取“就诊”信息
         /// </summary>
         /// <param name="id">指定的id</param>

@@ -28,9 +28,16 @@ namespace health.Middleware
         /// <returns></returns>
         public override async Task InvokeAsync(HttpContext context)
         {
-           
+
 
             var controller = context.GetRouteValue("controller");
+            if (controller == null) // 访问静态资源
+            {
+                await this._next(context);
+                return;
+            }
+
+
             List<string> whitelist = new List<string>() { "Login" };
             if (controller != null
                 && whitelist.Contains(controller.ToString()))

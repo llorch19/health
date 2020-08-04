@@ -62,6 +62,40 @@ AND t_followup.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"))
             return res;
         }
 
+        /// <summary>
+        /// 获取机构的“随访”列表
+        /// </summary>
+        /// <returns>JSON对象，包含相应的“随访”数组</returns>
+        [HttpGet]
+        [Route("Get[controller]ListP")]
+        public JObject GetListP(int personid)
+        {
+            JObject res = new JObject();
+            res["list"] = db.GetArray(@"
+SELECT 
+t_followup.ID
+,t_followup.PatientID AS PersonID
+,t_patient.FamilyName AS PersonName
+,t_patient.IDCardNO AS PersonCode
+,t_followup.OrgnizationID
+,t_orgnization.OrgName
+,t_orgnization.OrgCode
+,t_followup.TIME
+,t_followup.PersonList
+,t_followup.Abstract
+,t_followup.Detail
+,t_followup.IsActive
+FROM t_followup
+LEFT JOIN t_patient
+ON t_followup.PatientID=t_patient.ID
+LEFT JOIN t_orgnization
+ON t_followup.OrgnizationID=t_orgnization.ID
+WHERE t_followup.PatientID=?p1
+AND t_followup.IsDeleted=0", personid);
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
+        }
 
         /// <summary>
         /// 获取“随访”信息

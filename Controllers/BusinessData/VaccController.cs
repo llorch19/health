@@ -82,7 +82,62 @@ AND t_vacc.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
             res["msg"] = "读取成功";
             return res;
         }
-      
+
+
+        /// <summary>
+        /// 获取个人的“接种记录”列表
+        /// </summary>
+        /// <returns>JSON对象，包含相应的“接种记录”数组</returns>
+        [HttpGet]
+        [Route("Get[controller]ListP")]
+        public JObject GetListP(int personid)
+        {
+            JObject res = new JObject();
+            res["list"] = db.GetArray(@"
+SELECT 
+t_vacc.ID
+,PatientID
+,t_patient.FamilyName AS Person
+,t_vacc.OrgnizationID
+,t_orgnization.OrgName AS OrgName
+,OperationUserID
+,t_user.ChineseName AS Operator
+,MedicationID
+,t_medication.`Name` AS Medication
+,t_medication.`CommonName` AS CommonName
+,MedicationDosageFormID
+,data_medicationdosageform.`Name` AS Dosage
+,MedicationPathwayID
+,data_medicationpathway.`Name` AS Pathway
+,Ftime
+,OperationTime
+,LeaveTime
+,NextTime
+,Fstatus
+,TempratureP
+,TempratureN
+,Effect
+,t_vacc.IsActive AS IsActive
+FROM t_vacc
+LEFT JOIN t_patient
+ON t_vacc.PatientID=t_patient.ID
+LEFT JOIN t_orgnization
+ON t_vacc.OrgnizationID=t_orgnization.ID
+LEFT JOIN t_user
+ON t_vacc.OperationUserID=t_user.ID
+LEFT JOIN t_medication
+ON t_vacc.MedicationID=t_medication.ID
+LEFT JOIN data_medicationdosageform
+ON t_vacc.MedicationDosageFormID=data_medicationdosageform.ID
+LEFT JOIN data_medicationpathway
+ON t_vacc.MedicationPathwayID=data_medicationpathway.ID
+WHERE t_vacc.PatientID=?p1
+AND t_vacc.IsDeleted=0", personid);
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
+        }
+
 
         /// <summary>
         /// 获取“接种记录”信息

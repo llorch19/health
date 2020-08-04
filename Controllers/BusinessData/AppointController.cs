@@ -80,6 +80,60 @@ AND t_appoint.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
             return res;
         }
 
+        /// <summary>
+        /// 获取个人的“预约”列表
+        /// </summary>
+        /// <param name="personid">请求的个人id</param>
+        /// <returns>JSON对象，包含相应的“预约”数组</returns>
+        [HttpGet]
+        [Route("GetAppointListP")]
+        public JObject GetAppointListP(int personid)
+        {
+            JObject res = new JObject();
+            JArray list = db.GetArray(@"SELECT   
+IFNULL(t_appoint.ID,'') AS ID
+,IFNULL(t_appoint.OrgnizationID,'') AS OrgnizationID
+,IFNULL(t_orgnization.OrgName,'') AS OrgName
+,IFNULL(PatientID,'') AS PersonID
+,IFNULL(t_patient.FamilyName,'') AS PersonName
+,IFNULL(`Name`,'') AS `Name`
+,IFNULL(Code,'') AS Code
+,IFNULL(Vaccine,'') AS Vaccine
+,IFNULL(VaccinationDateStart,'') AS VaccinationDateStart
+,IFNULL(VaccinationDateEnd,'') AS VaccinationDateEnd
+,IFNULL(InjectionTimes,'') AS InjectionTimes
+,IFNULL(t_appoint.IDCardNO,'') AS IDCardNO
+,IFNULL(t_appoint.Tel,'') AS Tel
+,IFNULL(BirthDate,'') AS BirthDate
+,IFNULL(Tstatus,'') AS Tstatus
+,IFNULL(AppointmentCreatedTime,'') AS AppointmentCreatedTime
+,IFNULL(IsCancel,'') AS IsCancel
+,IFNULL(CancelTime,'') AS CancelTime
+,IFNULL(IsComplete,'') AS IsComplete
+,IFNULL(CompleteTime,'') AS CompleteTime
+,IFNULL(t_appoint.Description,'') AS Description
+,IFNULL(t_appoint.IsActive,'') AS IsActive
+FROM t_appoint
+LEFT JOIN t_orgnization
+ON t_appoint.OrgnizationID=t_orgnization.ID
+LEFT JOIN t_patient
+ON t_appoint.PatientID=t_patient.ID
+WHERE t_appoint.PatientID=?p1
+AND t_appoint.IsDeleted=0", personid);
+            if (list.HasValues)
+            {
+                res["status"] = 200;
+                res["msg"] = "读取成功";
+                res["list"] = list;
+            }
+            else
+            {
+                res["status"] = 201;
+                res["msg"] = "无法读取相应的数据";
+            }
+            return res;
+        }
+
 
         /// <summary>
         /// 获取“预约”信息
