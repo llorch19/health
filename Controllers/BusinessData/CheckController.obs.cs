@@ -27,14 +27,14 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class CheckController : ControllerBase
+    public class CheckControllerObs : ControllerBase
     {
-        private readonly ILogger<CheckController> _logger;
+        private readonly ILogger<CheckControllerObs> _logger;
         dbfactory db = new dbfactory();
         const string spliter = "$$";
         string[] _permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
 
-        public CheckController(ILogger<CheckController> logger)
+        public CheckControllerObs(ILogger<CheckControllerObs> logger)
         {
             _logger = logger;
         }
@@ -43,42 +43,69 @@ namespace health.Controllers
         /// 获取机构的“检测”列表
         /// </summary>
         /// <returns>JSON对象，包含相应的“检测”数组</returns>
-        [HttpGet]
-        [Route("GetCheckList")]
+        [NonAction]
         public JObject GetList()
         {
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 
-t_check.ID
-,IFNULL(CType,'') AS CheckType
+t_detectionrecord.ID
+,CheckType
 ,PatientID AS PersonID
 ,t_patient.FamilyName AS PersonName
-,t_check.OrgnizationID
+,t_detectionrecord.OrgnizationID
 ,t_orgnization.OrgName AS OrgName
-,IFNULL(t_check.Recommend,'') AS Recommend
-,IFNULL(t_check.Chosen,'') AS Chosen 
+,RecommendedTreatID
+,recom.`Name` AS Recommend
+,ChosenTreatID
+,chosen.`Name` AS Chosen
 ,t_patient.Tel AS PersonTel
-,IFNULL(t_check.IsRexam,'') AS IsReexam
+,IsReexam
+,t_detectionrecord.GenderID
+,data_gender.GenderName 
+,SubmitBy
+,submit.ChineseName AS Submitter
+,SubmitTime
 ,t_orgnization.OrgCode
-,IFNULL(CheckNO,'') AS DetectionNO
+,DetectionNO
+,ClinicalNO
 ,Pics
 ,Pdf
-,IFNULL(t_check.ResultTypeID,'') AS DiagnoticsTypeID
+,DiagnoticsTypeID
+,data_detectionresulttype.ResultName
+,DiagnoticsTime
+,DiagnoticsBy
+,diagnotics.ChineseName AS Diagnoser
+,ReportTime
+,ReportBy
+,report.ChineseName AS Reporter
+,Reference
 , IFNULL(data_detectionresulttype.control1,'') AS CType
 , IFNULL(data_detectionresulttype.control2,'') AS CValue
-, IFNULL(t_check.IsActive,'') AS IsActive
+, IFNULL(t_detectionrecord.IsActive,'') AS IsActive
 FROM 
-t_check
+t_detectionrecord
 LEFT JOIN t_patient
-ON t_check.PatientID=t_patient.ID
+ON t_detectionrecord.PatientID=t_patient.ID
 LEFT JOIN t_orgnization
-ON t_check.OrgnizationID=t_orgnization.ID
+ON t_detectionrecord.OrgnizationID=t_orgnization.ID
+LEFT JOIN data_treatmentoption recom
+ON t_detectionrecord.RecommendedTreatID=recom.ID
+LEFT JOIN data_treatmentoption chosen
+ON t_detectionrecord.ChosenTreatID=chosen.ID
+LEFT JOIN data_gender
+ON t_detectionrecord.GenderID=data_gender.ID
+LEFT JOIN t_user submit
+ON t_detectionrecord.SubmitBy=submit.ID
+LEFT JOIN t_user diagnotics
+ON t_detectionrecord.DiagnoticsBy=diagnotics.ID
+LEFT JOIN t_user report
+ON t_detectionrecord.ReportBy=report.ID
 LEFT JOIN data_detectionresulttype
-ON t_check.ResultTypeID=data_detectionresulttype.ID
-WHERE t_check.OrgnizationID =?p1
-AND t_check.IsDeleted=0
+ON t_detectionrecord.DiagnoticsTypeID=data_detectionresulttype.ID
+WHERE t_detectionrecord.OrgnizationID =?p1
+AND t_detectionrecord.IsDeleted=0
 ", orgid);
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -91,41 +118,68 @@ AND t_check.IsDeleted=0
         /// </summary>
         /// <param name="personid">请求的个人id</param>
         /// <returns>JSON对象，包含相应的“检测”数组</returns>
-        [HttpGet]
-        [Route("GetCheckListP")]
+        [NonAction]
         public JObject GetListP(int personid)
         {
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 
-t_check.ID
-,IFNULL(CType,'') AS CheckType
+t_detectionrecord.ID
+,CheckType
 ,PatientID AS PersonID
 ,t_patient.FamilyName AS PersonName
-,t_check.OrgnizationID
+,t_detectionrecord.OrgnizationID
 ,t_orgnization.OrgName AS OrgName
-,IFNULL(t_check.Recommend,'') AS Recommend
-,IFNULL(t_check.Chosen,'') AS Chosen 
+,RecommendedTreatID
+,recom.`Name` AS Recommend
+,ChosenTreatID
+,chosen.`Name` AS Chosen
 ,t_patient.Tel AS PersonTel
-,IFNULL(t_check.IsRexam,'') AS IsReexam
+,IsReexam
+,t_detectionrecord.GenderID
+,data_gender.GenderName 
+,SubmitBy
+,submit.ChineseName AS Submitter
+,SubmitTime
 ,t_orgnization.OrgCode
-,IFNULL(CheckNO,'') AS DetectionNO
+,DetectionNO
+,ClinicalNO
 ,Pics
 ,Pdf
-,IFNULL(t_check.ResultTypeID,'') AS DiagnoticsTypeID
+,DiagnoticsTypeID
+,data_detectionresulttype.ResultName
+,DiagnoticsTime
+,DiagnoticsBy
+,diagnotics.ChineseName AS Diagnoser
+,ReportTime
+,ReportBy
+,report.ChineseName AS Reporter
+,Reference
 , IFNULL(data_detectionresulttype.control1,'') AS CType
 , IFNULL(data_detectionresulttype.control2,'') AS CValue
-, IFNULL(t_check.IsActive,'') AS IsActive
+, IFNULL(t_detectionrecord.IsActive,'') AS IsActive
 FROM 
-t_check
+t_detectionrecord
 LEFT JOIN t_patient
-ON t_check.PatientID=t_patient.ID
+ON t_detectionrecord.PatientID=t_patient.ID
 LEFT JOIN t_orgnization
-ON t_check.OrgnizationID=t_orgnization.ID
+ON t_detectionrecord.OrgnizationID=t_orgnization.ID
+LEFT JOIN data_treatmentoption recom
+ON t_detectionrecord.RecommendedTreatID=recom.ID
+LEFT JOIN data_treatmentoption chosen
+ON t_detectionrecord.ChosenTreatID=chosen.ID
+LEFT JOIN data_gender
+ON t_detectionrecord.GenderID=data_gender.ID
+LEFT JOIN t_user submit
+ON t_detectionrecord.SubmitBy=submit.ID
+LEFT JOIN t_user diagnotics
+ON t_detectionrecord.DiagnoticsBy=diagnotics.ID
+LEFT JOIN t_user report
+ON t_detectionrecord.ReportBy=report.ID
 LEFT JOIN data_detectionresulttype
-ON t_check.ResultTypeID=data_detectionresulttype.ID
-WHERE t_check.PatientID =?p1
-AND t_check.IsDeleted=0
+ON t_detectionrecord.DiagnoticsTypeID=data_detectionresulttype.ID
+WHERE t_detectionrecord.PatientID =?p1
+AND t_detectionrecord.IsDeleted=0
 ", personid);
             res["status"] = 200;
             res["msg"] = "读取成功";
@@ -138,39 +192,49 @@ AND t_check.IsDeleted=0
         /// </summary>
         /// <param name="id">指定的id</param>
         /// <returns>JSON对象，包含相应的“检测”信息</returns>
-        [HttpGet]
-        [Route("GetCheck")]
+        [NonAction]
         public JObject GetCheck(int id)
         {
             JObject res = db.GetOne(@"
-SELECT
+SELECT 
 ID
-,IFNULL(CType,'') AS CheckType
-,IFNULL(PatientID,'') AS PatientID
-,IFNULL(OrgnizationID,'') AS OrgnizationID
-,IFNULL(t_check.IsRexam,'') AS IsReexam
-,Recommend
-,Chosen
-,IFNULL(CheckNO,'') AS DetectionNO
-,IFNULL(Pics,'') AS Pics
-,IFNULL(Pdf,'') AS Pdf
-,IFNULL(ResultTypeID,'') AS ResultTypeID
-,IFNULL(PName,'') AS ProductName
-,IFNULL(Spec,'') AS Specification
-,IFNULL(Batch,'') AS BatchNumber
-,IFNULL(OperTime,'') AS OperationTime
-,IFNULL(ReportTime,'') AS ReportTime
-FROM t_check
+,CheckType
+,PatientID
+,OrgnizationID
+,RecommendedTreatID
+,ChosenTreatID
+,IsReexam
+,GenderID
+,SubmitBy
+,SubmitTime
+,DetectionNO
+,ClinicalNO
+,Pics
+,Pdf
+,DiagnoticsTypeID
+,DiagnoticsTime
+,DiagnoticsBy
+,ReportTime
+,ReportBy
+,Reference
+,IFNULL(t_detectionrecord.IsActive,'') AS IsActive
+FROM 
+t_detectionrecord
 WHERE ID=?p1
-AND t_check.IsDeleted=0", id);
+AND t_detectionrecord.IsDeleted=0", id);
             res["person"] = new PersonController(null, null)
                 .GetPersonInfo(res["patientid"]?.ToObject<int>()??0);
             res["orgnization"] = new OrganizationController(null)
                 .GetOrgInfo(res["orgnizationid"]?.ToObject<int>()??0);
-            res["recommend"] = JsonConvert.DeserializeObject<JArray>(res["recommend"]?.ToObject<string>() ?? "");
-            res["chosen"] = JsonConvert.DeserializeObject<JObject>(res["chosen"]?.ToObject<string>() ?? ""); 
+            res["recommend"] = new TreatmentOptionController(null)
+                .GetTreatOptionInfo(res["recommendedtreatid"]?.ToObject<int>() ?? 0);
+            res["chosen"] = new TreatmentOptionController(null)
+                .GetTreatOptionInfo(res["chosentreatid"]?.ToObject<int>() ?? 0);
+            res["gender"] = new GenderController(null)
+                .GetGenderInfo(res["genderid"]?.ToObject<int>() ?? 0);
             res["result"] = new DetectionResultTypeController(null)
-                .GetResultTypeInfo(res["resulttypeid"]?.ToObject<int>() ?? 0);
+                .GetResultTypeInfo(res["diagnoticstypeid"]?.ToObject<int>() ?? 0);
+            res["items"] = GetCheckItems(res["id"]?.ToObject<int>() ?? 0);
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -180,29 +244,20 @@ AND t_check.IsDeleted=0", id);
         /// <summary>
         /// 更改“检测”信息。如果id=0新增，如果id>0修改。
         /// </summary>
-        /// <param name="request">在请求body中JSON形式的“检测”信息</param>
+        /// <param name="req">在请求body中JSON形式的“检测”信息</param>
         /// <returns>响应状态信息</returns>
-        [HttpPost]
-        [Route("SetCheck")]
-        public JObject SetCheck([FromBody] dynamic request)
+        [NonAction]
+        public JObject SetCheck([FromBody] JObject req)
         {
-            JObject req=(JObject)request;
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["PatientID"] = req.ToInt("patientid");
-            dict["OrgnizationID"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            dict["ResultTypeID"] = req.ToInt("resulttypeid");
-            
-            dict["Recommend"] = JsonConvert.SerializeObject(req["recommend"]); 
-            dict["Chosen"] = JsonConvert.SerializeObject(req["chosen"]);
-            dict["IsRexam"] = req["isreexam"]?.ToObject<int?>();
-            dict["CType"] = req["checktype"]?.ToObject<string>();
-            dict["CheckNO"] = req["detectionno"]?.ToObject<string>();
-            dict["PName"] = req["productname"]?.ToObject<string>();
-            dict["Spec"] = req["specification"]?.ToObject<string>();
-            dict["Batch"] = req["batchnumber"]?.ToObject<string>();
-            dict["OperTime"] = req["operationtime"]?.ToObject<DateTime?>();
-            dict["ReportTime"] = req["reporttime"]?.ToObject<DateTime?>();
-
+            dict["OrgnizationID"] = req.ToInt("orgnizationid");
+            dict["RecommendedTreatID"] = req.ToInt("recommendedtreatid");
+            dict["ChosenTreatID"] = req.ToInt("chosentreatid");
+            dict["IsReexam"] = req["isreexam"]?.ToObject<Boolean>();
+            dict["GenderID"] = req.ToInt("genderid");
+            dict["CheckType"] = req["checktype"]?.ToObject<string>();
+            dict["DetectionNO"] = req["detectionno"]?.ToObject<string>();
             //dict["ClinicalNO"] = req["clinicalno"]?.ToObject<string>();
             //dict["DepartmentName"] = req["departmentname"]?.ToObject<string>();
             //dict["InpatientArea"] = req["inpatientarea"]?.ToObject<string>();
@@ -210,19 +265,30 @@ AND t_check.IsDeleted=0", id);
             //dict["SampleID"] = req["sampleid"]?.ToObject<string>();
             //dict["SampleType"] = req["sampletype"]?.ToObject<string>();
             //dict["SampleStatus"] = req["samplestatus"]?.ToObject<string>();
-            //dict["SubmitBy"] = req["submitby"]?.ToObject<string>();
-            //dict["SubmitTime"] = req.ToDateTime("submittime");
-            //dict["ObjectiveResult"] = req["objectiveresult"]?.ToObject<string>();
-            //dict["SubjectiveResult"] = req["subjectiveresult"]?.ToObject<string>();
+            dict["SubmitBy"] = req["submitby"]?.ToObject<string>();
+            dict["SubmitTime"] = req.ToDateTime("submittime");
+            dict["ObjectiveResult"] = req["objectiveresult"]?.ToObject<string>();
+            dict["SubjectiveResult"] = req["subjectiveresult"]?.ToObject<string>();
             dict["Pics"] = req["pics"]?.ToObject<string>();
             dict["Pdf"] = req["pdf"]?.ToObject<string>();
-            //dict["DiagnoticsTypeID"] = req.ToInt("diagnoticstypeid");
-            //dict["DiagnoticsTime"] = req.ToDateTime("diagnoticstime");
-            //dict["DiagnoticsBy"] = req["diagnoticsby"]?.ToObject<string>();
-            //dict["ReportTime"] = req.ToDateTime("reporttime");
-            //dict["ReportBy"] = req["reportby"]?.ToObject<string>();
-            //dict["Reference"] = req["reference"]?.ToObject<string>();
+            dict["DiagnoticsTypeID"] = req.ToInt("diagnoticstypeid");
+            dict["DiagnoticsTime"] = req.ToDateTime("diagnoticstime");
+            dict["DiagnoticsBy"] = req["diagnoticsby"]?.ToObject<string>();
+            dict["ReportTime"] = req.ToDateTime("reporttime");
+            dict["ReportBy"] = req["reportby"]?.ToObject<string>();
+            dict["Reference"] = req["reference"]?.ToObject<string>();
             // TODO: ADD CheckItem HERE
+
+            CheckProductController product = new CheckProductController(null);
+            JObject pObject = new JObject();
+            pObject["Name"] = req["productname"];
+            pObject["BatchNumber"] = req["product"];
+            pObject["Specification"] = req["specification"];
+            product.Set(pObject);
+
+            CheckItemController items = new CheckItemController(null);
+            JObject itemObject = new JObject();
+            //itemObject[""]
 
             JObject res = new JObject();
 
@@ -232,16 +298,14 @@ AND t_check.IsDeleted=0", id);
                 condi["id"] = req["id"];
                 dict["LastUpdatedBy"] = StampUtil.Stamp(HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_check", dict, condi);
+                var tmp = this.db.Update("t_detectionrecord", dict, condi);
                 res["id"] = req["id"];
             }
             else
             {
                 dict["CreatedBy"] = StampUtil.Stamp(HttpContext);
                 dict["CreatedTime"] = DateTime.Now;
-                dict["IsActive"] = 1;
-                dict["IsDeleted"] = 0;
-                res["id"] = this.db.Insert("t_check", dict);
+                res["id"] = this.db.Insert("t_detectionrecord", dict);
             }
 
             
@@ -259,8 +323,7 @@ AND t_check.IsDeleted=0", id);
         /// </summary>
         /// <param name="req">在请求body中JSON形式的“检测”信息</param>
         /// <returns>响应状态信息</returns>
-        [HttpPost]
-        [Route("DelCheck")]
+        [NonAction]
         public JObject DelCheck([FromBody] JObject req)
         {
             JObject res = new JObject();
@@ -268,7 +331,7 @@ AND t_check.IsDeleted=0", id);
             dict["IsDeleted"] = 1;
             var keys = new Dictionary<string, object>();
             keys["id"] = req.ToInt("id");
-            var count = db.Update("t_check", dict, keys);
+            var count = db.Update("t_detectionrecord", dict, keys);
             if (count > 0)
             {
                 res["status"] = 200;
@@ -283,7 +346,55 @@ AND t_check.IsDeleted=0", id);
             }
         }
 
-        
+
+        [NonAction]
+        public JArray GetCheckItems(int checkid)
+        {
+            JArray res= db.GetArray(@"
+SELECT 
+ID
+,PatientID AS PersonID
+,OrgnizationID AS OrgnizationID
+,DetectionProductID
+,DetectionResultTypeID
+,Result
+,ResultUnit
+,ResultTime
+,Sugguest
+,ReferenceValue
+,SubmitBy
+,SubmitTime
+,Injecter
+,InjectTime
+,Observer
+,ObserveTime
+,IFNULL(t_detectionrecorditem.IsActive,'') AS IsActive
+FROM t_detectionrecorditem
+WHERE DetectionRecordID=?p1
+AND t_detectionrecorditem.IsDeleted=0", checkid);
+            foreach (JToken item in res)
+            {
+                PersonController person = new PersonController(null, null);
+                item["person"] = person
+                    .GetPersonInfo(item["personid"]?.ToObject<int>() ?? 0);
+                item["submit"] = person.GetUserInfo(item["submitby"]?.ToObject<int>() ?? 0);
+                item["inject"] = person.GetUserInfo(item["injecter"]?.ToObject<int>() ?? 0);
+                item["observe"] = person.GetUserInfo(item["observer"]?.ToObject<int>() ?? 0);
+
+                item["orgnization"] = new OrganizationController(null)
+                    .GetOrgInfo(item["orgnizationid"]?.ToObject<int>() ?? 0);
+                item["product"] = new CheckProductController(null)
+                    .GetCheckProductInfo(item["detectionproductid"]?.ToObject<int>() ?? 0);
+                item["cresult"] = new DetectionResultTypeController(null)
+                    .GetResultTypeInfo(item["detectionresulttypeid"]?.ToObject<int>() ?? 0);
+                //item["tester"]
+            }
+
+            return res;
+        }
+
+
+
         /// <summary>
         /// 上传指定“检查结果”对应的图片
         /// </summary>
@@ -291,7 +402,7 @@ AND t_check.IsDeleted=0", id);
         /// <param name="files"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpPost("Upload[controller]Pics")]
+        [NonAction]
         public JObject UploadFile(
          int checkid,
          IFormFile[] files,
@@ -374,7 +485,7 @@ AND t_check.IsDeleted=0", id);
         /// <param name="checkid"></param>
         /// <param name="index"></param>
         /// <returns></returns>
-        [HttpGet("Get[controller]Pic")]
+        [NonAction]
         public IActionResult GetFile(int checkid, int index)
         {
             JObject check = db.GetOne(@"SELECT ReportTime,Pics FROM t_detectionrecord WHERE ID=?p1 AND IsDeleted=0", checkid);
@@ -407,8 +518,7 @@ AND t_check.IsDeleted=0", id);
         /// </summary>
         /// <param name="checkid"></param>
         /// <returns></returns>
-        [HttpGet]
-        [Route("Get[controller]Pics")]
+        [NonAction]
         public JObject GetFileList(int checkid)
         {
             JObject tmp = db.GetOne(@"SELECT Pics FROM t_detectionrecord WHERE ID=?p1 AND IsDeleted=0", checkid);

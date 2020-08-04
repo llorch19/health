@@ -93,6 +93,19 @@ namespace health.Controllers
             return res;
         }
 
+
+        [NonAction]
+        public JArray GetTreatOptionInfoList(int? resultid)
+        {
+            var res = db.GetArray(@"
+SELECT ID,Name Text,Introduction Intro FROM data_treatmentoption
+WHERE data_treatmentoption.ID
+IN (SELECT TreatmentOptionID FROM rel_resulttreat WHERE rel_resulttreat.DetectionResultTypeID=?p1 AND IsDeleted=0)
+AND data_treatmentoption.IsDeleted=0
+", resultid);
+            return res;
+        }
+
         public override Dictionary<string, object> GetReq(JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
