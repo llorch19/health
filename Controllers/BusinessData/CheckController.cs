@@ -186,7 +186,9 @@ AND t_check.IsDeleted=0", id);
         [Route("SetCheck")]
         public JObject SetCheck([FromBody] dynamic request)
         {
+
             JObject req=(JObject)request;
+
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["PatientID"] = req.ToInt("patientid");
             dict["OrgnizationID"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
@@ -318,8 +320,8 @@ AND t_check.IsDeleted=0", id);
                 return res;
             }
 
-            JObject check = db.GetOne(@"SELECT ID,ReportTime,Pics,IsArchived FROM t_detectionrecord WHERE ID=?p1 AND IsDeleted=0", checkid);
-            if (check["id"] == null || (check["isarchived"]?.ToObject<bool>() ?? false))
+            JObject check = db.GetOne(@"SELECT ID,ReportTime,Pics,IsActive FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
+            if (check["id"] == null || !((check["isactive"]?.ToObject<bool>() ?? false)))
             {
                 res["status"] = 201;
                 res["msg"] = "无法上传";
