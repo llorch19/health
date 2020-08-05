@@ -343,7 +343,7 @@ AND t_check.IsDeleted=0", id);
             Dictionary<string, object> keys = new Dictionary<string, object>();
             keys["id"] = checkid;
 
-            int row = db.Update("t_detectionrecord", dict, keys);
+            int row = db.Update("t_check", dict, keys);
 
             if (row > 0)
                 foreach (var oldfile in check["pics"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries))
@@ -413,8 +413,8 @@ AND t_check.IsDeleted=0", id);
         [Route("Get[controller]Pics")]
         public JObject GetFileList(int checkid)
         {
-            JObject tmp = db.GetOne(@"SELECT Pics FROM t_detectionrecord WHERE ID=?p1 AND IsDeleted=0", checkid);
-            var pics = JsonConvert.DeserializeObject<Dictionary<string,string>>(tmp["pics"]?.ToObject<string>());
+            JObject tmp = db.GetOne(@"SELECT Pics FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
+            var pics = JsonConvert.DeserializeObject<Dictionary<string,string>>(tmp["pics"]?.ToObject<string>()??"");
             JArray array = new JArray();
             foreach (var key in  pics?.Keys)
             {
