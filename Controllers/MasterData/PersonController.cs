@@ -204,15 +204,16 @@ and t_patient.IsDeleted=0"
             //where IsReexam = 0
             res["checkinfo"] = db.GetArray(@"
 SELECT 
-IFNULL(t_detectionrecord.ID,'') as ID
+IFNULL(t_check.ID,'') as ID
 ,IFNULL(ReportTime,'') as ReportTime
 ,IFNULL(data_detectionresulttype.ResultName,'') as ResultName
-,IFNULL(IsReexam,'') as IsReexam
-from t_detectionrecord
+,IFNULL(t_check.IsRexam,'') as IsReexam
+from t_check
 LEFT JOIN data_detectionresulttype
-ON t_detectionrecord.DiagnoticsTypeID=data_detectionresulttype.ID
+ON t_check.ResultTypeID=data_detectionresulttype.ID
 and PatientID=?p1
-and t_detectionrecord.IsDeleted=0"
+and t_check.IsDeleted=0
+ORDER BY ReportTime,ID DESC"
                 , id);
 
             res["treatinfo"] = db.GetArray(@"
