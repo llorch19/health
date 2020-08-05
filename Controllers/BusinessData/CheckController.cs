@@ -379,7 +379,7 @@ AND t_check.IsDeleted=0", id);
         [HttpGet("Get[controller]Pic")]
         public IActionResult GetFile(int checkid, int index)
         {
-            JObject check = db.GetOne(@"SELECT ReportTime,Pics FROM t_detectionrecord WHERE ID=?p1 AND IsDeleted=0", checkid);
+            JObject check = db.GetOne(@"SELECT ReportTime,Pics FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
             JObject res = new JObject();
             var pics = JsonConvert.DeserializeObject<Dictionary<string, string>>(check["pics"]?.ToObject<string>());
             if (pics?.Keys == null)
