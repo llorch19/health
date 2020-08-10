@@ -71,7 +71,7 @@ namespace health
                 res = new JObject();
             }
 
-            res["status"] = 200;
+            res["status"] = 201;
             res["msg"] = msg;
 
             return res;

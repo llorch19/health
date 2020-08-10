@@ -81,6 +81,7 @@ ON t_check.ResultTypeID=data_detectionresulttype.ID
 WHERE t_check.OrgnizationID =?p1
 AND t_check.IsDeleted=0
 ", orgid);
+
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
