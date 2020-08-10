@@ -66,7 +66,7 @@ t_check.ID
 ,IFNULL(t_check.IsRexam,'') AS IsReexam
 ,t_orgnization.OrgCode
 ,IFNULL(CheckNO,'') AS DetectionNO
-,IFNULL(t_check.ResultTypeID,'') AS DiagnoticsTypeID
+,IFNULL(t_check.ResultTypeID,'') AS ResultTypeID
 , IFNULL(data_detectionresulttype.control1,'') AS CType
 , IFNULL(data_detectionresulttype.control2,'') AS CValue
 , IFNULL(t_check.IsActive,'') AS IsActive
@@ -115,7 +115,7 @@ t_check.ID
 ,IFNULL(t_check.IsRexam,'') AS IsReexam
 ,t_orgnization.OrgCode
 ,IFNULL(CheckNO,'') AS DetectionNO
-,IFNULL(t_check.ResultTypeID,'') AS DiagnoticsTypeID
+,IFNULL(t_check.ResultTypeID,'') AS ResultTypeID
 , IFNULL(data_detectionresulttype.control1,'') AS CType
 , IFNULL(data_detectionresulttype.control2,'') AS CValue
 , IFNULL(t_check.IsActive,'') AS IsActive

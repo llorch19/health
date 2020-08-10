@@ -21,6 +21,7 @@ using Microsoft.IdentityModel.Protocols;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Google.Protobuf.WellKnownTypes;
 using System;
+using IdGen;
 
 namespace health
 {
@@ -106,8 +107,18 @@ namespace health
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             });
 
-            services.AddSingleton<IdGenerator>();
-
+            #region IdGenerator
+            var epoch = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Local);
+            // Create an ID with 45 bits for timestamp, 2 for generator-id 
+            // and 16 for sequence
+            var structure = new IdStructure(45, 2, 16);
+            // Prepare options
+            var options = new IdGeneratorOptions(structure, new DefaultTimeSource(epoch));
+            // Create an IdGenerator with it's generator-id set to 0, our custom epoch 
+            // and id-structure
+            var generator = new IdGenerator(0, options);
+            services.AddSingleton<IdGenerator>(generator);
+            #endregion
 
             services.AddMemoryCache();
         }

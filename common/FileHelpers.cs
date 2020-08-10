@@ -55,8 +55,6 @@ namespace health.common
                 } 
             },
         };
-
-
         public static readonly Dictionary<string, string> mimetype = new Dictionary<string, string>()
         {
         {".323", "text/h323"},

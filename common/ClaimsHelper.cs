@@ -19,6 +19,9 @@ using util.mysql;
 
 namespace health.common
 {
+    /// <summary>
+    /// 鉴权授权类
+    /// </summary>
     public static class ClaimsHelper
     {
         public static Dictionary<string,string> GetRequestClaims(this HttpContext httpContext)

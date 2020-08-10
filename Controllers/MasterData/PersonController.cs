@@ -13,6 +13,7 @@
  */
 using health.BaseData;
 using health.common;
+using IdGen;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -71,6 +72,7 @@ IFNULL(t_patient.ID,'') as ID
 ,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
 ,IFNULL(OrgName,'') as OrgName
 ,IFNULL(OrgCode,'') as OrgCode
+,IFNULL(InviteCode,'') as InviteCode
 ,IFNULL(RegisterNO,'') as RegisterNO
 ,IFNULL(FamilyName,'') as FamilyName
 ,IFNULL(t_patient.Tel,'') as Tel
@@ -158,6 +160,7 @@ IFNULL(t_patient.ID,'') as ID
 ,IFNULL(t_patient.OrgnizationID,'') as OrgnizationID
 ,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
 ,IFNULL(RegisterNO,'') as RegisterNO
+,IFNULL(InviteCode,'') as InviteCode
 ,IFNULL(FamilyName,'') as FamilyName
 ,IFNULL(t_patient.Tel,'') as Tel
 ,IFNULL(t_patient.IDCardNO,'') as IDCardNO
@@ -319,14 +322,14 @@ AND t_vacc.IsDeleted=0
         [Route("GetId")]
         public string GetId()
         {
-            return idGenerator.GetNextId("TST");
+            return idGenerator.CreateId().ToString();
         }
 
 
         [NonAction]
         public JObject GetPersonInfo(int? id)
         {
-            JObject res = db.GetOne("select id,FamilyName text,IDCardNO code from t_patient where id=?p1 and t_patient.IsDeleted=0", id);
+            JObject res = db.GetOne("select id,FamilyName text,IDCardNO code ,InviteCode invite from t_patient where id=?p1 and t_patient.IsDeleted=0", id);
             return res;
         }
 
@@ -352,6 +355,14 @@ AND t_vacc.IsDeleted=0
             if (DateTime.TryParse(req["birthday"].ToObject<string>(), out dt))
             {
                 dict["Birthday"] = dt;
+            }
+
+
+            if (req.ToInt("id")==0)
+            {
+                // 新增人员生成邀请码
+                dict["InviteCode"] = ShareCodeUtils.New();
+                dict["RegisterNO"] = idGenerator.CreateId();
             }
 
 

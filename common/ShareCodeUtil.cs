@@ -111,4 +111,11 @@ public class ShareCodeUtils
         return result;
 
     }
+
+    public static string New()
+    {
+        DateTimeOffset dateTimeOffset = new DateTimeOffset(DateTime.Now);
+        var id = dateTimeOffset.ToUnixTimeMilliseconds();
+        return idToCode(id);
+    }
 }
