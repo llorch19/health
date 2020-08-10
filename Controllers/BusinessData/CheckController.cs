@@ -59,6 +59,7 @@ t_check.ID
 ,t_patient.FamilyName AS PersonName
 ,t_check.OrgnizationID
 ,t_orgnization.OrgName AS OrgName
+,t_check.Result AS Result
 ,IFNULL(t_check.Recommend,'') AS Recommend
 ,IFNULL(t_check.Chosen,'') AS Chosen 
 ,t_patient.Tel AS PersonTel
@@ -106,6 +107,7 @@ t_check.ID
 ,t_patient.FamilyName AS PersonName
 ,t_check.OrgnizationID
 ,t_orgnization.OrgName AS OrgName
+,t_check.Result AS Result
 ,IFNULL(t_check.Recommend,'') AS Recommend
 ,IFNULL(t_check.Chosen,'') AS Chosen 
 ,t_patient.Tel AS PersonTel
@@ -148,6 +150,7 @@ ID
 ,IFNULL(CType,'') AS CheckType
 ,IFNULL(PatientID,'') AS PatientID
 ,IFNULL(OrgnizationID,'') AS OrgnizationID
+,t_check.Result AS Result
 ,IFNULL(t_check.IsRexam,'') AS IsReexam
 ,Recommend
 ,Chosen
@@ -216,7 +219,7 @@ AND t_check.IsDeleted=0", id);
             dict["PatientID"] = req.ToInt("patientid");
             dict["OrgnizationID"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             dict["ResultTypeID"] = req.ToInt("resulttypeid");
-            
+            dict["Result"] = req["result"]?.ToObject<string>();
             dict["Recommend"] = JsonConvert.SerializeObject(req["recommend"]); 
             dict["Chosen"] = JsonConvert.SerializeObject(req["chosen"]);
             dict["IsRexam"] = req["isreexam"]?.ToObject<int?>();
