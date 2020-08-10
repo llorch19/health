@@ -420,7 +420,8 @@ AND t_check.IsDeleted=0", id);
         {
             JObject check = db.GetOne(@"SELECT ReportTime,Pics FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
             JObject res = new JObject();
-            var pics = JsonConvert.DeserializeObject<Dictionary<string, string>>(check["pics"]?.ToObject<string>());
+            var pics = JsonConvert.DeserializeObject<Dictionary<string, string>>(
+                check["pics"]?.ToObject<string>()??"");
             if (pics?.Keys == null)
                 return NoContent();
 
@@ -451,12 +452,12 @@ AND t_check.IsDeleted=0", id);
         public JObject GetPicsList(int checkid)
         {
             JObject tmp = db.GetOne(@"SELECT Pics FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
-            var pics = JsonConvert.DeserializeObject<Dictionary<string,string>>(tmp["pics"]?.ToObject<string>()??"");
-            JArray array = new JArray();
-            foreach (var key in  pics?.Keys)
-            {
-                array.Add(PicUrlGenFunc(checkid)(key));
-            }
+            var pics = JsonConvert.DeserializeObject<Dictionary<string,string>>(
+                tmp["pics"]?.ToObject<string>()??"");
+            JArray array = pics!=null
+                ?JArray.FromObject(pics.Select(pic=> PicUrlGenFunc(checkid)(pic.Key)))
+                :null;
+
             JObject res = new JObject();
             res["list"] = array;
             res["status"] = 200;
@@ -576,7 +577,8 @@ AND t_check.IsDeleted=0", id);
         {
             JObject check = db.GetOne(@"SELECT ReportTime,Pdf FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
             JObject res = new JObject();
-            var pics = JsonConvert.DeserializeObject<Dictionary<string, string>>(check["pdf"]?.ToObject<string>());
+            var pics = JsonConvert.DeserializeObject<Dictionary<string, string>>(
+                check["pdf"]?.ToObject<string>()??"");
             if (pics?.Keys == null)
                 return NoContent();
 
@@ -613,8 +615,11 @@ AND t_check.IsDeleted=0", id);
         public JObject GetPDFList(int checkid)
         {
             JObject tmp = db.GetOne(@"SELECT Pdf FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
-            var pdf = JsonConvert.DeserializeObject<Dictionary<string, string>>(tmp["pdf"]?.ToObject<string>() ?? "");
-            JArray array = JArray.FromObject(pdf.Select(p => PDFUrlGenFunc(checkid)(p.Key)));
+            var pdf = JsonConvert.DeserializeObject<Dictionary<string, string>>(
+                tmp["pdf"]?.ToObject<string>() ?? "");
+            JArray array =pdf!=null
+                ?JArray.FromObject(pdf?.Select(p => PDFUrlGenFunc(checkid)(p.Key)))
+                :null;
             JObject res = new JObject();
             res["list"] = array;
             res["status"] = 200;
