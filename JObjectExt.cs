@@ -50,5 +50,31 @@ namespace health
 
             return null;
         }
+
+        public static JObject J200(JObject res=null)
+        {
+            if (res==null)
+            {
+                res = new JObject();
+            }
+
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+
+            return res;
+        }
+
+        public static JObject J201(JObject res = null,string msg="无法获取相应的数据")
+        {
+            if (res == null)
+            {
+                res = new JObject();
+            }
+
+            res["status"] = 200;
+            res["msg"] = msg;
+
+            return res;
+        }
     }
 }

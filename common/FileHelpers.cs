@@ -49,6 +49,11 @@ namespace health.common
                     new byte[] { 0x57, 0x69, 0x6E, 0x5A, 0x69, 0x70 },
                 }
             },
+            { ".pdf",new List<byte[]>
+                {
+                    new byte[] { 0x25, 0x50, 0x44, 0x46, 0x2D },
+                } 
+            },
         };
 
 

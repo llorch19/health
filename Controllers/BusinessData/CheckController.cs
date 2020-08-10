@@ -53,6 +53,8 @@ namespace health.Controllers
 SELECT 
 t_check.ID
 ,IFNULL(CType,'') AS CheckType
+,t_check.OperTime AS OperationTime
+,t_check.ReportTime AS ReportTime
 ,PatientID AS PersonID
 ,t_patient.FamilyName AS PersonName
 ,t_check.OrgnizationID
@@ -63,8 +65,6 @@ t_check.ID
 ,IFNULL(t_check.IsRexam,'') AS IsReexam
 ,t_orgnization.OrgCode
 ,IFNULL(CheckNO,'') AS DetectionNO
-,Pics
-,Pdf
 ,IFNULL(t_check.ResultTypeID,'') AS DiagnoticsTypeID
 , IFNULL(data_detectionresulttype.control1,'') AS CType
 , IFNULL(data_detectionresulttype.control2,'') AS CValue
@@ -100,6 +100,8 @@ AND t_check.IsDeleted=0
 SELECT 
 t_check.ID
 ,IFNULL(CType,'') AS CheckType
+,t_check.OperTime AS OperationTime
+,t_check.ReportTime AS ReportTime
 ,PatientID AS PersonID
 ,t_patient.FamilyName AS PersonName
 ,t_check.OrgnizationID
@@ -161,6 +163,8 @@ ID
 FROM t_check
 WHERE ID=?p1
 AND t_check.IsDeleted=0", id);
+
+
             res["person"] = new PersonController(null, null)
                 .GetPersonInfo(res["patientid"]?.ToObject<int>()??0);
             res["orgnization"] = new OrganizationController(null)
@@ -185,8 +189,8 @@ AND t_check.IsDeleted=0", id);
             res.Remove("pdf");
             if (tmpPDF?.HasValues == true)
             {
-                var dict = tmpPics.ToObject<Dictionary<string, object>>();
-                JArray pdf = JArray.FromObject(dict.Select(item => (JToken)PicUrlGenFunc(id)(item.Key)));
+                var dict = tmpPDF.ToObject<Dictionary<string, object>>();
+                JArray pdf = JArray.FromObject(dict.Select(item => (JToken)PDFUrlGenFunc(id)(item.Key)));
                 res["pdf"] = pdf;
             }
 
@@ -354,22 +358,31 @@ AND t_check.IsDeleted=0", id);
                 picsJObject[PicKeyGenFunc(checkid)(actionIndex.ToString())] = Path.GetFullPath(results[actionIndex]);
 
 
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Pics"] = picsJObject.ToString();
-            dict["LastUpdatedBy"] = StampUtil.Stamp(this.HttpContext);
-            dict["LastUpdatedTime"] = DateTime.Now;
-            Dictionary<string, object> keys = new Dictionary<string, object>();
-            keys["id"] = checkid;
+            if (results.Length > 0)
+            {
+                Dictionary<string, object> dict = new Dictionary<string, object>();
+                dict["Pics"] = picsJObject.ToString();
+                dict["LastUpdatedBy"] = StampUtil.Stamp(this.HttpContext);
+                dict["LastUpdatedTime"] = DateTime.Now;
+                Dictionary<string, object> keys = new Dictionary<string, object>();
+                keys["id"] = checkid;
 
-            int row = db.Update("t_check", dict, keys);
+                int row = db.Update("t_check", dict, keys);
 
-            if (row > 0)
-                foreach (var oldfile in check["pics"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries))
-                    if (System.IO.File.Exists(oldfile))
-                        System.IO.File.Delete(oldfile);
+                if (row > 0)
+                    foreach (var oldfile in check["pics"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries))
+                        if (System.IO.File.Exists(oldfile))
+                            System.IO.File.Delete(oldfile);
 
-            res = GetPicsList(checkid);
-            res["msg"] = "上传成功";
+                res = GetPicsList(checkid);
+                res["msg"] = "上传成功";
+            }
+            else
+            {
+                res["status"] = 201;
+                res["msg"] = "上传失败";
+            }
+
             return res;
         }
 
@@ -495,29 +508,39 @@ AND t_check.IsDeleted=0", id);
             }
 
             JObject picsJObject = new JObject();
-            var bOk = files.Length > 0 && FileHelpers.CheckFiles(files, new string[] { "pdf" }, cancellationToken);
+            var bOk = files.Length > 0 && FileHelpers.CheckFiles(files, new string[] { ".pdf" }, cancellationToken);
             string[] results = bOk ? FileHelpers.UploadStorage(files, uploadir, cancellationToken) : new string[0];
 
             for (int actionIndex = 0; actionIndex < results.Length; actionIndex++)
-                picsJObject[PicKeyGenFunc(checkid)(actionIndex.ToString())] = Path.GetFullPath(results[actionIndex]);
+                picsJObject[PDFKeyGenFunc(checkid)(actionIndex.ToString())] = Path.GetFullPath(results[actionIndex]);
 
+            if (results.Length > 0)
+            {
+                Dictionary<string, object> dict = new Dictionary<string, object>();
+                dict["Pdf"] = picsJObject.ToString();
+                dict["LastUpdatedBy"] = StampUtil.Stamp(this.HttpContext);
+                dict["LastUpdatedTime"] = DateTime.Now;
+                Dictionary<string, object> keys = new Dictionary<string, object>();
+                keys["id"] = checkid;
 
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Pdf"] = picsJObject.ToString();
-            dict["LastUpdatedBy"] = StampUtil.Stamp(this.HttpContext);
-            dict["LastUpdatedTime"] = DateTime.Now;
-            Dictionary<string, object> keys = new Dictionary<string, object>();
-            keys["id"] = checkid;
+                int row = db.Update("t_check", dict, keys);
 
-            int row = db.Update("t_check", dict, keys);
+                if (row > 0)
+                    foreach (var oldfile in check["pdf"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries))
+                        if (System.IO.File.Exists(oldfile))
+                            System.IO.File.Delete(oldfile);
 
-            if (row > 0)
-                foreach (var oldfile in check["pdf"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries))
-                    if (System.IO.File.Exists(oldfile))
-                        System.IO.File.Delete(oldfile);
+                res = GetPDFList(checkid);
+                res["msg"] = "上传成功";
+                res["status"] = 200;
+                
+            }
+            else
+            {
+                res["status"] = 201;
+                res["msg"] = "上传失败";
+            }
 
-            res = GetPicsList(checkid);
-            res["msg"] = "上传成功";
             return res;
         }
 
@@ -587,7 +610,7 @@ AND t_check.IsDeleted=0", id);
         {
             JObject tmp = db.GetOne(@"SELECT Pdf FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
             var pdf = JsonConvert.DeserializeObject<Dictionary<string, string>>(tmp["pdf"]?.ToObject<string>() ?? "");
-            JArray array = JArray.FromObject(pdf.Select(p => PicUrlGenFunc(checkid)(p.Key)));
+            JArray array = JArray.FromObject(pdf.Select(p => PDFUrlGenFunc(checkid)(p.Key)));
             JObject res = new JObject();
             res["list"] = array;
             res["status"] = 200;

@@ -33,7 +33,7 @@ public class ShareCodeUtils
     /**
      * 生成邀请码最小长度
      */
-    private static readonly int CODE_LEN = 6;
+    private static readonly int CODE_LEN = 12;
 
     /**
      * ID转换为邀请码

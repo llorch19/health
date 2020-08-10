@@ -92,7 +92,13 @@ namespace health.Controllers
         public JObject GetResultTypeInfo(int? id)
         {
             dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,ResultName text from data_detectionresulttype where id=?p1 and isdeleted=0", id);
+            JObject res = db.GetOne(@"
+select id
+,ResultName text 
+,control1 CType
+,control2 CValue
+from data_detectionresulttype where id=?p1 and isdeleted=0"
+, id);
             return res;
         }
 
