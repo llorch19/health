@@ -32,7 +32,7 @@ namespace health.Controllers
         private readonly ILogger<CheckController> _logger;
         dbfactory db = new dbfactory();
         const string spliter = "$$";
-        string[] _permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
+        string[] _permittedPictureExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
 
         public CheckController(ILogger<CheckController> logger)
         {
@@ -110,8 +110,6 @@ t_check.ID
 ,IFNULL(t_check.IsRexam,'') AS IsReexam
 ,t_orgnization.OrgCode
 ,IFNULL(CheckNO,'') AS DetectionNO
-,Pics
-,Pdf
 ,IFNULL(t_check.ResultTypeID,'') AS DiagnoticsTypeID
 , IFNULL(data_detectionresulttype.control1,'') AS CType
 , IFNULL(data_detectionresulttype.control2,'') AS CValue
@@ -171,6 +169,27 @@ AND t_check.IsDeleted=0", id);
             res["chosen"] = JsonConvert.DeserializeObject<JObject>(res["chosen"]?.ToObject<string>() ?? ""); 
             res["result"] = new DetectionResultTypeController(null)
                 .GetResultTypeInfo(res["resulttypeid"]?.ToObject<int>() ?? 0);
+            
+            
+            var tmpPics = JsonConvert.DeserializeObject<JObject>(res["pics"]?.ToObject<string>() ?? "");
+            res.Remove("pics");
+            if (tmpPics?.HasValues == true)
+            {
+                var dict = tmpPics.ToObject<Dictionary<string, object>>();
+                JArray pics = JArray.FromObject(dict.Select(item => (JToken)PicUrlGenFunc(id)(item.Key)));
+                res["pics"] = pics;
+            }
+
+            
+            var tmpPDF = JsonConvert.DeserializeObject<JObject>(res["pdf"]?.ToObject<string>() ?? "");
+            res.Remove("pdf");
+            if (tmpPDF?.HasValues == true)
+            {
+                var dict = tmpPics.ToObject<Dictionary<string, object>>();
+                JArray pdf = JArray.FromObject(dict.Select(item => (JToken)PicUrlGenFunc(id)(item.Key)));
+                res["pdf"] = pdf;
+            }
+
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -216,8 +235,8 @@ AND t_check.IsDeleted=0", id);
             //dict["SubmitTime"] = req.ToDateTime("submittime");
             //dict["ObjectiveResult"] = req["objectiveresult"]?.ToObject<string>();
             //dict["SubjectiveResult"] = req["subjectiveresult"]?.ToObject<string>();
-            dict["Pics"] = req["pics"]?.ToObject<string>();
-            dict["Pdf"] = req["pdf"]?.ToObject<string>();
+            //dict["Pics"] = req["pics"]?.ToObject<string>();
+            //dict["Pdf"] = req["pdf"]?.ToObject<string>();
             //dict["DiagnoticsTypeID"] = req.ToInt("diagnoticstypeid");
             //dict["DiagnoticsTime"] = req.ToDateTime("diagnoticstime");
             //dict["DiagnoticsBy"] = req["diagnoticsby"]?.ToObject<string>();
@@ -252,10 +271,6 @@ AND t_check.IsDeleted=0", id);
             
             return res;
         }
-
-
-
-
         /// <summary>
         /// 删除“检测”。
         /// </summary>
@@ -285,7 +300,10 @@ AND t_check.IsDeleted=0", id);
             }
         }
 
-        
+
+
+        #region 上传下载个人图片
+
         /// <summary>
         /// 上传指定“检查结果”对应的图片
         /// </summary>
@@ -294,15 +312,15 @@ AND t_check.IsDeleted=0", id);
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost("Upload[controller]Pics")]
-        public JObject UploadFile(
+        public JObject UploadPics(
          int checkid,
          IFormFile[] files,
          CancellationToken cancellationToken)
         {
             JObject res = new JObject();
             config conf = new config();
-            string uploadir = conf.GetValue("person:upload");
-            int countlimit = int.Parse(conf.GetValue("person:filecount"));
+            string uploadir = conf.GetValue("person:pics:upload");
+            int countlimit = int.Parse(conf.GetValue("person:pics:filecount"));
             if (files.Length > countlimit)
             {
                 res["status"] = 201;
@@ -310,7 +328,7 @@ AND t_check.IsDeleted=0", id);
                 return res;
             }
 
-            long sizelimit = long.Parse(conf.GetValue("person:filesize"));
+            long sizelimit = long.Parse(conf.GetValue("person:pics:filesize"));
             if (files
                 .Where(f => f.Length == 0 || f.Length > sizelimit)
                 .FirstOrDefault() != null)
@@ -329,11 +347,11 @@ AND t_check.IsDeleted=0", id);
             }
 
             JObject picsJObject = new JObject();
-            var bOk = files.Length > 0 && FileHelpers.CheckFiles(files, _permittedExtensions, cancellationToken);
+            var bOk = files.Length > 0 && FileHelpers.CheckFiles(files, _permittedPictureExtensions, cancellationToken);
             string[] results = bOk? FileHelpers.UploadStorage(files,uploadir,cancellationToken):new string[0];
 
             for (int actionIndex = 0; actionIndex < results.Length; actionIndex++)
-                picsJObject[KeyGenFunc(checkid)(actionIndex.ToString())] = Path.GetFullPath(results[actionIndex]);
+                picsJObject[PicKeyGenFunc(checkid)(actionIndex.ToString())] = Path.GetFullPath(results[actionIndex]);
 
 
             Dictionary<string, object> dict = new Dictionary<string, object>();
@@ -350,19 +368,23 @@ AND t_check.IsDeleted=0", id);
                     if (System.IO.File.Exists(oldfile))
                         System.IO.File.Delete(oldfile);
 
-            res = GetFileList(checkid);
+            res = GetPicsList(checkid);
             res["msg"] = "上传成功";
             return res;
         }
 
-        private Func<string, string> KeyGenFunc(int checkid)
+
+
+        
+
+
+        private Func<string, string> PicKeyGenFunc(int checkid)
         {
             config conf = new config();
             string domain = conf.GetValue("sys:domain");
             return index => index.ToString();
         }
-
-        private Func<string, string> UrlGenFunc(int checkid)
+        private Func<string, string> PicUrlGenFunc(int checkid)
         {
             config conf = new config();
             string domain = conf.GetValue("sys:domain");
@@ -377,7 +399,7 @@ AND t_check.IsDeleted=0", id);
         /// <param name="index"></param>
         /// <returns></returns>
         [HttpGet("Get[controller]Pic")]
-        public IActionResult GetFile(int checkid, int index)
+        public IActionResult GetPic(int checkid, int index)
         {
             JObject check = db.GetOne(@"SELECT ReportTime,Pics FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
             JObject res = new JObject();
@@ -402,8 +424,6 @@ AND t_check.IsDeleted=0", id);
                 FileDownloadName = bFileDownloadName.ToString()
             };
         }
-
-
         /// <summary>
         /// 获取指定检查结果中包含的图片
         /// </summary>
@@ -411,14 +431,14 @@ AND t_check.IsDeleted=0", id);
         /// <returns></returns>
         [HttpGet]
         [Route("Get[controller]Pics")]
-        public JObject GetFileList(int checkid)
+        public JObject GetPicsList(int checkid)
         {
             JObject tmp = db.GetOne(@"SELECT Pics FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
             var pics = JsonConvert.DeserializeObject<Dictionary<string,string>>(tmp["pics"]?.ToObject<string>()??"");
             JArray array = new JArray();
             foreach (var key in  pics?.Keys)
             {
-                array.Add(UrlGenFunc(checkid)(key));
+                array.Add(PicUrlGenFunc(checkid)(key));
             }
             JObject res = new JObject();
             res["list"] = array;
@@ -426,5 +446,156 @@ AND t_check.IsDeleted=0", id);
             res["msg"] = "读取成功";
             return res;
         }
+
+        #endregion
+
+
+        #region 上传下载个人PDF
+
+        /// <summary>
+        /// 上传指定“检查结果”对应的PDF
+        /// </summary>
+        /// <param name="checkid"></param>
+        /// <param name="files"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpPost("Upload[controller]PDF")]
+        public JObject UploadPDFFile(
+         int checkid,
+         IFormFile[] files,
+         CancellationToken cancellationToken)
+        {
+            JObject res = new JObject();
+            config conf = new config();
+            string uploadir = conf.GetValue("person:pdf:upload");
+            int countlimit = int.Parse(conf.GetValue("person:pdf:filecount"));
+            if (files.Length > countlimit)
+            {
+                res["status"] = 201;
+                res["msg"] = "最多允许上传 " + countlimit + " 个文件";
+                return res;
+            }
+
+            long sizelimit = long.Parse(conf.GetValue("person:pdf:filesize"));
+            if (files
+                .Where(f => f.Length == 0 || f.Length > sizelimit)
+                .FirstOrDefault() != null)
+            {
+                res["status"] = 201;
+                res["msg"] = "文件大小介于0，" + sizelimit;
+                return res;
+            }
+
+            JObject check = db.GetOne(@"SELECT ID,ReportTime,Pdf,IsActive FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
+            if (check["id"] == null || !((check["isactive"]?.ToObject<bool>() ?? false)))
+            {
+                res["status"] = 201;
+                res["msg"] = "无法上传";
+                return res;
+            }
+
+            JObject picsJObject = new JObject();
+            var bOk = files.Length > 0 && FileHelpers.CheckFiles(files, new string[] { "pdf" }, cancellationToken);
+            string[] results = bOk ? FileHelpers.UploadStorage(files, uploadir, cancellationToken) : new string[0];
+
+            for (int actionIndex = 0; actionIndex < results.Length; actionIndex++)
+                picsJObject[PicKeyGenFunc(checkid)(actionIndex.ToString())] = Path.GetFullPath(results[actionIndex]);
+
+
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["Pdf"] = picsJObject.ToString();
+            dict["LastUpdatedBy"] = StampUtil.Stamp(this.HttpContext);
+            dict["LastUpdatedTime"] = DateTime.Now;
+            Dictionary<string, object> keys = new Dictionary<string, object>();
+            keys["id"] = checkid;
+
+            int row = db.Update("t_check", dict, keys);
+
+            if (row > 0)
+                foreach (var oldfile in check["pdf"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries))
+                    if (System.IO.File.Exists(oldfile))
+                        System.IO.File.Delete(oldfile);
+
+            res = GetPicsList(checkid);
+            res["msg"] = "上传成功";
+            return res;
+        }
+
+
+
+
+        private Func<string, string> PDFKeyGenFunc(int checkid)
+        {
+            config conf = new config();
+            string domain = conf.GetValue("sys:domain");
+            return index => index.ToString();
+        }
+        private Func<string, string> PDFUrlGenFunc(int checkid)
+        {
+            config conf = new config();
+            string domain = conf.GetValue("sys:domain");
+            return index => string.Format("{0}/api/GetCheckPDF?checkid={1}&index={2}", domain, checkid, index);
+        }
+
+
+        /// <summary>
+        /// 获取指定“检查编号”对应的图片
+        /// </summary>
+        /// <param name="checkid"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        [HttpGet("Get[controller]PDF")]
+        public IActionResult GetPDF(int checkid, int index)
+        {
+            JObject check = db.GetOne(@"SELECT ReportTime,Pdf FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
+            JObject res = new JObject();
+            var pics = JsonConvert.DeserializeObject<Dictionary<string, string>>(check["pdf"]?.ToObject<string>());
+            if (pics?.Keys == null)
+                return NoContent();
+
+            string filepath = pics?.ToArray()?.FirstOrDefault(pic => pic.Key == index.ToString()).Value;
+            if (string.IsNullOrEmpty(filepath))
+                return NoContent();
+
+            string mimeType = FileHelpers.mimetype[Path.GetExtension(filepath)];
+            var stream = new FileStream(filepath, FileMode.Open);
+
+            StringBuilder bFileDownloadName = new StringBuilder();
+            bFileDownloadName.Append(check["reporttime"]?.ToObject<DateTime>().ToString("yyyymmdd"));
+            bFileDownloadName.Append("-");
+            bFileDownloadName.Append(index);
+            bFileDownloadName.Append(Path.GetExtension(filepath));
+            return new FileStreamResult(stream, mimeType)
+            {
+                FileDownloadName = bFileDownloadName.ToString()
+            };
+        }
+       
+        
+        /// <summary>
+        /// 获取指定检查结果中包含的图片
+        /// </summary>
+        /// <param name="checkid"></param>
+        /// <returns></returns>
+        /// <summary>
+        /// 获取指定检查结果中包含的图片
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("Get[controller]PDFList")]
+        public JObject GetPDFList(int checkid)
+        {
+            JObject tmp = db.GetOne(@"SELECT Pdf FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
+            var pdf = JsonConvert.DeserializeObject<Dictionary<string, string>>(tmp["pdf"]?.ToObject<string>() ?? "");
+            JArray array = JArray.FromObject(pdf.Select(p => PicUrlGenFunc(checkid)(p.Key)));
+            JObject res = new JObject();
+            res["list"] = array;
+            res["status"] = 200;
+            res["msg"] = "读取成功";
+            return res;
+        }
+
+
+        #endregion
     }
 }

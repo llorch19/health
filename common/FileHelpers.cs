@@ -487,27 +487,27 @@ namespace health.common
             return files.Length == results.Count;
         }
 
-        public static string[] UploadStorage(IFormFile[] files,string uploadir,CancellationToken cancellationToken)
+        public static string[] UploadStorage(IFormFile[] files,string desDirectory,CancellationToken cancellationToken)
         {
-            List<string> results = new List<string>();
+            List<string> uploadResults = new List<string>();
 
-            if (!Directory.Exists(uploadir) && !cancellationToken.IsCancellationRequested)
-                Directory.CreateDirectory(uploadir);
+            if (!Directory.Exists(desDirectory) && !cancellationToken.IsCancellationRequested)
+                Directory.CreateDirectory(desDirectory);
 
             for (int actionIndex = 0; actionIndex < files?.Length && !cancellationToken.IsCancellationRequested; actionIndex++)
             {
-                string filepath = Path.Combine(uploadir, Path.GetRandomFileName() + Path.GetExtension(files[actionIndex].FileName));
+                string filepath = Path.Combine(desDirectory, Path.GetRandomFileName() + Path.GetExtension(files[actionIndex].FileName));
                 while (System.IO.File.Exists(filepath))
-                    filepath = Path.Combine(uploadir, Path.GetRandomFileName() + Path.GetExtension(files[actionIndex].FileName));
+                    filepath = Path.Combine(desDirectory, Path.GetRandomFileName() + Path.GetExtension(files[actionIndex].FileName));
 
                 using (var fileStream = new FileStream(filepath, FileMode.Create))
                 {
                     files[actionIndex].CopyTo(fileStream);
                 }
 
-                results.Add(Path.GetFullPath(filepath));
+                uploadResults.Add(Path.GetFullPath(filepath));
             }
-            return results.ToArray();           
+            return uploadResults.ToArray();           
         }
     }
 }

@@ -10,9 +10,16 @@
     "domain": ""
   },
   "person": {
-    "upload": "D:/personupload",
-    "filesize": "2097152",
-    "filecount": 2
+    "pdf": {
+      "upload": "D:/personpdf",
+      "filesize": "20971520",
+      "filecount": 1
+    },
+    "pics": {
+      "upload": "D:/personupload",
+      "filesize": "2097152",
+      "filecount": 2
+    }
   },
   "user": {
     "static": "upload",
