@@ -373,7 +373,7 @@ AND t_check.IsDeleted=0", id);
 
                 int row = db.Update("t_check", dict, keys);
 
-                if (row > 0)
+                if (row > 0 && !string.IsNullOrEmpty(check["pics"]?.ToObject<string>()))
                     foreach (var oldfile in check["pics"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries))
                         if (System.IO.File.Exists(oldfile))
                             System.IO.File.Delete(oldfile);
@@ -530,7 +530,7 @@ AND t_check.IsDeleted=0", id);
 
                 int row = db.Update("t_check", dict, keys);
 
-                if (row > 0)
+                if (row > 0 && !string.IsNullOrEmpty(check["pdf"]?.ToObject<string>()))
                     foreach (var oldfile in check["pdf"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries))
                         if (System.IO.File.Exists(oldfile))
                             System.IO.File.Delete(oldfile);
