@@ -286,10 +286,6 @@ AND t_detectionrecord.IsDeleted=0", id);
             pObject["Specification"] = req["specification"];
             product.Set(pObject);
 
-            CheckItemController items = new CheckItemController(null);
-            JObject itemObject = new JObject();
-            //itemObject[""]
-
             JObject res = new JObject();
 
             if (req["id"]?.ToObject<int>() > 0)

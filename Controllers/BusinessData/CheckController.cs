@@ -132,6 +132,7 @@ AND t_check.IsDeleted=0
 ", personid);
             res["status"] = 200;
             res["msg"] = "读取成功";
+
             return res;
         }
 
