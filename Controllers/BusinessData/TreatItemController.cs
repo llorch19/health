@@ -95,13 +95,8 @@ WHERE t_treatitem.PatientID=?p1
             return db.GetArray(@"
 SELECT 
 IFNULL(t_treatitem.ID,'') AS  ID
-,IFNULL(PatientID,'') AS  PersonID
-,IFNULL(t_patient.FamilyName,'') AS PersonName
-,IFNULL(t_patient.IDCardNO,'') AS PersionIDCard
-,IFNULL(t_treatitem.GenderID,'') AS GenderID
-,IFNULL(data_gender.GenderName,'') AS GenderName
+,IFNULL(MedicationName,'') AS MedicationName
 ,IFNULL(MedicationID,'') AS MedicationID
-,IFNULL(t_medication.`Name`,'') AS MedicationName
 ,IFNULL(t_medication.Specification,'') AS Specification
 ,IFNULL(MedicationFreqCategoryID,'') AS MedicationFreqCategoryID
 ,IFNULL(data_medicationfreqcategory.ValueMessage,'') AS  Freq
@@ -109,7 +104,6 @@ IFNULL(t_treatitem.ID,'') AS  ID
 ,IFNULL(data_medicationdosageform.`Name`,'') AS DosageName
 ,IFNULL(MedicationPathwayID,'') AS MedicationPathwayID
 ,IFNULL(data_medicationpathway.`Name`,'') AS PathwayName
-,IFNULL(ICDCode,'') AS ICDCode
 ,IFNULL(Type,'') AS Type
 ,IFNULL(SingleDoseAmount,'') AS SingleDoseAmount
 ,IFNULL(SingleDoseUnit,'') AS SingleDoseUnit
@@ -126,10 +120,6 @@ IFNULL(t_treatitem.ID,'') AS  ID
 ,IFNULL(DispenseTime,'') AS DispenseTime
 ,IFNULL(Remarks,'') AS Remarks
 FROM t_treatitem
-LEFT JOIN t_patient
-ON t_treatitem.PatientID=t_patient.ID
-LEFT JOIN data_gender
-ON t_treatitem.GenderID=data_gender.ID
 LEFT JOIN t_medication
 ON t_treatitem.MedicationID=t_medication.ID
 LEFT JOIN data_medicationfreqcategory
