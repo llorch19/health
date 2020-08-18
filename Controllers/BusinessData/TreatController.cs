@@ -273,7 +273,7 @@ AND IsDeleted=0
                 res["orgnization"] = org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
                 PersonController person = new PersonController(null, null);
                 res["person"] = person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
-                TreatItemController items = new TreatItemController(null);
+                RecipeDetailsService items = new RecipeDetailsService(null);
                 res["items"] = items.GetTreatItemList(res["id"].ToObject<int>());
                 res["status"] = 200;
                 res["msg"] = "读取成功";
@@ -308,7 +308,7 @@ AND IsDeleted=0
             //dict["CompleteTime"] = req.ToDateTime("completetime");
             // TODO: 在这里添加add item逻辑
 
-            TreatItemController itemControl = new TreatItemController(null);
+            RecipeDetailsService itemControl = new RecipeDetailsService(null);
             JObject res = new JObject();
 
             if (req["id"]?.ToObject<int>() > 0)

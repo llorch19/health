@@ -16,12 +16,11 @@ using util.mysql;
 
 namespace health.Controllers
 {
-    [Route("api")]
-    public class TreatItemController : ControllerBase
+    public class RecipeDetailsService
     {
-        private readonly ILogger<TreatItemController> _logger;
+        private readonly ILogger<RecipeDetailsService> _logger;
         dbfactory db = new dbfactory();
-        public TreatItemController(ILogger<TreatItemController> logger)
+        public RecipeDetailsService(ILogger<RecipeDetailsService> logger)
         {
             _logger = logger;
         }
@@ -129,6 +128,7 @@ ON t_treatitem.MedicationDosageFormID=data_medicationdosageform.ID
 LEFT JOIN data_medicationpathway
 ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
 WHERE t_treatitem.TreatID=?p1
+AND t_treatitem.IsDeleted=0
 ", treatid);
         }
 
@@ -143,13 +143,11 @@ WHERE t_treatitem.TreatID=?p1
             JObject res = db.GetOne(@"
 SELECT 
 ID
-,PatientID
-,GenderID
+,MedicationName
 ,MedicationID
 ,MedicationFreqCategoryID
 ,MedicationDosageFormID
 ,MedicationPathwayID
-,ICDCode
 ,Type
 ,SingleDoseAmount
 ,SingleDoseUnit
@@ -166,8 +164,21 @@ ID
 ,DispenseTime
 ,Remarks
 FROM t_treatitem
-WHERE ID=?p1
-",id);
+WHERE ID=1
+AND IsDeleted=0
+", id);
+            var medication = new MedicationController(null);
+            res["medication"] = medication.GetMedicationInfo(res.ToInt("medicationid"));
+
+            var dosage = new MedicationDosageFormController(null);
+            res["dosage"] = dosage.GetDosageInfo(res.ToInt("medicationdosageformid"));
+
+            var freq = new MedicationFreqCategoryController(null);
+            res["freq"] = freq.GetFreqInfo(res.ToInt("medicationfreqcategoryid"));
+
+            var pathway = new MedicationPathwayController(null);
+            res["pathway"] = pathway.GetPathwayInfo(res.ToInt("medicationpathwayid"));
+
             return res;
         }
 
