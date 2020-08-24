@@ -326,12 +326,11 @@ AND IsDeleted=0
                     JObject itemReq = new JObject();
                     itemReq["id"] = 0;
                     itemReq["treatid"] = req.ToInt("id");
-                    itemReq["patientid"] = req.ToInt("patientid");
                     itemReq["medicationid"] = req.ToInt("medicationid");
                     itemReq["medicationpathwayid"] = req.ToInt("medicationpathwayid");
                     itemReq["medicationdosageformid"] = req.ToInt("medicationdosageformid");
                     itemReq["medicationfreqcategoryid"] = req.ToInt("medicationfreqcategoryid");
-                    var rows = itemControl.SetTreatItem(new JObject[] { itemReq }).Aggregate((sum, p) => sum += p);
+                    var rows = itemControl.SetTreatItem(new JObject[] { itemReq },HttpContext).Aggregate((sum, p) => sum += p);
                 }
                 else
                 {
@@ -357,12 +356,11 @@ AND IsDeleted=0
                 JObject itemReq = new JObject();
                 itemReq["id"] = 0;
                 itemReq["treatid"] = newId;
-                itemReq["patientid"] = req.ToInt("patientid");
                 itemReq["medicationid"] = req.ToInt("medicationid");
                 itemReq["medicationpathwayid"] = req.ToInt("medicationpathwayid");
                 itemReq["medicationdosageformid"] = req.ToInt("medicationdosageformid");
                 itemReq["medicationfreqcategoryid"] = req.ToInt("medicationfreqcategoryid");
-                var rows = itemControl.SetTreatItem(new JObject[] { itemReq }).Aggregate((sum, p) => sum += p);
+                var rows = itemControl.SetTreatItem(new JObject[] { itemReq },HttpContext).Aggregate((sum, p) => sum += p);
                
             }
 

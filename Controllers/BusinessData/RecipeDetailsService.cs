@@ -31,15 +31,15 @@ namespace health.Controllers
         /// <param name="personid">检索指定个人的id</param>
         /// <returns>JSON对象，包含相应的“用药记录明细”数组</returns>
         [NonAction]
-        public JArray GetPersonTreatItemList(int personid)
+        public JArray GetPersonRecipeDetails(int personid)
         {
             return db.GetArray(@"
 SELECT 
-t_treatitem.ID
+t_treat.ID
 ,PatientID AS PersonID
 ,t_patient.FamilyName AS PersonName
 ,t_patient.IDCardNO AS PersionIDCard
-,t_treatitem.GenderID
+,t_patient.GenderID
 ,data_gender.GenderName
 ,MedicationID
 ,t_medication.`Name` AS MedicationName
@@ -50,7 +50,6 @@ t_treatitem.ID
 ,data_medicationdosageform.`Name` AS DosageName
 ,MedicationPathwayID
 ,data_medicationpathway.`Name` AS PathwayName
-,ICDCode
 ,Type
 ,SingleDoseAmount
 ,SingleDoseUnit
@@ -67,10 +66,12 @@ t_treatitem.ID
 ,DispenseTime
 ,Remarks
 FROM t_treatitem
+LEFT JOIN t_treat
+ON t_treatitem.TreatID=t_treat.ID
 LEFT JOIN t_patient
-ON t_treatitem.PatientID=t_patient.ID
+ON t_treat.PatientID=t_patient.ID
 LEFT JOIN data_gender
-ON t_treatitem.GenderID=data_gender.ID
+ON t_patient.GenderID=data_gender.ID
 LEFT JOIN t_medication
 ON t_treatitem.MedicationID=t_medication.ID
 LEFT JOIN data_medicationfreqcategory
@@ -79,7 +80,7 @@ LEFT JOIN data_medicationdosageform
 ON t_treatitem.MedicationDosageFormID=data_medicationdosageform.ID
 LEFT JOIN data_medicationpathway
 ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
-WHERE t_treatitem.PatientID=?p1
+WHERE t_treat.PatientID=?p1
 ", personid);
         }
 
@@ -107,16 +108,6 @@ IFNULL(t_treatitem.ID,'') AS  ID
 ,IFNULL(SingleDoseAmount,'') AS SingleDoseAmount
 ,IFNULL(SingleDoseUnit,'') AS SingleDoseUnit
 ,IFNULL(TotalDoseAmount,'') AS TotalDoseAmount
-,IFNULL(Prescriber,'') AS Prescriber
-,IFNULL(PrescribeTime,'') AS PrescribeTime
-,IFNULL(ReviewPharmacist,'') AS ReviewPharmacist
-,IFNULL(ReviewTime,'') AS ReviewTime
-,IFNULL(AllocationPharmacist,'') AS AllocationPharmacist
-,IFNULL(AllocationTime,'') AS AllocationTime
-,IFNULL(VerifyPharmacist,'') AS VerifyPharmacist
-,IFNULL(VerifyTime,'') AS VerifyTime
-,IFNULL(DispensePharmacist,'') AS DispensePharmacist
-,IFNULL(DispenseTime,'') AS DispenseTime
 ,IFNULL(Remarks,'') AS Remarks
 FROM t_treatitem
 LEFT JOIN t_medication
@@ -152,19 +143,9 @@ ID
 ,SingleDoseAmount
 ,SingleDoseUnit
 ,TotalDoseAmount
-,Prescriber
-,PrescribeTime
-,ReviewPharmacist
-,ReviewTime
-,AllocationPharmacist
-,AllocationTime
-,VerifyPharmacist
-,VerifyTime
-,DispensePharmacist
-,DispenseTime
 ,Remarks
 FROM t_treatitem
-WHERE ID=1
+WHERE ID=?p1
 AND IsDeleted=0
 ", id);
             var medication = new MedicationController(null);
@@ -187,46 +168,51 @@ AND IsDeleted=0
         /// 更改“用药记录明细”信息。如果id=0新增，如果id>0修改。
         /// </summary>
         /// <param name="items">在请求body中JSON形式的“用药记录明细”信息</param>
+        /// <param name="httpContext">请求上下文对象</param>
         /// <returns>响应状态信息</returns>
         [NonAction]
-        public int[] SetTreatItem([FromBody] JObject[] items)
+        public int[] SetTreatItem([FromBody] JObject[] items,Microsoft.AspNetCore.Http.HttpContext httpContext)
         {
             int[] res = new int[items.Length];
             for (int i = 0; i < items.Length; i++)
             {
                 Dictionary<string, object> dict = new Dictionary<string, object>();
                 dict["TreatID"] = items[i]["treatid"]?.ToObject<int>();
-                dict["PatientID"] = items[i]["patientid"]?.ToObject<int>();
+                //dict["PatientID"] = items[i]["patientid"]?.ToObject<int>();
                 //dict["GenderID"] = items?[i]?["genderid"]?.ToObject<int>();
-                dict["MedicationFreqCategoryID"] = items[i]["medicationfreqcategoryid"]?.ToObject<int>();
-                dict["MedicationDosageFormID"] = items[i]["medicationdosageformid"]?.ToObject<int>();
-                dict["MedicationPathwayID"] = items[i]["medicationpathwayid"]?.ToObject<int>();
-                dict["MedicationID"] = items[i]["medicationid"]?.ToObject<int>();
-                dict["ICDCode"] = items[i]["icdcode"]?.ToObject<int>();
+                dict["MedicationFreqCategoryID"] = items[i].ToInt("medicationfreqcategoryid");
+                dict["MedicationDosageFormID"] = items[i].ToInt("medicationdosageformid");
+                dict["MedicationPathwayID"] = items[i].ToInt("medicationpathwayid");
+                dict["MedicationID"] = items[i].ToInt("medicationid");
+                //dict["ICDCode"] = items[i]["icdcode"]?.ToObject<int>();
                 dict["Type"] = items[i]["type"]?.ToObject<int>();
                 dict["SingleDoseAmount"] = items[i]["singledoseamount"]?.ToObject<int>();
-                dict["SingleDoseUnit"] = items[i]["singledoseunit"]?.ToObject<int>();
+                dict["SingleDoseUnit"] = items[i]["singledoseunit"]?.ToObject<string>();
                 dict["TotalDoseAmount"] = items[i]["totaldoseamount"]?.ToObject<int>();
-                dict["Prescriber"] = items[i]["prescriber"]?.ToObject<int>();
-                dict["PrescribeTime"] = items[i]["prescribetime"]?.ToObject<int>();
-                dict["ReviewPharmacist"] = items[i]["reviewpharmacist"]?.ToObject<int>();
-                dict["ReviewTime"] = items[i]["reviewtime"]?.ToObject<int>();
-                dict["AllocationPharmacist"] = items[i]["allocationpharmacist"]?.ToObject<int>();
-                dict["AllocationTime"] = items[i]["allocationtime"]?.ToObject<int>();
-                dict["VerifyPharmacist"] = items[i]["verifypharmacist"]?.ToObject<int>();
-                dict["VerifyTime"] = items[i]["verifytime"]?.ToObject<int>();
-                dict["DispensePharmacist"] = items[i]["dispensepharmacist"]?.ToObject<int>();
-                dict["DispenseTime"] = items[i]["dispensetime"]?.ToObject<int>();
+                //dict["Prescriber"] = items[i]["prescriber"]?.ToObject<int>();
+                //dict["PrescribeTime"] = items[i]["prescribetime"]?.ToObject<int>();
+                //dict["ReviewPharmacist"] = items[i]["reviewpharmacist"]?.ToObject<int>();
+                //dict["ReviewTime"] = items[i]["reviewtime"]?.ToObject<int>();
+                //dict["AllocationPharmacist"] = items[i]["allocationpharmacist"]?.ToObject<int>();
+                //dict["AllocationTime"] = items[i]["allocationtime"]?.ToObject<int>();
+                //dict["VerifyPharmacist"] = items[i]["verifypharmacist"]?.ToObject<int>();
+                //dict["VerifyTime"] = items[i]["verifytime"]?.ToObject<int>();
+                //dict["DispensePharmacist"] = items[i]["dispensepharmacist"]?.ToObject<int>();
+                //dict["DispenseTime"] = items[i]["dispensetime"]?.ToObject<int>();
                 dict["Remarks"] = items[i]["remarks"]?.ToObject<int>();
 
                 if (items[i]["id"]?.ToObject<int>() > 0)
                 {
                     Dictionary<string, object> keys = new Dictionary<string, object>();
                     keys["id"] = items[i]["id"].ToObject<int>();
+                    dict["LastUpdatedBy"] = StampUtil.Stamp(httpContext);
+                    dict["LastUpdatedTime"] = DateTime.Now;
                     res[i] = db.Update("t_treatitem", dict, keys);
                 }
                 else
                 {
+                    dict["CreatedBy"] = StampUtil.Stamp(httpContext);
+                    dict["CreatedTime"] = DateTime.Now;
                     res[i] = db.Insert("t_treatitem", dict);
                 }
             }

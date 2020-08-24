@@ -222,6 +222,7 @@ AND t_check.IsDeleted=0", id);
             dict["OrgnizationID"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             dict["ResultTypeID"] = req.ToInt("resulttypeid");
             dict["Result"] = req["result"]?.ToObject<string>();
+            // POST过来只有ID
             dict["Recommend"] = JsonConvert.SerializeObject(req["recommend"]); 
             dict["Chosen"] = JsonConvert.SerializeObject(req["chosen"]);
             dict["IsRexam"] = req["isreexam"]?.ToObject<int?>();
