@@ -89,10 +89,26 @@ namespace health.Controllers
         [NonAction]
         public JObject GetTreatOptionInfo(int? id)
         {
-            JObject res = db.GetOne("select id,Name text from data_treatmentoption where id=?p1 and IsDeleted=0", id);
+            JObject res = db.GetOne(@"
+select data_treatmentoption.id,Name text , ResultTypeID ,ResultName
+from data_treatmentoption 
+inner join data_detectionresulttype
+on data_treatmentoption.ResultTypeID = data_detectionresulttype.ID
+where data_treatmentoption.id=?p1 and data_treatmentoption.IsDeleted=0
+", id);
             return res;
         }
 
+        [NonAction]
+        public JArray GetTreatOptionInfoArray(int[] idArray)
+        {
+            JArray array = new JArray();
+            for (int i = 0; i < idArray.Length; i++)
+            {
+                array[i] = GetTreatOptionInfo(idArray[i]);
+            }
+            return array;
+        }
 
         [NonAction]
         public JArray GetTreatOptionInfoList(int? resultid)

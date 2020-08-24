@@ -171,15 +171,16 @@ AND t_check.IsDeleted=0", id);
 
 
             res["person"] = new PersonController(null, null)
-                .GetPersonInfo(res["patientid"]?.ToObject<int>()??0);
-            res["orgnization"] = new OrganizationController(null)
-                .GetOrgInfo(res["orgnizationid"]?.ToObject<int>()??0);
-            res["recommend"] = JsonConvert.DeserializeObject<JArray>(res["recommend"]?.ToObject<string>() ?? "");
-            res["chosen"] = JsonConvert.DeserializeObject<JObject>(res["chosen"]?.ToObject<string>() ?? ""); 
+                .GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
             res["result"] = new DetectionResultTypeController(null)
                 .GetResultTypeInfo(res["resulttypeid"]?.ToObject<int>() ?? 0);
+            res["orgnization"] = new OrganizationController(null).GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
             
-            
+            res["recommend"] = JsonConvert.DeserializeObject<JArray>(res["recommend"]?.ToObject<string>() ?? "");
+            res["chosen"] = JsonConvert.DeserializeObject<JObject>(res["chosen"]?.ToObject<string>() ?? "");
+
+
+
             var tmpPics = JsonConvert.DeserializeObject<JObject>(res["pics"]?.ToObject<string>() ?? "");
             res.Remove("pics");
             if (tmpPics?.HasValues == true)
@@ -216,15 +217,41 @@ AND t_check.IsDeleted=0", id);
         {
 
             JObject req=(JObject)request;
+            JObject res = new JObject();
 
             Dictionary<string, object> dict = new Dictionary<string, object>();
+
+            var strTreatArray = JsonConvert.SerializeObject(req["recommend"]);
+            int[] intTreatArray = JsonConvert.DeserializeObject<int[]>(strTreatArray);
+            TreatmentOptionController optionService = new TreatmentOptionController(null);
+            var objTreatArray = optionService.GetTreatOptionInfoArray(intTreatArray);
+            dict["Recommend"] = objTreatArray;
+
+
+            var intTreatId = req.ToInt("chosen");
+            if (!intTreatId.HasValue)
+            {
+                res["status"] = 201;
+                res["msg"] = "请重新提交个人用户选择方案编号";
+                return res;
+            }
+            if (!intTreatArray.Contains(intTreatId.Value))
+            {
+                res["status"] = 201;
+                res["msg"] = "请重新提交推荐方案编号和个人用户选择方案编号";
+                return res;
+            }
+            dict["Chosen"] = optionService.GetTreatOptionInfo(intTreatId);
+
+
+
             dict["PatientID"] = req.ToInt("patientid");
             dict["OrgnizationID"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             dict["ResultTypeID"] = req.ToInt("resulttypeid");
             dict["Result"] = req["result"]?.ToObject<string>();
-            // POST过来只有ID
-            dict["Recommend"] = JsonConvert.SerializeObject(req["recommend"]); 
-            dict["Chosen"] = JsonConvert.SerializeObject(req["chosen"]);
+            // POST过来只有ID数组
+            // [1,2,3]
+            
             dict["IsRexam"] = req["isreexam"]?.ToObject<int?>();
             dict["CType"] = req["checktype"]?.ToObject<string>();
             dict["CheckNO"] = req["detectionno"]?.ToObject<string>();
@@ -255,7 +282,7 @@ AND t_check.IsDeleted=0", id);
             //dict["Reference"] = req["reference"]?.ToObject<string>();
             // TODO: ADD CheckItem HERE
 
-            JObject res = new JObject();
+           
 
             if (req["id"]?.ToObject<int>() > 0)
             {
