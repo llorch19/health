@@ -90,7 +90,7 @@ namespace health.Controllers
         public JObject GetTreatOptionInfo(int? id)
         {
             JObject res = db.GetOne(@"
-select data_treatmentoption.id,Name text , ResultTypeID ,ResultName
+select data_treatmentoption.id,Name text ,ResultName
 from data_treatmentoption 
 inner join data_detectionresulttype
 on data_treatmentoption.ResultTypeID = data_detectionresulttype.ID
@@ -105,7 +105,11 @@ where data_treatmentoption.id=?p1 and data_treatmentoption.IsDeleted=0
             JArray array = new JArray();
             for (int i = 0; i < idArray.Length; i++)
             {
-                array[i] = GetTreatOptionInfo(idArray[i]);
+                var to = GetTreatOptionInfo(idArray[i]);
+                if (to.HasValues)
+                {
+                    array.Add(to);
+                }
             }
             return array;
         }

@@ -225,7 +225,7 @@ AND t_check.IsDeleted=0", id);
             int[] intTreatArray = JsonConvert.DeserializeObject<int[]>(strTreatArray);
             TreatmentOptionController optionService = new TreatmentOptionController(null);
             var objTreatArray = optionService.GetTreatOptionInfoArray(intTreatArray);
-            dict["Recommend"] = objTreatArray;
+            dict["Recommend"] = JsonConvert.SerializeObject(objTreatArray);
 
 
             var intTreatId = req.ToInt("chosen");
@@ -241,14 +241,13 @@ AND t_check.IsDeleted=0", id);
                 res["msg"] = "请重新提交推荐方案编号和个人用户选择方案编号";
                 return res;
             }
-            dict["Chosen"] = optionService.GetTreatOptionInfo(intTreatId);
+            dict["Chosen"] = JsonConvert.SerializeObject(optionService.GetTreatOptionInfo(intTreatId));
 
 
 
             dict["PatientID"] = req.ToInt("patientid");
             dict["OrgnizationID"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             dict["ResultTypeID"] = req.ToInt("resulttypeid");
-            dict["Result"] = req["result"]?.ToObject<string>();
             // POST过来只有ID数组
             // [1,2,3]
             
