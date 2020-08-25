@@ -360,7 +360,7 @@ AND t_vacc.IsDeleted=0
 
             if (req.ToInt("id")==0)
             {
-                // 新增人员生成邀请码
+                // 新增人员生成邀请码和档案号
                 dict["InviteCode"] = ShareCodeUtils.New();
                 dict["RegisterNO"] = idGenerator.CreateId();
             }
@@ -380,6 +380,24 @@ AND t_vacc.IsDeleted=0
             dict["ProvinceID"] = req.ToInt("provinceid");
             dict["CityID"] = req.ToInt("cityid");
             dict["CountyID"] = req.ToInt("countyid");
+            dict["TownAddr"] = req["townaddr"]?.ToObject<string>();
+            dict["VillageAddr"] = req["villageaddr"]?.ToObject<string>();
+            dict["HouseNumberAddr"] = req["housenumberaddr"]?.ToObject<string>();
+            dict["PostalCode"] = req["postalcode"]?.ToObject<string>();
+            dict["AreaCode"] = req["areacode"]?.ToObject<string>();
+            dict["DomicileType"] = req.ToInt("domiciletype");
+            dict["DomicileChosen"] = req["domicilechosen"]?.ToObject<string>();
+            dict["DomicileStandard"] = req["domicilestandard"]?.ToObject<string>();
+            dict["DomicileDetail"] = req["domiciledetail"]?.ToObject<string>();
+            dict["WorkUnitName"] = req["workunitname"]?.ToObject<string>();
+            dict["WorkUnitContact"] = req["workunitcontact"]?.ToObject<string>();
+            dict["Email"] = req["email"]?.ToObject<string>();
+            dict["GuardianName"] = req["guardianname"]?.ToObject<string>();
+            dict["GuardianContact"] = req["guardiancontact"]?.ToObject<string>();
+            dict["GuardianName"] = req["guardianname"]?.ToObject<string>();
+            dict["GuardianEmail"] = req["guardianemail"]?.ToObject<string>();
+
+
 
 
             return dict;
