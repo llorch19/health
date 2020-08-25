@@ -23,10 +23,16 @@ namespace health.Controllers
     public class ReadNoticeController : ControllerBase
     {
         private readonly ILogger<ReadNoticeController> _logger;
+        PersonController _person;
+        NoticeController _notice;
         dbfactory db = new dbfactory();
-        public ReadNoticeController(ILogger<ReadNoticeController> logger)
+        public ReadNoticeController(ILogger<ReadNoticeController> logger
+            ,PersonController person
+            ,NoticeController notice)
         {
             _logger = logger;
+            _person = person;
+            _notice = notice;
         }
 
         /// <summary>
@@ -149,15 +155,10 @@ and isdeleted=0
 ", notid, userid);
 
 
-            PersonController user = new PersonController(null, null);
-            res["user"] = user.GetUserInfo(res["userid"]?.ToObject<int>()??0);
+            res["user"] = _person.GetUserInfo(res["userid"]?.ToObject<int>()??0);
+            res["notice"] = _notice.Get(notid);
 
-            NoticeController notice = new NoticeController(null, null);
-            res["notice"] = notice.Get(notid);
-
-            res["status"] = 200;
-            res["msg"] = "获取数据成功";
-            return res;
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -170,11 +171,9 @@ and isdeleted=0
         [Route("Set[controller]")]
         public JObject Set([FromBody] JObject req)
         {
-            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
-            if (!canwrite)
-                return Response_201_write.GetResult();
-
+            // 只有自己可以修改自己的未读状态
+            var userid = HttpContext.GetIdentityInfo<int?>("id");
+            
             Dictionary<string, object> dict = new Dictionary<string, object>();
             //dict["noticeid"] = req.ToInt("noticeid");
             //dict["userid"] = req.ToInt("userid");
@@ -183,6 +182,9 @@ and isdeleted=0
 
             if (req["id"]?.ToObject<int>() > 0)
             {
+                // 只可更新已读，不可添加已读
+                var objReadNotice = db.GetOne(@"SELECT ID,NoticeID,UserID FROM t_noticeread WHERE NoticeID=?p1 AND UserID=?p2 AND IsDeleted=0");
+
                 Dictionary<string, object> condi = new Dictionary<string, object>();
                 condi["id"] = req["id"];
                 dict["LastUpdatedBy"] = StampUtil.Stamp(HttpContext);
@@ -190,17 +192,11 @@ and isdeleted=0
                 var tmp = this.db.Update("t_noticeread", dict, condi);
             }
             else
-            {
-                dict["CreatedBy"] = StampUtil.Stamp(HttpContext);
-                dict["CreatedTime"] = DateTime.Now;
-                this.db.Insert("t_noticeread", dict);
-            }
+                return Response_201_write.GetResult();
 
             JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "提交成功";
             res["id"] = req["id"];
-            return res;
+            return Response_200_write.GetResult(res);
         }
 
 
@@ -215,30 +211,21 @@ and isdeleted=0
         [Route("Del[controller]")]
         public JObject Del([FromBody] JObject req)
         {
-            JObject res = new JObject();
             var dict = new Dictionary<string, object>();
             dict["IsDeleted"] = 1;
             dict["IsActive"] = 0;
             dict["LastUpdatedBy"] = StampUtil.Stamp(HttpContext);
             dict["LastUpdatedTime"] = DateTime.Now;
             var keys = new Dictionary<string, object>();
-            JObject lookup = db.GetOne("SELECT ID FROM t_noticeread WHERE NoticeID=?p1 AND UserID=?p2 AND IsDeleted=0"
-                ,req.ToInt("id")
+            JObject lookup = db.GetOne("SELECT ID,NoticeID,UserID FROM t_noticeread WHERE NoticeID=?p1 AND UserID=?p2 AND IsDeleted=0"
+                , req.ToInt("id")
                 ,HttpContext.GetIdentityInfo<int?>("id"));
             keys["id"] = lookup.ToInt("id");
             var count = db.Update("t_noticeread", dict, keys);
             if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
+                return Response_200_write.GetResult();
             else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+                return Response_201_write.GetResult();
         }
     }
 }

@@ -21,11 +21,17 @@ namespace health.Controllers
     public class AppointController : AbstractBLLController
     {
         private readonly ILogger<AppointController> _logger;
+        OrganizationController _org;
+        PersonController _person;
         public override string TableName => "t_appoint";
 
-        public AppointController(ILogger<AppointController> logger)
+        public AppointController(ILogger<AppointController> logger
+            ,OrganizationController org
+            ,PersonController person)
         {
             _logger = logger;
+            _org = org;
+            _person = person;
         }
 
         /// <summary>
@@ -151,21 +157,13 @@ IFNULL(ID,'') AS ID
 FROM t_appoint
 WHERE ID=?p1
 AND t_appoint.IsDeleted=0", id);
-            if (res["id"] != null)
-            {
-                res["orgnization"] = new OrganizationController(null)
-                    .GetOrgInfo(res.ToInt("orgnizationid"));
-                res["person"] = new PersonController(null,null)
-                    .GetPersonInfo(res.ToInt("patientid"));
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "无法读取相应的数据";
-            }
-            return res;
+            var canread = res.Challenge(r=>r["id"]!=null);
+            if (!canread)
+                return Response_201_read.GetResult();
+
+            res["orgnization"] = _org.GetOrgInfo(res.ToInt("orgnizationid"));
+            res["person"] = _person.GetPersonInfo(res.ToInt("patientid"));
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -198,6 +196,10 @@ AND t_appoint.IsDeleted=0", id);
         [Route("DelAppoint")]
         public override JObject Del([FromBody] JObject req)
         {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
             return base.Del(req);
         }
 

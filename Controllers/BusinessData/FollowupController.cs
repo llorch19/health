@@ -159,6 +159,11 @@ AND t_followup.IsDeleted=0
         [Route("DelFollowup")]
         public override JObject Del([FromBody] JObject req)
         {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
+
             return base.Del(req);
         }
 

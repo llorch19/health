@@ -7,14 +7,11 @@
  * - GetOrgVaccList 应该和GetPeron["vacc"]字段一致     @xuedi      2020-07-22      15:20
  */
 using health.common;
-using health.Controllers.BaseData;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Asn1.X509;
-using System;
 using System.Collections.Generic;
-using util.mysql;
 
 namespace health.Controllers
 {
@@ -22,11 +19,26 @@ namespace health.Controllers
     public class VaccController : AbstractBLLController
     {
         private readonly ILogger<VaccController> _logger;
+        PersonController _person;
+        OrganizationController _org;
+        MedicationController _med;
+        MedicationDosageFormController _dosage;
+        MedicationPathwayController _pathway;
         public override string TableName => "t_vacc";
 
-        public VaccController(ILogger<VaccController> logger)
+        public VaccController(ILogger<VaccController> logger
+            ,PersonController person
+            ,OrganizationController org
+            ,MedicationController med
+            ,MedicationDosageFormController dosage
+            ,MedicationPathwayController pathway)
         {
             _logger = logger;
+            _person = person;
+            _org = org;
+            _med = med;
+            _dosage = dosage;
+            _pathway = pathway;
         }
 
         /// <summary>
@@ -169,23 +181,17 @@ ID
 FROM t_vacc
 WHERE ID=?p1
 and IsDeleted=0", id);
-            PersonController person = new PersonController(null,null);
-            res["person"] = person
-                .GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
-            res["org"] = new OrganizationController(null)
-                .GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
-            res["operator"] = person
-                .GetUserInfo(res["operationuserid"]?.ToObject<int>() ?? 0);
-            res["medication"] = new MedicationController(null)
-                .GetMedicationInfo(res["medicationid"]?.ToObject<int>() ?? 0);
-            res["dosage"] = new MedicationDosageFormController(null)
-                .GetDosageInfo(res["medicationdosageformid"]?.ToObject<int>() ?? 0);
-            res["pathway"] = new MedicationPathwayController(null)
-                .GetPathwayInfo(res["medicationpathwayid"]?.ToObject<int>() ?? 0);
+            if (!res.HasValues)
+                return Response_201_read.GetResult();
 
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            return res;
+            res["person"] = _person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
+            res["org"] = _org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
+            res["operator"] = _person.GetUserInfo(res["operationuserid"]?.ToObject<int>() ?? 0);
+            res["medication"] = _med.GetMedicationInfo(res["medicationid"]?.ToObject<int>() ?? 0);
+            res["dosage"] = _dosage.GetDosageInfo(res["medicationdosageformid"]?.ToObject<int>() ?? 0);
+            res["pathway"] = _pathway.GetPathwayInfo(res["medicationpathwayid"]?.ToObject<int>() ?? 0);
+
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -203,6 +209,7 @@ and IsDeleted=0", id);
             if (!canwrite)
                 return Response_201_write.GetResult();
 
+            req["orgnizationid"] = orgid;
             return base.Set(req);
         }
 
@@ -218,6 +225,11 @@ and IsDeleted=0", id);
         [Route("Del[controller]")]
         public override JObject Del([FromBody] JObject req)
         {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
+
             return base.Del(req);
         }
 

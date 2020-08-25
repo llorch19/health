@@ -10,9 +10,6 @@ using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509;
-using System;
 using System.Collections.Generic;
 using util.mysql;
 
@@ -22,11 +19,17 @@ namespace health.Controllers
     public class AttandentController : AbstractBLLController
     {
         private readonly ILogger<AttandentController> _logger;
+        OrganizationController _org;
+        PersonController _person;
         public override string TableName => "t_attandent";
 
-        public AttandentController(ILogger<AttandentController> logger)
+        public AttandentController(ILogger<AttandentController> logger
+            ,OrganizationController org
+            ,PersonController person)
         {
             _logger = logger;
+            _org = org;
+            _person = person;
         }
 
         /// <summary>
@@ -148,28 +151,16 @@ t_attandent
 WHERE ID=?p1
 AND t_attandent.IsDeleted=0", id);
 
-            if (res["id"]!=null)
-            {
-               
-                res["person"] = new PersonController(null,null)
-                               .GetPersonInfo(res["personid"].ToObject<int>());
-                OrganizationController org = new OrganizationController(null);
-                res["orgnization"] = org
-                    .GetOrgInfo(res["orgnizationid"].ToObject<int>());
-                res["srcorg"] = org
-                   .GetOrgInfo(res["srcorgid"].ToObject<int>());
-                res["desorg"] = org
-                   .GetOrgInfo(res["desorgid"].ToObject<int>());
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "无法读取相应的数据";
-            }
-           
-            return res;
+            var canread = res.Challenge(r=>r["id"]!=null);
+            if (canread)
+                return Response_201_read.GetResult();
+
+            res["person"] = _person.GetPersonInfo(res["personid"].ToObject<int>());
+            res["orgnization"] = _org.GetOrgInfo(res["orgnizationid"].ToObject<int>());
+            res["srcorg"] = _org.GetOrgInfo(res["srcorgid"].ToObject<int>());
+            res["desorg"] = _org.GetOrgInfo(res["desorgid"].ToObject<int>());
+
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -211,6 +202,11 @@ AND IsDeleted=0
         [Route("DelAttandent")]
         public override JObject Del([FromBody] JObject req)
         {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
+
             return base.Del(req);
         }
 

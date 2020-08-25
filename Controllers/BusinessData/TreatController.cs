@@ -103,9 +103,7 @@ ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
 AND t_treat.OrgnizationID=?p1
 WHERE t_treat.IsDeleted=0
 ", orgid);
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            return res;
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -170,9 +168,7 @@ ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
 AND t_treat.OrgnizationID=?p1
 WHERE t_treatitem.IsDeleted=0
 ", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            return res;
+            return Response_200_read.GetResult(res);
         }
 
         /// <summary>
@@ -237,9 +233,7 @@ ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
 AND t_treat.PatientID=?p1
 WHERE t_treatitem.IsDeleted=0
 ", personid );
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            return res;
+            return Response_200_read.GetResult(res);
         }
 
         /// <summary>
@@ -300,7 +294,7 @@ AND IsDeleted=0
                 return Response_201_write.GetResult();
 
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["OrgnizationID"] = req.ToInt("orgnizationid");
+            dict["OrgnizationID"] = orgid;
             dict["PatientID"] = req.ToInt("patientid");
             //dict["TreatName"] = req["treatname"]?.ToObject<string>();
             //dict["DiseaseCode"] = req["diseasecode"]?.ToObject<string>();

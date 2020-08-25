@@ -287,12 +287,7 @@ AND t_check.IsDeleted=0", id);
         public JObject DelCheck([FromBody] JObject req)
         {
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            var check = db.GetOne(@"
-SELECT ID,OrgnizationID
-FROM t_check 
-WHERE ID=?p1
-AND IsDeleted=0",req.ToInt("id"));
-            var canwrite = check.Challenge(o => o.ToInt("orgnizationid") == orgid);
+            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
             if (!canwrite)
                 return Response_201_write.GetResult();
 
@@ -324,34 +319,29 @@ AND IsDeleted=0",req.ToInt("id"));
          IFormFile[] files,
          CancellationToken cancellationToken)
         {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             JObject res = new JObject();
             config conf = new config();
             string uploadir = conf.GetValue("person:pics:upload");
             int countlimit = int.Parse(conf.GetValue("person:pics:filecount"));
             if (files.Length > countlimit)
-            {
-                res["status"] = 201;
-                res["msg"] = "最多允许上传 " + countlimit + " 个文件";
-                return res;
-            }
+                return Response_201_write.GetResult(null, "最多允许上传 " + countlimit + " 个文件");
+            
 
             long sizelimit = long.Parse(conf.GetValue("person:pics:filesize"));
             if (files
                 .Where(f => f.Length == 0 || f.Length > sizelimit)
                 .FirstOrDefault() != null)
-            {
-                res["status"] = 201;
-                res["msg"] = "文件大小介于0，" + sizelimit;
-                return res;
-            }
+                return Response_201_write.GetResult(null, "文件大小介于0，" + sizelimit);
+            
 
-            JObject check = db.GetOne(@"SELECT ID,ReportTime,Pics,IsActive FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
-            if (check["id"] == null || !((check["isactive"]?.ToObject<bool>() ?? false)))
-            {
-                res["status"] = 201;
-                res["msg"] = "无法上传";
-                return res;
-            }
+            JObject check = db.GetOne(@"SELECT ID,OrgnizationID,ReportTime,Pics,IsActive FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
+            var canwrite = check.Challenge(r =>
+                r["id"] != null
+                && (r["isactive"]?.ToObject<bool?>() ?? false)
+                && r.ToInt("orgnizationid") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult(null, "无法提交相应的数据");
 
             JObject objPICObject = new JObject();
             var bOk = files.Length > 0 && FileHelpers.CheckFiles(files, _permittedPictureExtensions, cancellationToken);
@@ -475,34 +465,29 @@ AND IsDeleted=0",req.ToInt("id"));
          IFormFile[] files,
          CancellationToken cancellationToken)
         {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             JObject res = new JObject();
             config conf = new config();
             string uploadir = conf.GetValue("person:pdf:upload");
             int countlimit = int.Parse(conf.GetValue("person:pdf:filecount"));
             if (files.Length > countlimit)
-            {
-                res["status"] = 201;
-                res["msg"] = "最多允许上传 " + countlimit + " 个文件";
-                return res;
-            }
+                return Response_201_write.GetResult(null, "最多允许上传 " + countlimit + " 个文件");
+            
 
             long sizelimit = long.Parse(conf.GetValue("person:pdf:filesize"));
             if (files
                 .Where(f => f.Length == 0 || f.Length > sizelimit)
                 .FirstOrDefault() != null)
-            {
-                res["status"] = 201;
-                res["msg"] = "文件大小介于0，" + sizelimit;
-                return res;
-            }
+                return Response_201_write.GetResult(null, "文件大小介于0，" + sizelimit);
 
-            JObject check = db.GetOne(@"SELECT ID,ReportTime,Pdf,IsActive FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
-            if (check["id"] == null || !((check["isactive"]?.ToObject<bool>() ?? false)))
-            {
-                res["status"] = 201;
-                res["msg"] = "记录已归档，无法上传";
-                return res;
-            }
+
+            JObject check = db.GetOne(@"SELECT ID,OrgnizationID,ReportTime,Pdf,IsActive FROM t_check WHERE ID=?p1 AND IsDeleted=0", checkid);
+            var canwrite = check.Challenge(r=> 
+                r["id"] != null
+                && (r["isactive"]?.ToObject<bool?>()??false)
+                && r.ToInt("orgnizationid")==orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult(null, "无法提交相应的数据");
 
             JObject objPDFObject = new JObject();
             var bOk = files.Length > 0 && FileHelpers.CheckFiles(files, new string[] { ".pdf" }, cancellationToken);
