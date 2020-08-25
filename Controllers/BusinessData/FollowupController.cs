@@ -6,6 +6,7 @@
  * Comments
  */
 using health.common;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -138,6 +139,11 @@ AND t_followup.IsDeleted=0
         [Route("SetFollowup")]
         public override JObject Set([FromBody] JObject req)
         {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
+
             return base.Set(req);
         }
 

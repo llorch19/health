@@ -198,6 +198,11 @@ and IsDeleted=0", id);
         [Route("Set[controller]")]
         public override JObject Set([FromBody] JObject req)
         {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
+
             return base.Set(req);
         }
 

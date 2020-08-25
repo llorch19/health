@@ -6,6 +6,7 @@
  * Comments
  */
 using health.common;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -66,18 +67,10 @@ LEFT JOIN t_patient
 ON t_appoint.PatientID=t_patient.ID
 WHERE t_appoint.OrgnizationID=?p1
 AND t_appoint.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
-            if (list.HasValues)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-                res["list"] = list;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "无法读取相应的数据";
-            }
-            return res;
+            
+               
+            res["list"] = list;
+            return Response_200_read.GetResult(res);
         }
 
         /// <summary>
@@ -120,18 +113,8 @@ LEFT JOIN t_patient
 ON t_appoint.PatientID=t_patient.ID
 WHERE t_appoint.PatientID=?p1
 AND t_appoint.IsDeleted=0", personid);
-            if (list.HasValues)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-                res["list"] = list;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "无法读取相应的数据";
-            }
-            return res;
+            res["list"] = list;
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -195,6 +178,11 @@ AND t_appoint.IsDeleted=0", id);
         [Route("SetAppoint")]
         public override JObject Set([FromBody] JObject req)
         {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
+
             return base.Set(req);
         }
 

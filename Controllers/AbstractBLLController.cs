@@ -8,6 +8,8 @@
  *
  */
 
+using health.common;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System;
@@ -33,6 +35,8 @@ namespace health.Controllers
 
         public virtual JObject Set(JObject req)
         {
+           
+
             JObject res = new JObject();
             var dict = GetReq(req);
 
@@ -46,8 +50,8 @@ namespace health.Controllers
 
                     dict.Clear();
                     dict["isactive"] = req.ToInt("isactive");
-                    this.db.Update(TableName, dict, activeonly);
-                    res["id"] = req["id"];
+                    var rc = this.db.Update(TableName, dict, activeonly);
+                    res["id"] = rc > 0 ? req["id"] : -1;
                 }
                 else
                 {
@@ -56,8 +60,8 @@ namespace health.Controllers
                     condi["IsDeleted"] = 0;  // 未删除才可以修改
                     dict["LastUpdatedBy"] = StampUtil.Stamp(HttpContext);
                     dict["LastUpdatedTime"] = DateTime.Now;
-                    var tmp = this.db.Update(TableName, dict, condi);
-                    res["id"] = req["id"];
+                    var rc = this.db.Update(TableName, dict, condi);
+                    res["id"] = rc > 0 ? req["id"] : -1;
                 }
             }
             else
@@ -68,11 +72,7 @@ namespace health.Controllers
                 dict["IsDeleted"] = 0;
                 res["id"] = this.db.Insert(TableName, dict);
             }
-
-            
-            res["status"] = 200;
-            res["msg"] = "提交成功";
-            return res;
+            return Response_200_write.GetResult(res);
         }
 
         public virtual JObject Del(JObject req)

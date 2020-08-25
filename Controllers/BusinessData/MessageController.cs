@@ -8,6 +8,7 @@
  */
 using health.common;
 using health.Controllers.BaseData;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -151,6 +152,11 @@ AND IsPublic=1
         [Route("SetMessage")]
         public override JObject Set([FromBody] JObject req)
         {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
+
             return base.Set(req);
         }
 

@@ -7,6 +7,7 @@
  * -GetUserCheckList 应该和GetPeron["check"]字段一致     @xuedi      2020-07-22      15:48
  */
 using health.common;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -30,13 +31,25 @@ namespace health.Controllers
     public class CheckController : ControllerBase
     {
         private readonly ILogger<CheckController> _logger;
+        PersonController _person;
+        OrganizationController _org;
+        DetectionResultTypeController _rtype;
+        TreatmentOptionController _toption;
+
         dbfactory db = new dbfactory();
-        const string spliter = "$$";
         string[] _permittedPictureExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
 
-        public CheckController(ILogger<CheckController> logger)
+        public CheckController(ILogger<CheckController> logger
+            ,PersonController person
+            ,OrganizationController org
+            ,DetectionResultTypeController rtype
+            ,TreatmentOptionController toption)
         {
             _logger = logger;
+            _person = person;
+            _org = org;
+            _rtype = rtype;
+            _toption = toption;
         }
 
         /// <summary>
@@ -82,9 +95,7 @@ WHERE t_check.OrgnizationID =?p1
 AND t_check.IsDeleted=0
 ", orgid);
 
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            return res;
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -130,10 +141,8 @@ ON t_check.ResultTypeID=data_detectionresulttype.ID
 WHERE t_check.PatientID =?p1
 AND t_check.IsDeleted=0
 ", personid);
-            res["status"] = 200;
-            res["msg"] = "读取成功";
 
-            return res;
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -170,11 +179,9 @@ WHERE ID=?p1
 AND t_check.IsDeleted=0", id);
 
 
-            res["person"] = new PersonController(null, null)
-                .GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
-            res["result"] = new DetectionResultTypeController(null)
-                .GetResultTypeInfo(res["resulttypeid"]?.ToObject<int>() ?? 0);
-            res["orgnization"] = new OrganizationController(null).GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
+            res["person"] = _person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
+            res["result"] = _rtype.GetResultTypeInfo(res["resulttypeid"]?.ToObject<int>() ?? 0);
+            res["orgnization"] = _org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
             
             res["recommend"] = JsonConvert.DeserializeObject<JArray>(res["recommend"]?.ToObject<string>() ?? "");
             res["chosen"] = JsonConvert.DeserializeObject<JObject>(res["chosen"]?.ToObject<string>() ?? "");
@@ -200,9 +207,7 @@ AND t_check.IsDeleted=0", id);
                 res["pdf"] = pdf;
             }
 
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            return res;
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -215,36 +220,27 @@ AND t_check.IsDeleted=0", id);
         [Route("SetCheck")]
         public JObject SetCheck([FromBody] dynamic request)
         {
-
-            JObject req=(JObject)request;
-            JObject res = new JObject();
-
+            JObject req = (JObject)request;
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
+           
             Dictionary<string, object> dict = new Dictionary<string, object>();
 
             var strTreatArray = JsonConvert.SerializeObject(req["recommend"]);
             int[] intTreatArray = JsonConvert.DeserializeObject<int[]>(strTreatArray);
-            TreatmentOptionController optionService = new TreatmentOptionController(null);
-            var objTreatArray = optionService.GetTreatOptionInfoArray(intTreatArray);
+            var objTreatArray = _toption.GetTreatOptionInfoArray(intTreatArray);
             dict["Recommend"] = JsonConvert.SerializeObject(objTreatArray);
 
 
             var intTreatId = req.ToInt("chosen");
             if (!intTreatId.HasValue)
-            {
-                res["status"] = 201;
-                res["msg"] = "请重新提交个人用户选择方案编号";
-                return res;
-            }
+                return Response_201_write.GetResult(null, "请重新提交个人用户选择方案编号");
             if (!intTreatArray.Contains(intTreatId.Value))
-            {
-                res["status"] = 201;
-                res["msg"] = "请重新提交推荐方案编号和个人用户选择方案编号";
-                return res;
-            }
-            dict["Chosen"] = JsonConvert.SerializeObject(optionService.GetTreatOptionInfo(intTreatId));
+                return Response_201_write.GetResult(null, "请重新提交推荐方案编号和个人用户选择方案编号");
 
-
-
+            dict["Chosen"] = JsonConvert.SerializeObject(_toption.GetTreatOptionInfo(intTreatId));
             dict["PatientID"] = req.ToInt("patientid");
             dict["OrgnizationID"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             dict["ResultTypeID"] = req.ToInt("resulttypeid");
@@ -260,29 +256,7 @@ AND t_check.IsDeleted=0", id);
             dict["OperTime"] = req["operationtime"]?.ToObject<DateTime?>();
             dict["ReportTime"] = req["reporttime"]?.ToObject<DateTime?>();
 
-            //dict["ClinicalNO"] = req["clinicalno"]?.ToObject<string>();
-            //dict["DepartmentName"] = req["departmentname"]?.ToObject<string>();
-            //dict["InpatientArea"] = req["inpatientarea"]?.ToObject<string>();
-            //dict["SickbedNO"] = req["sickbedno"]?.ToObject<string>();
-            //dict["SampleID"] = req["sampleid"]?.ToObject<string>();
-            //dict["SampleType"] = req["sampletype"]?.ToObject<string>();
-            //dict["SampleStatus"] = req["samplestatus"]?.ToObject<string>();
-            //dict["SubmitBy"] = req["submitby"]?.ToObject<string>();
-            //dict["SubmitTime"] = req.ToDateTime("submittime");
-            //dict["ObjectiveResult"] = req["objectiveresult"]?.ToObject<string>();
-            //dict["SubjectiveResult"] = req["subjectiveresult"]?.ToObject<string>();
-            //dict["Pics"] = req["pics"]?.ToObject<string>();
-            //dict["Pdf"] = req["pdf"]?.ToObject<string>();
-            //dict["DiagnoticsTypeID"] = req.ToInt("diagnoticstypeid");
-            //dict["DiagnoticsTime"] = req.ToDateTime("diagnoticstime");
-            //dict["DiagnoticsBy"] = req["diagnoticsby"]?.ToObject<string>();
-            //dict["ReportTime"] = req.ToDateTime("reporttime");
-            //dict["ReportBy"] = req["reportby"]?.ToObject<string>();
-            //dict["Reference"] = req["reference"]?.ToObject<string>();
-            // TODO: ADD CheckItem HERE
-
-           
-
+            JObject res = new JObject();
             if (req["id"]?.ToObject<int>() > 0)
             {
                 Dictionary<string, object> condi = new Dictionary<string, object>();
@@ -301,11 +275,7 @@ AND t_check.IsDeleted=0", id);
                 res["id"] = this.db.Insert("t_check", dict);
             }
 
-            
-            res["status"] = 200;
-            res["msg"] = "提交成功";
-            
-            return res;
+            return Response_200_write.GetResult(res);
         }
         /// <summary>
         /// 删除“检测”。
@@ -316,24 +286,25 @@ AND t_check.IsDeleted=0", id);
         [Route("DelCheck")]
         public JObject DelCheck([FromBody] JObject req)
         {
-            JObject res = new JObject();
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var check = db.GetOne(@"
+SELECT ID,OrgnizationID
+FROM t_check 
+WHERE ID=?p1
+AND IsDeleted=0",req.ToInt("id"));
+            var canwrite = check.Challenge(o => o.ToInt("orgnizationid") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
+
             var dict = new Dictionary<string, object>();
             dict["IsDeleted"] = 1;
             var keys = new Dictionary<string, object>();
             keys["id"] = req.ToInt("id");
             var count = db.Update("t_check", dict, keys);
             if (count > 0)
-            {
-                res["status"] = 200;
-                res["msg"] = "操作成功";
-                return res;
-            }
+                return Response_200_write.GetResult();
             else
-            {
-                res["status"] = 201;
-                res["msg"] = "操作失败";
-                return res;
-            }
+                return Response_201_write.GetResult();
         }
 
 
@@ -382,18 +353,18 @@ AND t_check.IsDeleted=0", id);
                 return res;
             }
 
-            JObject picsJObject = new JObject();
+            JObject objPICObject = new JObject();
             var bOk = files.Length > 0 && FileHelpers.CheckFiles(files, _permittedPictureExtensions, cancellationToken);
             string[] results = bOk? FileHelpers.UploadStorage(files,uploadir,cancellationToken):new string[0];
 
             for (int actionIndex = 0; actionIndex < results.Length; actionIndex++)
-                picsJObject[PicKeyGenFunc(checkid)(actionIndex.ToString())] = Path.GetFullPath(results[actionIndex]);
+                objPICObject[PicKeyGenFunc(checkid)(actionIndex.ToString())] = Path.GetFullPath(results[actionIndex]);
 
 
             if (results.Length > 0)
             {
                 Dictionary<string, object> dict = new Dictionary<string, object>();
-                dict["Pics"] = picsJObject.ToString();
+                dict["Pics"] = JsonConvert.SerializeObject(objPICObject);
                 dict["LastUpdatedBy"] = StampUtil.Stamp(this.HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 Dictionary<string, object> keys = new Dictionary<string, object>();
@@ -402,20 +373,15 @@ AND t_check.IsDeleted=0", id);
                 int row = db.Update("t_check", dict, keys);
 
                 if (row > 0 && !string.IsNullOrEmpty(check["pics"]?.ToObject<string>()))
-                    foreach (var oldfile in check["pics"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries))
+                    foreach (var oldfile in check["pics"]?.ToObject<Dictionary<string, string>>()?.Values)
                         if (System.IO.File.Exists(oldfile))
                             System.IO.File.Delete(oldfile);
 
                 res = GetPicsList(checkid);
-                res["msg"] = "上传成功";
+                return Response_200_write.GetResult(res,"上传成功");
             }
             else
-            {
-                res["status"] = 201;
-                res["msg"] = "上传失败";
-            }
-
-            return res;
+                return Response_201_write.GetResult(null,"上传失败，请重试");
         }
 
 
@@ -451,11 +417,11 @@ AND t_check.IsDeleted=0", id);
             var pics = JsonConvert.DeserializeObject<Dictionary<string, string>>(
                 check["pics"]?.ToObject<string>()??"");
             if (pics?.Keys == null)
-                return NoContent();
+                return Ok(Response_201_read.GetResult());
 
             string filepath = pics?.ToArray()?.FirstOrDefault(pic=>pic.Key==index.ToString()).Value;
             if (string.IsNullOrEmpty(filepath))
-                return NoContent();
+                return Ok(Response_201_read.GetResult());
 
             string mimeType = FileHelpers.mimetype[Path.GetExtension(filepath)];
             var stream = new FileStream(filepath, FileMode.Open);
@@ -488,9 +454,7 @@ AND t_check.IsDeleted=0", id);
 
             JObject res = new JObject();
             res["list"] = array;
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            return res;
+            return Response_200_read.GetResult(res);
         }
 
         #endregion
@@ -536,21 +500,21 @@ AND t_check.IsDeleted=0", id);
             if (check["id"] == null || !((check["isactive"]?.ToObject<bool>() ?? false)))
             {
                 res["status"] = 201;
-                res["msg"] = "无法上传";
+                res["msg"] = "记录已归档，无法上传";
                 return res;
             }
 
-            JObject picsJObject = new JObject();
+            JObject objPDFObject = new JObject();
             var bOk = files.Length > 0 && FileHelpers.CheckFiles(files, new string[] { ".pdf" }, cancellationToken);
             string[] results = bOk ? FileHelpers.UploadStorage(files, uploadir, cancellationToken) : new string[0];
 
             for (int actionIndex = 0; actionIndex < results.Length; actionIndex++)
-                picsJObject[PDFKeyGenFunc(checkid)(actionIndex.ToString())] = Path.GetFullPath(results[actionIndex]);
+                objPDFObject[PDFKeyGenFunc(checkid)(actionIndex.ToString())] = Path.GetFullPath(results[actionIndex]);
 
             if (results.Length > 0)
             {
                 Dictionary<string, object> dict = new Dictionary<string, object>();
-                dict["Pdf"] = picsJObject.ToString();
+                dict["Pdf"] = JsonConvert.SerializeObject(objPDFObject);
                 dict["LastUpdatedBy"] = StampUtil.Stamp(this.HttpContext);
                 dict["LastUpdatedTime"] = DateTime.Now;
                 Dictionary<string, object> keys = new Dictionary<string, object>();
@@ -559,22 +523,15 @@ AND t_check.IsDeleted=0", id);
                 int row = db.Update("t_check", dict, keys);
 
                 if (row > 0 && !string.IsNullOrEmpty(check["pdf"]?.ToObject<string>()))
-                    foreach (var oldfile in check["pdf"]?.ToObject<string>()?.Split(spliter, StringSplitOptions.RemoveEmptyEntries))
+                    foreach (var oldfile in check["pdf"]?.ToObject<Dictionary<string, string>>()?.Values)
                         if (System.IO.File.Exists(oldfile))
                             System.IO.File.Delete(oldfile);
 
                 res = GetPDFList(checkid);
-                res["msg"] = "上传成功";
-                res["status"] = 200;
-                
+                return Response_200_write.GetResult(res, "上传成功");
             }
             else
-            {
-                res["status"] = 201;
-                res["msg"] = "上传失败";
-            }
-
-            return res;
+                return Response_201_write.GetResult(null,"上传失败，请重试");
         }
 
 

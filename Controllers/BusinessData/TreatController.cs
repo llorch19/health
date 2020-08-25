@@ -8,6 +8,7 @@
  * - 新增“治疗用药记录”     @xuedi      2020-07-22      16:30
   */
 using health.common;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -24,11 +25,20 @@ namespace health.Controllers
     public class TreatController : AbstractBLLController
     {
         private readonly ILogger<TreatController> _logger;
+        TreatItemController _items;
+        OrganizationController _org;
+        PersonController _person;
         public override string TableName => "t_treat";
 
-        public TreatController(ILogger<TreatController> logger)
+        public TreatController(ILogger<TreatController> logger
+            ,TreatItemController items
+            ,OrganizationController org
+            ,PersonController person)
         {
             _logger = logger;
+            _items = items;
+            _org = org;
+            _person = person;
         }
 
         /// <summary>
@@ -262,24 +272,16 @@ FROM t_treat
 WHERE ID=?p1
 AND IsDeleted=0
 ", id);
-            if (res["id"]==null)
-            {
-                res["status"] = 201;
-                res["msg"] = "无法获取相应的数据";
-            }
-            else
-            {
-                OrganizationController org = new OrganizationController(null);
-                res["orgnization"] = org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
-                PersonController person = new PersonController(null, null);
-                res["person"] = person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
-                RecipeDetailsService items = new RecipeDetailsService(null);
-                res["items"] = items.GetTreatItemList(res["id"].ToObject<int>());
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-            }
 
-            return res;
+            var canread = res.Challenge(r=>r["id"]!=null);
+
+            if (!canread)
+                return Response_201_read.GetResult();
+
+            res["orgnization"] = _org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
+            res["person"] = _person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
+            res["items"] = _items.GetTreatItemList(res["id"].ToObject<int>());
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -292,6 +294,11 @@ AND IsDeleted=0
         [Route("Set[controller]")]
         public override JObject Set([FromBody] JObject req)
         {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
+
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["OrgnizationID"] = req.ToInt("orgnizationid");
             dict["PatientID"] = req.ToInt("patientid");
@@ -308,7 +315,6 @@ AND IsDeleted=0
             //dict["CompleteTime"] = req.ToDateTime("completetime");
             // TODO: 在这里添加add item逻辑
 
-            RecipeDetailsService itemControl = new RecipeDetailsService(null);
             JObject res = new JObject();
 
             if (req["id"]?.ToObject<int>() > 0)
@@ -319,7 +325,7 @@ AND IsDeleted=0
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update("t_treat", dict, condi);
 
-                JArray list = itemControl.GetTreatItemList(req["id"].ToObject<int>());
+                JArray list = _items.GetTreatItemList(req["id"].ToObject<int>());
                 var item = list.FirstOrDefault();
                 if (item==null)
                 {
@@ -330,7 +336,7 @@ AND IsDeleted=0
                     itemReq["medicationpathwayid"] = req.ToInt("medicationpathwayid");
                     itemReq["medicationdosageformid"] = req.ToInt("medicationdosageformid");
                     itemReq["medicationfreqcategoryid"] = req.ToInt("medicationfreqcategoryid");
-                    var rows = itemControl.SetTreatItem(new JObject[] { itemReq },HttpContext).Aggregate((sum, p) => sum += p);
+                    var rows = _items.SetTreatItem(new JObject[] { itemReq },HttpContext).Aggregate((sum, p) => sum += p);
                 }
                 else
                 {
@@ -360,7 +366,7 @@ AND IsDeleted=0
                 itemReq["medicationpathwayid"] = req.ToInt("medicationpathwayid");
                 itemReq["medicationdosageformid"] = req.ToInt("medicationdosageformid");
                 itemReq["medicationfreqcategoryid"] = req.ToInt("medicationfreqcategoryid");
-                var rows = itemControl.SetTreatItem(new JObject[] { itemReq },HttpContext).Aggregate((sum, p) => sum += p);
+                var rows = _items.SetTreatItem(new JObject[] { itemReq },HttpContext).Aggregate((sum, p) => sum += p);
                
             }
 

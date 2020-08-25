@@ -51,30 +51,9 @@ namespace health
             return null;
         }
 
-        public static JObject J200(JObject res=null)
+        public static bool Challenge(this JObject jobj, Func<JObject, bool> func)
         {
-            if (res==null)
-            {
-                res = new JObject();
-            }
-
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-
-            return res;
-        }
-
-        public static JObject J201(JObject res = null,string msg="无法获取相应的数据")
-        {
-            if (res == null)
-            {
-                res = new JObject();
-            }
-
-            res["status"] = 201;
-            res["msg"] = msg;
-
-            return res;
+            return func(jobj);
         }
     }
 }

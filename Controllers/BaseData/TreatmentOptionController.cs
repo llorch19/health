@@ -1,3 +1,4 @@
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -29,13 +30,8 @@ namespace health.Controllers
         public override JObject GetList()
         {
             JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-
-            JArray rows = db.GetArray("select ID,Name,Introduction,IsActive from data_treatmentoption where  IsDeleted=0");
-
-            res["list"] = rows;
-            return res;
+            res["list"] = db.GetArray("select ID,Name,Introduction,IsActive from data_treatmentoption where  IsDeleted=0");
+            return Response_200_read.GetResult(res);
         }
 
         /// <summary>
@@ -47,20 +43,12 @@ namespace health.Controllers
         [Route("GetTreatmentOption")]
         public override JObject Get(int id)
         {
-            //int id = 0;
-            //int.TryParse(HttpContext.Request.Query["id"],out id);
-            JObject res = db.GetOne("select ID,Name,Introduction,IsActive from data_treatmentoption where id=?p1 and IsDeleted=0", id);
-            if (res["id"] != null)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-            }
+            JObject res = db.GetOne("select ID,Name,ResultTypeID,Introduction,IsActive from data_treatmentoption where id=?p1 and IsDeleted=0", id);
+            var canread = res.Challenge(r=>r["id"]!=null);
+            if (!canread)
+                return Response_201_read.GetResult();
             else
-            {
-                res["status"] = 201;
-                res["msg"] = "查询不到对应的数据";
-            }
-            return res;
+                return Response_200_read.GetResult(res);
         }
 
         /// <summary>

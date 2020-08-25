@@ -16,17 +16,29 @@ using util.mysql;
 
 namespace health.Controllers
 {
-    public class RecipeDetailsService
+    public class TreatItemController
     {
-        private readonly ILogger<RecipeDetailsService> _logger;
+        private readonly ILogger<TreatItemController> _logger;
+        MedicationController _medication;
+        MedicationDosageFormController _dosage;
+        MedicationFreqCategoryController _freq;
+        MedicationPathwayController _pathway;
         dbfactory db = new dbfactory();
-        public RecipeDetailsService(ILogger<RecipeDetailsService> logger)
+        public TreatItemController(ILogger<TreatItemController> logger
+            ,MedicationController medication
+            ,MedicationDosageFormController dosage
+            ,MedicationFreqCategoryController freq
+            ,MedicationPathwayController pathway)
         {
             _logger = logger;
+            _medication=medication;
+            _dosage=dosage;
+            _freq=freq;
+            _pathway=pathway;
         }
 
         /// <summary>
-        /// 获取个人的“用药记录明细”历史
+        /// 获取个人的“处方明细”历史
         /// </summary>
         /// <param name="personid">检索指定个人的id</param>
         /// <returns>JSON对象，包含相应的“用药记录明细”数组</returns>
@@ -85,7 +97,7 @@ WHERE t_treat.PatientID=?p1
         }
 
         /// <summary>
-        /// 获取关联的“用药记录明细”历史
+        /// 获取关联的“处方明细”历史
         /// </summary>
         /// <param name="treatid">检索指定个人的id</param>
         /// <returns>JSON对象，包含相应的“用药记录明细”数组</returns>
@@ -124,7 +136,7 @@ AND t_treatitem.IsDeleted=0
         }
 
         /// <summary>
-        /// 获取“用药记录明细”信息
+        /// 获取“处方明细”信息
         /// </summary>
         /// <param name="id">指定的id</param>
         /// <returns>JSON对象，包含相应的“用药记录明细”信息</returns>
@@ -148,24 +160,17 @@ FROM t_treatitem
 WHERE ID=?p1
 AND IsDeleted=0
 ", id);
-            var medication = new MedicationController(null);
-            res["medication"] = medication.GetMedicationInfo(res.ToInt("medicationid"));
-
-            var dosage = new MedicationDosageFormController(null);
-            res["dosage"] = dosage.GetDosageInfo(res.ToInt("medicationdosageformid"));
-
-            var freq = new MedicationFreqCategoryController(null);
-            res["freq"] = freq.GetFreqInfo(res.ToInt("medicationfreqcategoryid"));
-
-            var pathway = new MedicationPathwayController(null);
-            res["pathway"] = pathway.GetPathwayInfo(res.ToInt("medicationpathwayid"));
+            res["medication"] = _medication.GetMedicationInfo(res.ToInt("medicationid"));
+            res["dosage"] = _dosage.GetDosageInfo(res.ToInt("medicationdosageformid"));
+            res["freq"] = _freq.GetFreqInfo(res.ToInt("medicationfreqcategoryid"));
+            res["pathway"] = _pathway.GetPathwayInfo(res.ToInt("medicationpathwayid"));
 
             return res;
         }
 
 
         /// <summary>
-        /// 更改“用药记录明细”信息。如果id=0新增，如果id>0修改。
+        /// 更改“处方明细”信息。如果id=0新增，如果id>0修改。
         /// </summary>
         /// <param name="items">在请求body中JSON形式的“用药记录明细”信息</param>
         /// <param name="httpContext">请求上下文对象</param>
@@ -178,27 +183,14 @@ AND IsDeleted=0
             {
                 Dictionary<string, object> dict = new Dictionary<string, object>();
                 dict["TreatID"] = items[i]["treatid"]?.ToObject<int>();
-                //dict["PatientID"] = items[i]["patientid"]?.ToObject<int>();
-                //dict["GenderID"] = items?[i]?["genderid"]?.ToObject<int>();
                 dict["MedicationFreqCategoryID"] = items[i].ToInt("medicationfreqcategoryid");
                 dict["MedicationDosageFormID"] = items[i].ToInt("medicationdosageformid");
                 dict["MedicationPathwayID"] = items[i].ToInt("medicationpathwayid");
                 dict["MedicationID"] = items[i].ToInt("medicationid");
-                //dict["ICDCode"] = items[i]["icdcode"]?.ToObject<int>();
                 dict["Type"] = items[i]["type"]?.ToObject<int>();
                 dict["SingleDoseAmount"] = items[i]["singledoseamount"]?.ToObject<int>();
                 dict["SingleDoseUnit"] = items[i]["singledoseunit"]?.ToObject<string>();
                 dict["TotalDoseAmount"] = items[i]["totaldoseamount"]?.ToObject<int>();
-                //dict["Prescriber"] = items[i]["prescriber"]?.ToObject<int>();
-                //dict["PrescribeTime"] = items[i]["prescribetime"]?.ToObject<int>();
-                //dict["ReviewPharmacist"] = items[i]["reviewpharmacist"]?.ToObject<int>();
-                //dict["ReviewTime"] = items[i]["reviewtime"]?.ToObject<int>();
-                //dict["AllocationPharmacist"] = items[i]["allocationpharmacist"]?.ToObject<int>();
-                //dict["AllocationTime"] = items[i]["allocationtime"]?.ToObject<int>();
-                //dict["VerifyPharmacist"] = items[i]["verifypharmacist"]?.ToObject<int>();
-                //dict["VerifyTime"] = items[i]["verifytime"]?.ToObject<int>();
-                //dict["DispensePharmacist"] = items[i]["dispensepharmacist"]?.ToObject<int>();
-                //dict["DispenseTime"] = items[i]["dispensetime"]?.ToObject<int>();
                 dict["Remarks"] = items[i]["remarks"]?.ToObject<int>();
 
                 if (items[i]["id"]?.ToObject<int>() > 0)
@@ -207,7 +199,8 @@ AND IsDeleted=0
                     keys["id"] = items[i]["id"].ToObject<int>();
                     dict["LastUpdatedBy"] = StampUtil.Stamp(httpContext);
                     dict["LastUpdatedTime"] = DateTime.Now;
-                    res[i] = db.Update("t_treatitem", dict, keys);
+                    var rc = db.Update("t_treatitem", dict, keys);
+                    res[i] = rc > 0 ? items[i]["id"].ToObject<int>() : -1;
                 }
                 else
                 {
@@ -224,7 +217,7 @@ AND IsDeleted=0
 
 
         /// <summary>
-        /// 删除“用药记录明细”。
+        /// 删除“处方明细”。
         /// </summary>
         /// <param name="req">在请求body中JSON形式的“用药记录明细”信息</param>
         /// <returns>响应状态信息</returns>

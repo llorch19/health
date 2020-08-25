@@ -7,6 +7,7 @@
  * - ReadMessage 只针对个人用户    @xuedi      2020-07-23      10:50
  */
 using health.common;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -169,6 +170,11 @@ and isdeleted=0
         [Route("Set[controller]")]
         public JObject Set([FromBody] JObject req)
         {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
+
             Dictionary<string, object> dict = new Dictionary<string, object>();
             //dict["noticeid"] = req.ToInt("noticeid");
             //dict["userid"] = req.ToInt("userid");

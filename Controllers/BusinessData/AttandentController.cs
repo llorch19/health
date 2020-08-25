@@ -6,6 +6,7 @@
  * Comments
  */
 using health.common;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -68,9 +69,7 @@ LEFT JOIN t_orgnization des
 ON t_attandent.DesOrgID=des.id
 WHERE t_attandent.OrgnizationID=?p1
 AND t_attandent.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            return res;
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -115,9 +114,7 @@ LEFT JOIN t_orgnization des
 ON t_attandent.DesOrgID=des.id
 WHERE t_attandent.PatientID=?p1
 AND t_attandent.IsDeleted=0", personid);
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            return res;
+            return Response_200_read.GetResult(res);
         }
 
         /// <summary>
@@ -192,10 +189,13 @@ WHERE ID=?p1
 AND IsActive=1
 AND IsDeleted=0
 ",req.ToInt("id"));
-            if (attand["id"]!=null)
-            {
-                // 存在只更新
-            }
+
+
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
+
             return base.Set(req);
         }
 
