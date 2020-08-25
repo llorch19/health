@@ -47,7 +47,7 @@ namespace health
                 options.ModelValidatorProviders.Clear();
                 options.ModelValidatorProviders.Add(new ZFModelValidatorProvider());
             }
-            ).AddNewtonsoftJson();
+            ).AddNewtonsoftJson().AddControllersAsServices();
             
 
             #region Auth 
