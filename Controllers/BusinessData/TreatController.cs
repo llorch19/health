@@ -69,7 +69,7 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(Tstatus,'') AS Tstatus
 ,IFNULL(t_treat.Prescriber,'') AS Prescriber
 ,IFNULL(t_treat.PrescribeTime,'') AS PrescribeTime
-,IFNULL(t_treat.PrescribeDepartment,'') AS PrescribeDepartment
+,IFNULL(t_treat.Department,'') AS PrescribeDepartment
 ,IFNULL(t_treat.IsCancel,'') AS IsCancel
 ,IFNULL(t_treat.CancelTime,'') AS CancelTime
 ,IFNULL(t_treat.CompleteTime,'') AS CompleteTime
@@ -134,7 +134,7 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(Tstatus,'') AS Tstatus
 ,IFNULL(t_treat.Prescriber,'') AS Prescriber
 ,IFNULL(t_treat.PrescribeTime,'') AS PrescribeTime
-,IFNULL(t_treat.PrescribeDepartment,'') AS PrescribeDepartment
+,IFNULL(t_treat.Department,'') AS PrescribeDepartment
 ,IFNULL(t_treat.IsCancel,'') AS IsCancel
 ,IFNULL(t_treat.CancelTime,'') AS CancelTime
 ,IFNULL(t_treat.CompleteTime,'') AS CompleteTime
@@ -199,7 +199,7 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(Tstatus,'') AS Tstatus
 ,IFNULL(t_treat.Prescriber,'') AS Prescriber
 ,IFNULL(t_treat.PrescribeTime,'') AS PrescribeTime
-,IFNULL(t_treat.PrescribeDepartment,'') AS PrescribeDepartment
+,IFNULL(t_treat.Department,'') AS PrescribeDepartment
 ,IFNULL(t_treat.IsCancel,'') AS IsCancel
 ,IFNULL(t_treat.CancelTime,'') AS CancelTime
 ,IFNULL(t_treat.CompleteTime,'') AS CompleteTime
@@ -288,26 +288,14 @@ AND IsDeleted=0
         [Route("Set[controller]")]
         public override JObject Set([FromBody] JObject req)
         {
+            // 只能填写本组织的处方
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
             if (!canwrite)
                 return Response_201_write.GetResult();
 
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["OrgnizationID"] = orgid;
-            dict["PatientID"] = req.ToInt("patientid");
-            //dict["TreatName"] = req["treatname"]?.ToObject<string>();
-            //dict["DiseaseCode"] = req["diseasecode"]?.ToObject<string>();
-            //dict["PrescriptionCode"] = req["prescriptioncode"]?.ToObject<string>();
-            //dict["DrugGroupNumber"] = req.ToInt("druggroupnumber");
-            //dict["Tstatus"] = req["tstatus"]?.ToObject<string>();
-            //dict["Prescriber"] = req.ToInt("prescriber");
-            //dict["PrescribeTime"] = req.ToDateTime("prescribetime");
-            //dict["PrescribeDepartment"] = req["prescribedepartment"]?.ToObject<string>();
-            //dict["IsCancel"] = req.ToInt("iscancel");
-            //dict["CancelTime"] = req["canceltime"]?.ToObject<DateTime>();
-            //dict["CompleteTime"] = req.ToDateTime("completetime");
-            // TODO: 在这里添加add item逻辑
+            Dictionary<string, object> dict =GetReq(req);
+           
 
             JObject res = new JObject();
 
@@ -383,12 +371,33 @@ AND IsDeleted=0
         [Route("Del[controller]")]
         public override JObject Del([FromBody] JObject req)
         {
+            // 只能删除本组织的处方
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
+
             return base.Del(req);
         }
 
         public override Dictionary<string, object> GetReq(JObject req)
         {
-            throw new NotImplementedException();
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["OrgnizationID"] = req.ToInt("orgnizationid");
+            dict["PatientID"] = req.ToInt("patientid");
+            dict["TreatName"] = req["treatname"]?.ToObject<string>();
+            dict["DiseaseCode"] = req["diseasecode"]?.ToObject<string>();
+            dict["PrescriptionCode"] = req["prescriptioncode"]?.ToObject<string>();
+            dict["DrugGroupNumber"] = req.ToInt("druggroupnumber");
+            dict["Tstatus"] = req["tstatus"]?.ToObject<string>();
+            dict["Prescriber"] = req.ToInt("prescriber");
+            dict["PrescribeTime"] = req.ToDateTime("prescribetime");
+            dict["PrescribeDepartment"] = req["prescribedepartment"]?.ToObject<string>();
+            dict["IsCancel"] = req.ToInt("iscancel");
+            dict["CancelTime"] = req.ToDateTime("canceltime");
+            dict["CompleteTime"] = req.ToDateTime("completetime");
+
+            return dict;
         }
     }
 }

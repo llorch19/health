@@ -30,13 +30,29 @@ namespace health.Controllers
     public class CheckControllerObs : ControllerBase
     {
         private readonly ILogger<CheckControllerObs> _logger;
+        PersonController _person;
+        OrganizationController _org;
+        TreatmentOptionController _toption;
+        GenderController _gender;
+        DetectionResultTypeController _rtype;
+
         dbfactory db = new dbfactory();
         const string spliter = "$$";
         string[] _permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
 
-        public CheckControllerObs(ILogger<CheckControllerObs> logger)
+        public CheckControllerObs(ILogger<CheckControllerObs> logger
+            ,PersonController person
+            ,OrganizationController org
+            ,TreatmentOptionController toption
+            ,GenderController gender
+            ,DetectionResultTypeController rtype)
         {
             _logger = logger;
+            _person = person;
+            _org = org;
+            _toption = toption;
+            _gender = gender;
+            _rtype = rtype;
         }
 
         /// <summary>
@@ -222,19 +238,12 @@ FROM
 t_detectionrecord
 WHERE ID=?p1
 AND t_detectionrecord.IsDeleted=0", id);
-            res["person"] = new PersonController(null, null)
-                .GetPersonInfo(res["patientid"]?.ToObject<int>()??0);
-            res["orgnization"] = new OrganizationController(null)
-                .GetOrgInfo(res["orgnizationid"]?.ToObject<int>()??0);
-            res["recommend"] = new TreatmentOptionController(null)
-                .GetTreatOptionInfo(res["recommendedtreatid"]?.ToObject<int>() ?? 0);
-            res["chosen"] = new TreatmentOptionController(null)
-                .GetTreatOptionInfo(res["chosentreatid"]?.ToObject<int>() ?? 0);
-            res["gender"] = new GenderController(null)
-                .GetGenderInfo(res["genderid"]?.ToObject<int>() ?? 0);
-            res["result"] = new DetectionResultTypeController(null)
-                .GetResultTypeInfo(res["diagnoticstypeid"]?.ToObject<int>() ?? 0);
-            res["items"] = GetCheckItems(res["id"]?.ToObject<int>() ?? 0);
+            res["person"] = _person.GetPersonInfo(res.ToInt("patientid"));
+            res["orgnization"] = _org.GetOrgInfo(res.ToInt("orgnizationid"));
+            res["recommend"] = _toption.GetTreatOptionInfo(res.ToInt("recommendedtreatid"));
+            res["chosen"] = _toption.GetTreatOptionInfo(res.ToInt("chosentreatid"));
+            res["gender"] = _gender.GetGenderInfo(res.ToInt("genderid"));
+            res["result"] = _rtype.GetResultTypeInfo(res.ToInt("diagnoticstypeid"));
             res["status"] = 200;
             res["msg"] = "读取成功";
             return res;
@@ -344,7 +353,7 @@ AND t_detectionrecord.IsDeleted=0", id);
 
 
         [NonAction]
-        public JArray GetCheckItems(int checkid)
+        public JArray GetCheckItems(int? checkid)
         {
             JArray res= db.GetArray(@"
 SELECT 

@@ -14,11 +14,14 @@ namespace health.Controllers
     {
 
         private readonly ILogger<TreatmentOptionController> _logger;
+        DetectionResultTypeController _rtype;
         public override string TableName => "data_treatmentoption";
 
-        public TreatmentOptionController(ILogger<TreatmentOptionController> logger)
+        public TreatmentOptionController(ILogger<TreatmentOptionController> logger
+            , DetectionResultTypeController rtype)
         {
             _logger = logger;
+            _rtype = rtype;
         }
 
         /// <summary>
@@ -30,7 +33,19 @@ namespace health.Controllers
         public override JObject GetList()
         {
             JObject res = new JObject();
-            res["list"] = db.GetArray("select ID,Name,Introduction,IsActive from data_treatmentoption where  IsDeleted=0");
+            res["list"] = db.GetArray(@"
+SELECT 
+data_treatmentoption.ID
+,Name
+,data_treatmentoption.ResultTypeID
+,data_detectionresulttype.ResultName AS ResultType
+,data_treatmentoption.IsActive 
+,Introduction
+FROM data_treatmentoption 
+INNER JOIN data_detectionresulttype
+ON data_treatmentoption.ResultTypeID=data_detectionresulttype.ID
+WHERE  data_treatmentoption.IsDeleted=0
+");
             return Response_200_read.GetResult(res);
         }
 
@@ -43,7 +58,10 @@ namespace health.Controllers
         [Route("GetTreatmentOption")]
         public override JObject Get(int id)
         {
-            JObject res = db.GetOne("select ID,Name,ResultTypeID,Introduction,IsActive from data_treatmentoption where id=?p1 and IsDeleted=0", id);
+            JObject res = db.GetOne(@"
+select ID,Name,ResultTypeID,Introduction,IsActive from data_treatmentoption where id=?p1 and IsDeleted=0
+", id);
+            res["resulttype"] = _rtype.GetResultTypeInfo(res.ToInt("resulttypeid"));
             var canread = res.Challenge(r=>r["id"]!=null);
             if (!canread)
                 return Response_201_read.GetResult();

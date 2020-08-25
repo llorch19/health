@@ -144,7 +144,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
-using util.mysql;
 
 namespace health.Controllers
 {
