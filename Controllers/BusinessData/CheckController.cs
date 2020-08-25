@@ -9,15 +9,12 @@
 using health.common;
 using health.web.StdResponse;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -73,6 +70,7 @@ t_check.ID
 ,t_check.OrgnizationID
 ,t_orgnization.OrgName AS OrgName
 ,t_check.Result AS Result
+,,data_detectionresulttype.ResultName
 ,IFNULL(t_check.Recommend,'') AS Recommend
 ,IFNULL(t_check.Chosen,'') AS Chosen 
 ,t_patient.Tel AS PersonTel
@@ -120,6 +118,7 @@ t_check.ID
 ,t_check.OrgnizationID
 ,t_orgnization.OrgName AS OrgName
 ,t_check.Result AS Result
+,data_detectionresulttype.ResultName
 ,IFNULL(t_check.Recommend,'') AS Recommend
 ,IFNULL(t_check.Chosen,'') AS Chosen 
 ,t_patient.Tel AS PersonTel
@@ -180,7 +179,7 @@ AND t_check.IsDeleted=0", id);
 
 
             res["person"] = _person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
-            res["result"] = _rtype.GetResultTypeInfo(res["resulttypeid"]?.ToObject<int>() ?? 0);
+            res["resulttype"] = _rtype.GetResultTypeInfo(res["resulttypeid"]?.ToObject<int>() ?? 0);
             res["orgnization"] = _org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
             
             res["recommend"] = JsonConvert.DeserializeObject<JArray>(res["recommend"]?.ToObject<string>() ?? "");
