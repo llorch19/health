@@ -70,7 +70,6 @@ t_check.ID
 ,t_check.OrgnizationID
 ,t_orgnization.OrgName AS OrgName
 ,t_check.Result AS Result
-,,data_detectionresulttype.ResultName
 ,IFNULL(t_check.Recommend,'') AS Recommend
 ,IFNULL(t_check.Chosen,'') AS Chosen 
 ,t_patient.Tel AS PersonTel
@@ -78,6 +77,7 @@ t_check.ID
 ,t_orgnization.OrgCode
 ,IFNULL(CheckNO,'') AS DetectionNO
 ,IFNULL(t_check.ResultTypeID,'') AS ResultTypeID
+,data_detectionresulttype.ResultName
 , IFNULL(data_detectionresulttype.control1,'') AS CType
 , IFNULL(data_detectionresulttype.control2,'') AS CValue
 , IFNULL(t_check.IsActive,'') AS IsActive
@@ -118,7 +118,6 @@ t_check.ID
 ,t_check.OrgnizationID
 ,t_orgnization.OrgName AS OrgName
 ,t_check.Result AS Result
-,data_detectionresulttype.ResultName
 ,IFNULL(t_check.Recommend,'') AS Recommend
 ,IFNULL(t_check.Chosen,'') AS Chosen 
 ,t_patient.Tel AS PersonTel
@@ -126,6 +125,7 @@ t_check.ID
 ,t_orgnization.OrgCode
 ,IFNULL(CheckNO,'') AS DetectionNO
 ,IFNULL(t_check.ResultTypeID,'') AS ResultTypeID
+,data_detectionresulttype.ResultName
 , IFNULL(data_detectionresulttype.control1,'') AS CType
 , IFNULL(data_detectionresulttype.control2,'') AS CValue
 , IFNULL(t_check.IsActive,'') AS IsActive
