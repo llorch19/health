@@ -214,7 +214,7 @@ IFNULL(t_check.ID,'') as ID
 from t_check
 LEFT JOIN data_detectionresulttype
 ON t_check.ResultTypeID=data_detectionresulttype.ID
-and PatientID=?p1
+WHERE PatientID=?p1
 and t_check.IsDeleted=0
 ORDER BY ReportTime,ID DESC"
                 , id);
@@ -229,7 +229,7 @@ LEFT JOIN t_medication
 ON t_treatitem.MedicationID=t_medication.ID
 LEFT JOIN t_treat
 ON t_treatitem.TreatID=t_treat.ID
-AND t_treat.PatientID=?p1
+WHERE t_treat.PatientID=?p1
 AND t_treatitem.IsDeleted=0", id);
 
             // 随访信息
@@ -260,7 +260,7 @@ LEFT JOIN t_orgnization
 ON t_vacc.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_user
 ON t_vacc.OperationUserID=t_user.ID
-AND t_vacc.PatientID=?p1
+WHERE t_vacc.PatientID=?p1
 AND t_vacc.IsDeleted=0
 ", id);
 
