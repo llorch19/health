@@ -113,15 +113,15 @@ AND t_check.IsDeleted=0
         [Route("GetCheckListP")]
         public JObject GetListP(int personid)
         {
-            JObject res = GetListPImp(personid);
+            JObject res = new JObject();
+            res["list"] = GetListPImp(personid);
             return Response_200_read.GetResult(res);
         }
 
         [NonAction]
-        public JObject GetListPImp(int personid)
+        public JArray GetListPImp(int personid)
         {
-            JObject res = new JObject();
-            res["list"] = db.GetArray(@"
+            return db.GetArray(@"
 SELECT 
 t_check.ID
 ,IFNULL(CType,'') AS CheckType
@@ -155,8 +155,6 @@ WHERE t_check.PatientID =?p1
 AND t_check.IsDeleted=0
 ORDER BY ReportTime,ID DESC
 ", personid);
-
-            return res;
         }
 
         /// <summary>

@@ -95,15 +95,15 @@ AND t_appoint.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
         [Route("GetAppointListP")]
         public JObject GetAppointListP(int personid)
         {
-            JObject res = GetAppointListPImp(personid);
+            JObject res = new JObject();
+            res["list"] = GetAppointListPImp(personid);
             return Response_200_read.GetResult(res);
         }
 
         [NonAction]
-        public JObject GetAppointListPImp(int personid)
+        public JArray GetAppointListPImp(int personid)
         {
-            JObject res = new JObject();
-            JArray list = db.GetArray(@"SELECT   
+            return db.GetArray(@"SELECT   
 IFNULL(t_appoint.ID,'') AS ID
 ,IFNULL(t_appoint.OrgnizationID,'') AS OrgnizationID
 ,IFNULL(t_orgnization.OrgName,'') AS OrgName
@@ -133,8 +133,6 @@ LEFT JOIN t_patient
 ON t_appoint.PatientID=t_patient.ID
 WHERE t_appoint.PatientID=?p1
 AND t_appoint.IsDeleted=0", personid);
-            res["list"] = list;
-            return res;
         }
 
         /// <summary>

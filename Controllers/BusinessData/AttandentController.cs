@@ -91,15 +91,15 @@ AND t_attandent.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid")
         [Route("GetAttandentListP")]
         public JObject GetListP(int personid)
         {
-            JObject res = GetListPImp(personid);
+            JObject res = new JObject();
+            res["list"]=GetListPImp(personid);
             return Response_200_read.GetResult(res);
         }
 
         [NonAction]
-        public JObject GetListPImp(int personid)
+        public JArray GetListPImp(int personid)
         {
-            JObject res = new JObject();
-            res["list"] = db.GetArray(@"
+            return db.GetArray(@"
 SELECT 
 IFNULL(t_attandent.ID, '') AS ID
 , IFNULL(PatientID, '') AS PersonID
@@ -130,7 +130,6 @@ LEFT JOIN t_orgnization des
 ON t_attandent.DesOrgID=des.id
 WHERE t_attandent.PatientID=?p1
 AND t_attandent.IsDeleted=0", personid);
-            return res;
         }
 
         /// <summary>

@@ -109,15 +109,15 @@ AND t_treat.OrgnizationID=?p1
         [Route("GetTreatList")]
         public override JObject GetList()
         {
-            JObject res = GetTreatItemListImp();
+            JObject res = new JObject();
+            res["list"] = GetTreatItemListImp();
             return Response_200_read.GetResult(res);
         }
 
         [NonAction]
-        public JObject GetTreatItemListImp()
+        public JArray GetTreatItemListImp()
         {
-            JObject res = new JObject();
-            res["list"] = db.GetArray(@"
+            return db.GetArray(@"
 SELECT 
 IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(t_treat.OrgnizationID,'') AS OrgnizationID
@@ -169,7 +169,6 @@ ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
 AND t_treat.OrgnizationID=?p1
 WHERE t_treatitem.IsDeleted=0
 ", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
-            return res;
         }
 
         /// <summary>
@@ -181,15 +180,15 @@ WHERE t_treatitem.IsDeleted=0
         [Route("GetTreatListP")]
         public JObject GetListP(int personid)
         {
-            JObject res = GetListPImp(personid);
+            JObject res = new JObject();
+            res["list"] = GetListPImp(personid);
             return Response_200_read.GetResult(res);
         }
 
         [NonAction]
-        public JObject GetListPImp(int personid)
+        public JArray GetListPImp(int personid)
         {
-            JObject res = new JObject();
-            res["list"] = db.GetArray(@"
+            return db.GetArray(@"
 SELECT 
 IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(t_treat.OrgnizationID,'') AS OrgnizationID
@@ -227,7 +226,6 @@ ON t_treat.Prescriber=prescribe.ID
 WHERE t_treat.IsDeleted=0
 AND t_treat.PatientID=?p1
 ", personid);
-            return res;
         }
 
         /// <summary>

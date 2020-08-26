@@ -82,15 +82,15 @@ AND t_followup.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"))
         [Route("Get[controller]ListP")]
         public JObject GetListP(int personid)
         {
-            JObject res = GetListPImp(personid);
+            JObject res = new JObject();
+            res["list"] = GetListPImp(personid);
             return Response_200_read.GetResult(res);
         }
 
         [NonAction]
-        public JObject GetListPImp(int personid)
+        public JArray GetListPImp(int personid)
         {
-            JObject res = new JObject();
-            res["list"] = db.GetArray(@"
+            return db.GetArray(@"
 SELECT 
 t_followup.ID
 ,t_followup.PatientID AS PersonID
@@ -113,7 +113,6 @@ WHERE t_followup.PatientID=?p1
 AND t_followup.IsDeleted=0
 ORDER BY Time DESC
 ", personid);
-            return res;
         }
 
         /// <summary>
