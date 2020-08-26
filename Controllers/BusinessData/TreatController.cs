@@ -65,8 +65,6 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(t_orgnization.OrgName,'') AS OrgName
 ,IFNULL(t_orgnization.OrgCode,'') AS OrgCode
 ,IFNULL(PrescriptionCode,'') AS PrescriptionCode
-,IFNULL(t_treatitem.MedicationID,'') AS MedicationID
-,IFNULL(t_medication.`Name`,'') AS MedicationName
 ,IFNULL(t_treat.PatientID,'') AS PersonID
 ,IFNULL(t_patient.FamilyName,'') AS PersonName
 ,IFNULL(t_patient.IDCardNO,'') AS PersonIDCard
@@ -74,21 +72,20 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(TreatName,'') AS TreatName
 ,IFNULL(DrugGroupNumber,'') AS DrugGroupNumber
 ,IFNULL(Tstatus,'') AS Tstatus
-,IFNULL(t_treat.Prescriber,'') AS Prescriber
-,IFNULL(t_treat.PrescribeTime,'') AS PrescribeTime
 ,IFNULL(t_treat.Department,'') AS PrescribeDepartment
 ,IFNULL(t_treat.IsCancel,'') AS IsCancel
 ,IFNULL(t_treat.CancelTime,'') AS CancelTime
 ,IFNULL(t_treat.CompleteTime,'') AS CompleteTime
-,IFNULL(t_treatitem.MedicationDosageFormID,'') AS MedicationDosageFormID
-,IFNULL(data_medicationdosageform.`Name`,'') AS Dosage
-,IFNULL(t_treatitem.MedicationFreqCategoryID,'') AS MedicationFreqCategoryID
-,IFNULL(data_medicationfreqcategory.ValueMessage,'') AS Freq
-,IFNULL(t_treatitem.MedicationPathwayID,'') AS MedicationPathwayID
-,IFNULL(data_medicationpathway.`Name`,'') AS Pathway
-,IFNULL(t_treatitem.SingleDoseAmount,'') AS SingleDoseAmount
-,IFNULL(t_treatitem.SingleDoseUnit,'') AS SingleDoseUnit
-,IFNULL(t_treatitem.TotalDoseAmount,'') AS TotalDoseAmount
+,IFNULL(t_treat.Prescriber,'') AS Prescriber
+,IFNULL(t_treat.PrescribeTime,'') AS PrescribeTime
+,IFNULL(t_treat.VerifyPharmacist,'') AS VerifyPharmacist
+,IFNULL(t_treat.VerifyTime,'') AS VerifyTime
+,IFNULL(t_treat.ReviewPharmacist,'') AS ReviewPharmacist
+,IFNULL(t_treat.ReviewTime,'') AS ReviewTime
+,IFNULL(t_treat.AllocationPharmacist,'') AS AllocationPharmacist
+,IFNULL(t_treat.AllocationTime,'') AS AllocationTime
+,IFNULL(t_treat.DispensePharmacist,'') AS DispensePharmacist
+,IFNULL(t_treat.DispenseTime,'') AS DispenseTime
 ,IFNULL(t_treat.IsActive,'') AS IsActive
 FROM t_treat
 LEFT JOIN t_orgnization
@@ -97,18 +94,8 @@ LEFT JOIN t_patient
 ON t_treat.PatientID=t_patient.ID
 LEFT JOIN t_user prescribe
 ON t_treat.Prescriber=prescribe.ID
-LEFT JOIN t_treatitem
-ON t_treat.ID=t_treatitem.TreatID
-LEFT JOIN t_medication
-ON t_medication.ID=t_treatitem.MedicationID
-LEFT JOIN data_medicationdosageform
-ON t_treatitem.MedicationDosageFormID=data_medicationdosageform.ID
-LEFT JOIN data_medicationfreqcategory
-ON t_treatitem.MedicationFreqCategoryID=data_medicationfreqcategory.ID
-LEFT JOIN data_medicationpathway
-ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
-AND t_treat.OrgnizationID=?p1
 WHERE t_treat.IsDeleted=0
+AND t_treat.OrgnizationID=?p1
 ", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
             return res;
         }
@@ -209,8 +196,6 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(t_orgnization.OrgName,'') AS OrgName
 ,IFNULL(t_orgnization.OrgCode,'') AS OrgCode
 ,IFNULL(PrescriptionCode,'') AS PrescriptionCode
-,IFNULL(t_treatitem.MedicationID,'') AS MedicationID
-,IFNULL(t_medication.`Name`,'') AS MedicationName
 ,IFNULL(t_treat.PatientID,'') AS PersonID
 ,IFNULL(t_patient.FamilyName,'') AS PersonName
 ,IFNULL(t_patient.IDCardNO,'') AS PersonIDCard
@@ -218,41 +203,29 @@ IFNULL(t_treat.ID,'') AS ID
 ,IFNULL(TreatName,'') AS TreatName
 ,IFNULL(DrugGroupNumber,'') AS DrugGroupNumber
 ,IFNULL(Tstatus,'') AS Tstatus
-,IFNULL(t_treat.Prescriber,'') AS Prescriber
-,IFNULL(t_treat.PrescribeTime,'') AS PrescribeTime
 ,IFNULL(t_treat.Department,'') AS PrescribeDepartment
 ,IFNULL(t_treat.IsCancel,'') AS IsCancel
 ,IFNULL(t_treat.CancelTime,'') AS CancelTime
 ,IFNULL(t_treat.CompleteTime,'') AS CompleteTime
-,IFNULL(t_treatitem.MedicationDosageFormID,'') AS MedicationDosageFormID
-,IFNULL(data_medicationdosageform.`Name`,'') AS Dosage
-,IFNULL(t_treatitem.MedicationFreqCategoryID,'') AS MedicationFreqCategoryID
-,IFNULL(data_medicationfreqcategory.ValueMessage,'') AS Freq
-,IFNULL(t_treatitem.MedicationPathwayID,'') AS MedicationPathwayID
-,IFNULL(data_medicationpathway.`Name`,'') AS Pathway
-,IFNULL(t_treatitem.SingleDoseAmount,'') AS SingleDoseAmount
-,IFNULL(t_treatitem.SingleDoseUnit,'') AS SingleDoseUnit
-,IFNULL(t_treatitem.TotalDoseAmount,'') AS TotalDoseAmount
-,IFNULL(t_treatitem.IsActive,'') AS IsActive
-FROM t_treatitem
-LEFT JOIN t_treat
-ON t_treat.ID=t_treatitem.TreatID
+,IFNULL(t_treat.Prescriber,'') AS Prescriber
+,IFNULL(t_treat.PrescribeTime,'') AS PrescribeTime
+,IFNULL(t_treat.VerifyPharmacist,'') AS VerifyPharmacist
+,IFNULL(t_treat.VerifyTime,'') AS VerifyTime
+,IFNULL(t_treat.ReviewPharmacist,'') AS ReviewPharmacist
+,IFNULL(t_treat.ReviewTime,'') AS ReviewTime
+,IFNULL(t_treat.AllocationPharmacist,'') AS AllocationPharmacist
+,IFNULL(t_treat.AllocationTime,'') AS AllocationTime
+,IFNULL(t_treat.DispensePharmacist,'') AS DispensePharmacist
+,IFNULL(t_treat.DispenseTime,'') AS DispenseTime
+FROM t_treat
 LEFT JOIN t_orgnization
 ON t_treat.OrgnizationID=t_orgnization.ID
 LEFT JOIN t_patient
 ON t_treat.PatientID=t_patient.ID
 LEFT JOIN t_user prescribe
 ON t_treat.Prescriber=prescribe.ID
-LEFT JOIN t_medication
-ON t_medication.ID=t_treatitem.MedicationID
-LEFT JOIN data_medicationdosageform
-ON t_treatitem.MedicationDosageFormID=data_medicationdosageform.ID
-LEFT JOIN data_medicationfreqcategory
-ON t_treatitem.MedicationFreqCategoryID=data_medicationfreqcategory.ID
-LEFT JOIN data_medicationpathway
-ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
+WHERE t_treat.IsDeleted=0
 AND t_treat.PatientID=?p1
-WHERE t_treatitem.IsDeleted=0
 ", personid);
             return res;
         }
@@ -276,12 +249,20 @@ IFNULL(ID,'') AS ID
 ,IFNULL(TreatName,'') AS TreatName
 ,IFNULL(DrugGroupNumber,'') AS DrugGroupNumber
 ,IFNULL(Tstatus,'') AS Tstatus
-,IFNULL(Prescriber,'') AS Prescriber
-,IFNULL(PrescribeTime,'') AS PrescribeTime
 ,IFNULL(PrescribeDepartment,'') AS PrescribeDepartment
 ,IFNULL(IsCancel,'') AS IsCancel
 ,IFNULL(CancelTime,'') AS CancelTime
 ,IFNULL(CompleteTime,'') AS CompleteTime
+,IFNULL(Prescriber,'') AS Prescriber
+,IFNULL(PrescribeTime,'') AS PrescribeTime
+,IFNULL(t_treat.VerifyPharmacist,'') AS VerifyPharmacist
+,IFNULL(t_treat.VerifyTime,'') AS VerifyTime
+,IFNULL(t_treat.ReviewPharmacist,'') AS ReviewPharmacist
+,IFNULL(t_treat.ReviewTime,'') AS ReviewTime
+,IFNULL(t_treat.AllocationPharmacist,'') AS AllocationPharmacist
+,IFNULL(t_treat.AllocationTime,'') AS AllocationTime
+,IFNULL(t_treat.DispensePharmacist,'') AS DispensePharmacist
+,IFNULL(t_treat.DispenseTime,'') AS DispenseTime
 ,IFNULL(IsActive,'') AS IsActive
 FROM t_treat
 WHERE ID=?p1

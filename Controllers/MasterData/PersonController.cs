@@ -96,7 +96,7 @@ namespace health.Controllers
             return Response_200_read.GetResult(res);
         }
 
-
+        [NonAction]
         public JObject GetPersonListImp(int pageSize = 10, int pageIndex = 0)
         {
             int offset = 0;
@@ -228,22 +228,11 @@ and t_patient.IsDeleted=0"
         {
             JObject res = new JObject();
             res["personinfo"] = GetPersonRawImp(id);
-            if (res["personinfo"].HasValues)
+            if (res["personinfo"]?.HasValues==false)
                 return Response_201_read.GetResult();
 
             res["checkinfo"] = _check.Value.GetListPImp(id);
-            res["treatinfo"] = db.GetArray(@"
-SELECT
-IFNULL(t_treat.ID,'') AS ID
-,IFNULL(t_treat.PrescribeTime,'') AS PrescribeTime
-,IFNULL(t_medication.`Name`,'') AS MedicationName
-FROM t_treatitem
-LEFT JOIN t_medication
-ON t_treatitem.MedicationID=t_medication.ID
-LEFT JOIN t_treat
-ON t_treatitem.TreatID=t_treat.ID
-WHERE t_treat.PatientID=?p1
-AND t_treatitem.IsDeleted=0", id);
+            res["treatinfo"] = _treat.Value.GetListPImp(id);
 
             res["followupinfo"] = _followup.Value.GetListPImp(id);
             res["vaccinfo"] = _vacc.Value.GetListPImp(id);
