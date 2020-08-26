@@ -226,19 +226,7 @@ and t_patient.IsDeleted=0"
             res["personinfo"] = personinfo;
             // 检查信息
             //where IsReexam = 0
-            res["checkinfo"] = db.GetArray(@"
-SELECT 
-IFNULL(t_check.ID,'') as ID
-,IFNULL(ReportTime,'') as ReportTime
-,IFNULL(data_detectionresulttype.ResultName,'') as ResultName
-,IFNULL(t_check.IsRexam,'') as IsReexam
-from t_check
-LEFT JOIN data_detectionresulttype
-ON t_check.ResultTypeID=data_detectionresulttype.ID
-WHERE PatientID=?p1
-and t_check.IsDeleted=0
-ORDER BY ReportTime,ID DESC"
-                , id);
+            res["checkinfo"] = _check.GetListPImp(id);
 
             res["treatinfo"] = db.GetArray(@"
 SELECT

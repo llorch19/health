@@ -153,6 +153,7 @@ LEFT JOIN data_detectionresulttype
 ON t_check.ResultTypeID=data_detectionresulttype.ID
 WHERE t_check.PatientID =?p1
 AND t_check.IsDeleted=0
+ORDER BY ReportTime,ID DESC
 ", personid);
 
             return res;
