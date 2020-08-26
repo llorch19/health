@@ -275,6 +275,7 @@ AND t_check.IsDeleted=0", id);
                 dict["PName"] = req["productname"]?.ToObject<string>();
                 dict["Spec"] = req["specification"]?.ToObject<string>();
                 dict["Batch"] = req["batchnumber"]?.ToObject<string>();
+                dict["Result"] = req["result"]?.ToObject<string>();
                 dict["OperTime"] = req["operationtime"]?.ToObject<DateTime?>();
                 dict["ReportTime"] = req["reporttime"]?.ToObject<DateTime?>();
             }
