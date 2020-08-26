@@ -120,21 +120,22 @@ AND t_vacc.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
             res["list"] = db.GetArray(@"
 SELECT 
 t_vacc.ID
+,OperationTime
+,t_medication.`CommonName` AS CommonName
+,IFNULL(t_medication.ESC,'') AS ESC
+,t_orgnization.OrgName AS OrgName
+,t_user.ChineseName AS Operator
 ,PatientID
 ,t_patient.FamilyName AS Person
 ,t_vacc.OrgnizationID
-,t_orgnization.OrgName AS OrgName
 ,OperationUserID
-,t_user.ChineseName AS Operator
 ,MedicationID
 ,t_medication.`Name` AS Medication
-,t_medication.`CommonName` AS CommonName
 ,MedicationDosageFormID
 ,data_medicationdosageform.`Name` AS Dosage
 ,MedicationPathwayID
 ,data_medicationpathway.`Name` AS Pathway
 ,Ftime
-,OperationTime
 ,LeaveTime
 ,NextTime
 ,Fstatus

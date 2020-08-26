@@ -242,36 +242,8 @@ WHERE t_treat.PatientID=?p1
 AND t_treatitem.IsDeleted=0", id);
 
             // 随访信息
-            res["followupinfo"] = db.GetArray(@"
-SELECT
-IFNULL(ID,'') as ID
-,IFNULL(Time,'') as Time
-,IFNULL(PersonList,'') as PersonList
-,IFNULL(Abstract,'') as Abstract
-FROM t_followup
-WHERE PatientID=?p1
-AND t_followup.IsDeleted=0
-", id);
-
-            res["vaccinfo"] = db.GetArray(@"
-SELECT 
-IFNULL(t_vacc.ID,'') AS ID
-,IFNULL(t_vacc.OperationTime,'') AS OperationTime
-,IFNULL(t_medication.CommonName,'') AS CommonName
-,IFNULL(t_medication.ESC,'') AS ESC
-,IFNULL(t_orgnization.OrgName,'') AS OrgName
-,IFNULL(t_user.ChineseName,'') AS Operator
-,IFNULL(t_vacc.IsActive,'') AS IsActive
-FROM t_vacc
-LEFT JOIN t_medication
-ON t_vacc.MedicationID=t_medication.ID
-LEFT JOIN t_orgnization
-ON t_vacc.OrgnizationID=t_orgnization.ID
-LEFT JOIN t_user
-ON t_vacc.OperationUserID=t_user.ID
-WHERE t_vacc.PatientID=?p1
-AND t_vacc.IsDeleted=0
-", id);
+            res["followupinfo"] = _followup.GetListPImp(id);
+            res["vaccinfo"] = _vacc.GetListPImp(id);
 
             if (res["personinfo"].HasValues)
             {

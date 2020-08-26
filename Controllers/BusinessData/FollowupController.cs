@@ -21,11 +21,17 @@ namespace health.Controllers
     public class FollowupController : AbstractBLLController
     {
         private readonly ILogger<FollowupController> _logger;
+        PersonController _person;
+        OrganizationController _org;
         public override string TableName => "t_followup";
 
-        public FollowupController(ILogger<FollowupController> logger)
+        public FollowupController(ILogger<FollowupController> logger
+            ,PersonController person
+            ,OrganizationController org)
         {
             _logger = logger;
+            _person = person;
+            _org = org; 
         }
 
         /// <summary>
@@ -93,7 +99,7 @@ t_followup.ID
 ,t_followup.OrgnizationID
 ,t_orgnization.OrgName
 ,t_orgnization.OrgCode
-,t_followup.TIME
+,t_followup.Time
 ,t_followup.PersonList
 ,t_followup.Abstract
 ,t_followup.Detail
@@ -104,7 +110,9 @@ ON t_followup.PatientID=t_patient.ID
 LEFT JOIN t_orgnization
 ON t_followup.OrgnizationID=t_orgnization.ID
 WHERE t_followup.PatientID=?p1
-AND t_followup.IsDeleted=0", personid);
+AND t_followup.IsDeleted=0
+ORDER BY Time DESC
+", personid);
             return res;
         }
 
@@ -130,13 +138,12 @@ FROM t_followup
 WHERE ID=?p1
 AND t_followup.IsDeleted=0
 ", id);
-            res["person"] = new PersonController(null, null)
-                .GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
-            res["orgnization"] = new OrganizationController(null)
-                .GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            return res;
+            if (res["id"] == null)
+                return Response_201_read.GetResult();
+
+            res["person"] = _person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
+            res["orgnization"] = _org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
+            return Response_200_read.GetResult(res);
         }
 
 
