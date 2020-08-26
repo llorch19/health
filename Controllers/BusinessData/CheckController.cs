@@ -238,24 +238,26 @@ AND t_check.IsDeleted=0", id);
             {
                 var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
                 if (!canwrite)
-                    return Response_201_write.GetResult();
+                    return Response_201_write.GetResult(null,"无法跨域操作");
             }
 
             Dictionary<string, object> dict = new Dictionary<string, object>();
-
-            var strTreatArray = JsonConvert.SerializeObject(req["recommend"]);
-            int[] intTreatArray = JsonConvert.DeserializeObject<int[]>(strTreatArray);
-            var objTreatArray = _toption.GetTreatOptionInfoArray(intTreatArray);
-            dict["Recommend"] = JsonConvert.SerializeObject(objTreatArray);
-
-
-            var intTreatId = req.ToInt("chosen");
-            if (!intTreatId.HasValue)
-                return Response_201_write.GetResult(null, "请重新提交个人用户选择方案编号");
-            if (!intTreatArray.Contains(intTreatId.Value))
-                return Response_201_write.GetResult(null, "请重新提交推荐方案编号和个人用户选择方案编号");
-
-            dict["Chosen"] = JsonConvert.SerializeObject(_toption.GetTreatOptionInfo(intTreatId));
+            
+            JArray recommend = JArray.FromObject(req["recommend"]);
+            bool bNonResultRecommend = req.Challenge(r =>
+                string.IsNullOrEmpty(r["result"]?.ToObject<string>())
+                && recommend.HasValues
+            );
+            if (bNonResultRecommend)
+                return Response_201_write.GetResult(null, "未保存检测结果，不可以推荐方案");
+            dict["Recommend"] = JsonConvert.SerializeObject(recommend);
+            JObject chosen = JObject.FromObject(req["chosen"]);
+            dict["Chosen"] = JsonConvert.SerializeObject(chosen);
+            var bChoiceInRecommend = 
+                dict["Recommend"].ToString().Contains(dict["Chosen"].ToString())
+                || (!recommend.HasValues && !chosen.HasValues);
+            if (!bChoiceInRecommend)
+                return Response_201_write.GetResult(null,"选择方案与提供方案不符");
             dict["PatientID"] = req.ToInt("patientid");
             dict["OrgnizationID"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             dict["ResultTypeID"] = req.ToInt("resulttypeid");
