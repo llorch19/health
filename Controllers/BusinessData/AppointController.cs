@@ -209,8 +209,10 @@ AND t_appoint.IsDeleted=0", id);
         [Route("DelAppoint")]
         public override JObject Del([FromBody] JObject req)
         {
+            var id = req.ToInt("id");
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+            var objDatabase = db.GetOne("SELECT OrgnizationID FROM " + TableName + " WHERE ID=?p1 AND IsDeleted=0", id);
+            var canwrite = req.Challenge(r => objDatabase.ToInt("orgnizationid") == orgid);
             if (!canwrite)
                 return Response_201_write.GetResult();
             return base.Del(req);
