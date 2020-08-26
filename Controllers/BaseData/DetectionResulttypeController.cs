@@ -33,7 +33,16 @@ namespace health.Controllers
             res["msg"] = "读取成功";
 
             dbfactory db = new dbfactory();
-            JArray rows = db.GetArray("select ID,ResultName,IsActive from data_detectionresulttype where isdeleted=0");
+            JArray rows = db.GetArray(@"
+select 
+ID
+,ResultName
+,IFNULL(data_detectionresulttype.control1,'') AS CType
+,IFNULL(data_detectionresulttype.control2,'') AS CValue
+,IsActive 
+from data_detectionresulttype 
+where isdeleted=0
+");
 
             res["list"] = rows;
             return res;
@@ -49,7 +58,16 @@ namespace health.Controllers
         {
             //int id = 0;
             //int.TryParse(HttpContext.Request.Query["id"],out id);
-            JObject res = db.GetOne("select ID,ResultName,IsActive from data_detectionresulttype where id=?p1 and isdeleted=0", id);
+            JObject res = db.GetOne(@"
+select 
+ID
+,ResultName
+,IFNULL(data_detectionresulttype.control1,'') AS CType
+,IFNULL(data_detectionresulttype.control2,'') AS CValue
+,IsActive 
+from data_detectionresulttype 
+where id=?p1 
+and isdeleted=0", id);
             if (res["id"] != null)
             {
                 res["status"] = 200;
@@ -107,7 +125,8 @@ from data_detectionresulttype where id=?p1 and isdeleted=0"
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["Code"] = req["code"]?.ToObject<string>();
             dict["ResultName"] = req["resultname"]?.ToObject<string>();
-
+            dict["control1"] = req["ctype"]?.ToObject<string>();
+            dict["control2"] = req["cvalue"]?.ToObject<string>();
             return dict;
         }
     }

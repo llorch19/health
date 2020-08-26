@@ -55,5 +55,10 @@ namespace health
         {
             return func(jobj);
         }
+
+        public static bool Validated(this JObject jobj,Dictionary<string,Func<object,bool>> keyMapFunctions,out Dictionary<string,object> dict,out string errormsg)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
