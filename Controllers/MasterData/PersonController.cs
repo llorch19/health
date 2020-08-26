@@ -13,6 +13,7 @@
  */
 using health.BaseData;
 using health.common;
+using health.web.StdResponse;
 using IdGen;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -28,13 +29,47 @@ namespace health.Controllers
     public class PersonController : AbstractBLLController
     {
         private readonly ILogger<PersonController> _logger;
-        IdGenerator idGenerator;
+        OrganizationController _org;
+        GenderController _gender;
+        OccupationController _occupation;
+        AddressCategoryController _addrcategory;
+        CheckController _check;
+        AppointController _appoint;
+        AttandentController _attandent;
+        FollowupController _followup;
+        TreatController _treat;
+        TreatItemController _treatitem;
+        VaccController _vacc;
+        IdGenerator _idGenerator;
         public override string TableName => "t_patient";
 
-        public PersonController(ILogger<PersonController> logger, IdGenerator generator)
+        public PersonController(ILogger<PersonController> logger
+            , IdGenerator generator
+            , OrganizationController org
+            , GenderController gender
+            , OccupationController occupation
+            , AddressCategoryController addrcategory
+            , CheckController check
+            , AppointController appoint
+            , AttandentController attandent
+            , FollowupController followup
+            , TreatController treat
+            , TreatItemController treatitem
+            , VaccController vacc)
         {
             _logger = logger;
-            idGenerator = generator;
+            _idGenerator = generator;
+            _org = org;
+            _gender = gender;
+            _occupation = occupation;
+            _addrcategory = addrcategory;
+            _check = check;
+            _appoint = appoint;
+            _attandent = attandent;
+            _followup = followup;
+            _treat = treat;
+            _treatitem = treatitem;
+            _vacc = vacc;
         }
 
         /// <summary>
@@ -57,14 +92,19 @@ namespace health.Controllers
         [Route("GetPersonList")]
         public JObject GetPersonList(int pageSize = 10, int pageIndex = 0)
         {
+            JObject res = GetPersonListImp(pageSize,pageIndex);
+            return Response_200_read.GetResult(res);
+        }
+
+
+        public JObject GetPersonListImp(int pageSize = 10, int pageIndex = 0)
+        {
             int offset = 0;
             if (pageIndex > 0)
                 offset = pageSize * (pageIndex - 1);
 
             JObject res = new JObject();
-
-
-            JArray rows = db.GetArray(
+            JArray list = db.GetArray(
                 @"SELECT 
 IFNULL(t_patient.ID,'') as ID
 ,IFNULL(t_attandent.IsReferral,'') as IsReferral
@@ -120,31 +160,16 @@ WHERE t_patient.OrgnizationID=?p1
 AND t_patient.IsDeleted=0
 LIMIT ?p2,?p3"
                 , HttpContext.GetIdentityInfo<int?>("orgnizationid"), offset, pageSize);
-
-            // TODO: BUGs here, can not read COUNT(*) which returns Int64
-            
-            if (rows.HasValues)
-            {
-                res["total"] = db.GetOne("SELECT COUNT(*) as TOTAL FROM t_patient")["total"];
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-                res["list"] = rows;
-                return res;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "无法读取相应的数据";
-                return res;
-            }
-            
+            res["list"] = list;
+            return res;
         }
 
-        /// <summary>
-        /// 获取人员信息，初始化[人员信息录入]菜单
-        /// </summary>
-        /// <returns>JSON形式的某位个人信息，包括个人信息，</returns>
-        [HttpGet]
+
+            /// <summary>
+            /// 获取人员信息，初始化[人员信息录入]菜单
+            /// </summary>
+            /// <returns>JSON形式的某位个人信息，包括个人信息，</returns>
+            [HttpGet]
         [Route("GetPerson")]
         public override JObject Get(int id)
         {
@@ -186,16 +211,12 @@ ON t_patient.ID=t_attandent.PatientID
 where t_patient.ID=?p1
 and t_patient.IsDeleted=0"
                 , id);
-            OrganizationController org = new OrganizationController(null);
-            personinfo["primaryorg"] = org.GetOrgInfo(personinfo["primaryorgnizationid"].ToObject<int>());
-            personinfo["orgnization"] = org.GetOrgInfo(personinfo["orgnizationid"].ToObject<int>());
+            personinfo["primaryorg"] = _org.GetOrgInfo(personinfo["primaryorgnizationid"].ToObject<int>());
+            personinfo["orgnization"] = _org.GetOrgInfo(personinfo["orgnizationid"].ToObject<int>());
 
-            GenderController gender = new GenderController(null);
-            personinfo["gender"] = gender.GetGenderInfo(personinfo["genderid"].ToObject<int>());
-            OccupationController occupation = new OccupationController(null);
-            personinfo["occupation"] = occupation.GetOccupationInfo(personinfo["occupationcategoryid"].ToObject<int>());
-            AddressCategoryController addresscategory = new AddressCategoryController(null);
-            personinfo["addresscategory"] = addresscategory.GetAddressCategoryInfo(personinfo["addresscategoryid"].ToObject<int>());
+            personinfo["gender"] = _gender.GetGenderInfo(personinfo["genderid"].ToObject<int>());
+            personinfo["occupation"] = _occupation.GetOccupationInfo(personinfo["occupationcategoryid"].ToObject<int>());
+            personinfo["addresscategory"] = _addrcategory.GetAddressCategoryInfo(personinfo["addresscategoryid"].ToObject<int>());
 
             personinfo["province"] = conf.GetAreaInfo(personinfo["provinceid"].ToObject<int>());
             personinfo["city"] = conf.GetAreaInfo(personinfo["cityid"].ToObject<int>());
@@ -322,7 +343,7 @@ AND t_vacc.IsDeleted=0
         [Route("GetId")]
         public string GetId()
         {
-            return idGenerator.CreateId().ToString();
+            return _idGenerator.CreateId().ToString();
         }
 
 
@@ -362,7 +383,7 @@ AND t_vacc.IsDeleted=0
             {
                 // 新增人员生成邀请码和档案号
                 dict["InviteCode"] = ShareCodeUtils.New();
-                dict["RegisterNO"] = idGenerator.CreateId();
+                dict["RegisterNO"] = _idGenerator.CreateId();
             }
 
 
