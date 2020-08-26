@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Asn1.X509.SigI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -57,6 +58,12 @@ namespace health.Controllers
         [Route("GetCheckList")]
         public JObject GetList()
         {
+            JObject res = GetListImp();
+            return Response_200_read.GetResult(res);
+        }
+        [NonAction]
+        public JObject GetListImp()
+        {
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
@@ -93,7 +100,7 @@ WHERE t_check.OrgnizationID =?p1
 AND t_check.IsDeleted=0
 ", orgid);
 
-            return Response_200_read.GetResult(res);
+            return res;
         }
 
 
@@ -105,6 +112,13 @@ AND t_check.IsDeleted=0
         [HttpGet]
         [Route("GetCheckListP")]
         public JObject GetListP(int personid)
+        {
+            JObject res = GetListPImp(personid);
+            return Response_200_read.GetResult(res);
+        }
+
+        [NonAction]
+        public JObject GetListPImp(int personid)
         {
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
@@ -141,9 +155,8 @@ WHERE t_check.PatientID =?p1
 AND t_check.IsDeleted=0
 ", personid);
 
-            return Response_200_read.GetResult(res);
+            return res;
         }
-
 
         /// <summary>
         /// 获取“检测”信息

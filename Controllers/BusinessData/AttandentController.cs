@@ -40,6 +40,13 @@ namespace health.Controllers
         [Route("GetAttandentList")]
         public override JObject GetList()
         {
+            JObject res = GetListImp();
+            return Response_200_read.GetResult(res);
+        }
+
+        [NonAction]
+        public JObject GetListImp()
+        {
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 
@@ -72,9 +79,8 @@ LEFT JOIN t_orgnization des
 ON t_attandent.DesOrgID=des.id
 WHERE t_attandent.OrgnizationID=?p1
 AND t_attandent.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
-            return Response_200_read.GetResult(res);
+            return res;
         }
-
 
         /// <summary>
         /// 获取个人的“就诊”列表
@@ -84,6 +90,13 @@ AND t_attandent.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid")
         [HttpGet]
         [Route("GetAttandentListP")]
         public JObject GetListP(int personid)
+        {
+            JObject res = GetListPImp(personid);
+            return Response_200_read.GetResult(res);
+        }
+
+        [NonAction]
+        public JObject GetListPImp(int personid)
         {
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
@@ -117,7 +130,7 @@ LEFT JOIN t_orgnization des
 ON t_attandent.DesOrgID=des.id
 WHERE t_attandent.PatientID=?p1
 AND t_attandent.IsDeleted=0", personid);
-            return Response_200_read.GetResult(res);
+            return res;
         }
 
         /// <summary>

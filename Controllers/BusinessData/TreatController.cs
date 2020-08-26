@@ -48,7 +48,14 @@ namespace health.Controllers
         /// <returns>JSON对象，包含相应的“用药记录”数组</returns>
         [HttpGet]
         [Route("GetTreatList2")]
-        public JObject GetOrgTreatList2(int orgid)
+        public JObject GetTreatList()
+        {
+            JObject res = GetTreatListImp();
+            return Response_200_read.GetResult(res);
+        }
+
+        [NonAction]
+        public JObject GetTreatListImp()
         {
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
@@ -102,8 +109,8 @@ LEFT JOIN data_medicationpathway
 ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
 AND t_treat.OrgnizationID=?p1
 WHERE t_treat.IsDeleted=0
-", orgid);
-            return Response_200_read.GetResult(res);
+", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
+            return res;
         }
 
 
@@ -114,6 +121,13 @@ WHERE t_treat.IsDeleted=0
         [HttpGet]
         [Route("GetTreatList")]
         public override JObject GetList()
+        {
+            JObject res = GetTreatItemListImp();
+            return Response_200_read.GetResult(res);
+        }
+
+        [NonAction]
+        public JObject GetTreatItemListImp()
         {
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
@@ -168,7 +182,7 @@ ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
 AND t_treat.OrgnizationID=?p1
 WHERE t_treatitem.IsDeleted=0
 ", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
-            return Response_200_read.GetResult(res);
+            return res;
         }
 
         /// <summary>
@@ -179,6 +193,13 @@ WHERE t_treatitem.IsDeleted=0
         [HttpGet]
         [Route("GetTreatListP")]
         public JObject GetListP(int personid)
+        {
+            JObject res = GetListPImp(personid);
+            return Response_200_read.GetResult(res);
+        }
+
+        [NonAction]
+        public JObject GetListPImp(int personid)
         {
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
@@ -232,8 +253,8 @@ LEFT JOIN data_medicationpathway
 ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
 AND t_treat.PatientID=?p1
 WHERE t_treatitem.IsDeleted=0
-", personid );
-            return Response_200_read.GetResult(res);
+", personid);
+            return res;
         }
 
         /// <summary>

@@ -36,6 +36,13 @@ namespace health.Controllers
         [Route("Get[controller]List")]
         public override JObject GetList()
         {
+            JObject res = GetListImp();
+            return Response_200_read.GetResult(res);
+        }
+
+        [NonAction]
+        public JObject GetListImp()
+        {
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 
@@ -58,8 +65,6 @@ LEFT JOIN t_orgnization
 ON t_followup.OrgnizationID=t_orgnization.ID
 WHERE t_followup.OrgnizationID=?p1
 AND t_followup.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
-            res["status"] = 200;
-            res["msg"] = "读取成功";
             return res;
         }
 
@@ -70,6 +75,13 @@ AND t_followup.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"))
         [HttpGet]
         [Route("Get[controller]ListP")]
         public JObject GetListP(int personid)
+        {
+            JObject res = GetListPImp(personid);
+            return Response_200_read.GetResult(res);
+        }
+
+        [NonAction]
+        public JObject GetListPImp(int personid)
         {
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
@@ -93,8 +105,6 @@ LEFT JOIN t_orgnization
 ON t_followup.OrgnizationID=t_orgnization.ID
 WHERE t_followup.PatientID=?p1
 AND t_followup.IsDeleted=0", personid);
-            res["status"] = 200;
-            res["msg"] = "读取成功";
             return res;
         }
 

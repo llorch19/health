@@ -42,6 +42,13 @@ namespace health.Controllers
         [Route("GetAppointList")]
         public override JObject GetList()
         {
+            JObject res = GetListImp();
+            return Response_200_read.GetResult(res);
+        }
+
+        [NonAction]
+        public JObject GetListImp()
+        {
             JObject res = new JObject();
             JArray list = db.GetArray(@"SELECT   
 IFNULL(t_appoint.ID,'') AS ID
@@ -73,10 +80,10 @@ LEFT JOIN t_patient
 ON t_appoint.PatientID=t_patient.ID
 WHERE t_appoint.OrgnizationID=?p1
 AND t_appoint.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
-            
-               
+
+
             res["list"] = list;
-            return Response_200_read.GetResult(res);
+            return res;
         }
 
         /// <summary>
@@ -87,6 +94,13 @@ AND t_appoint.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
         [HttpGet]
         [Route("GetAppointListP")]
         public JObject GetAppointListP(int personid)
+        {
+            JObject res = GetAppointListPImp(personid);
+            return Response_200_read.GetResult(res);
+        }
+
+        [NonAction]
+        public JObject GetAppointListPImp(int personid)
         {
             JObject res = new JObject();
             JArray list = db.GetArray(@"SELECT   
@@ -120,9 +134,8 @@ ON t_appoint.PatientID=t_patient.ID
 WHERE t_appoint.PatientID=?p1
 AND t_appoint.IsDeleted=0", personid);
             res["list"] = list;
-            return Response_200_read.GetResult(res);
+            return res;
         }
-
 
         /// <summary>
         /// 获取“预约”信息

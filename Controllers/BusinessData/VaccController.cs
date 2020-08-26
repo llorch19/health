@@ -49,6 +49,13 @@ namespace health.Controllers
         [Route("Get[controller]List")]
         public override JObject GetList()
         {
+            JObject res = GetListImp();
+            return res;
+        }
+
+        [NonAction]
+        public JObject GetListImp()
+        {
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
 SELECT 
@@ -90,8 +97,6 @@ LEFT JOIN data_medicationpathway
 ON t_vacc.MedicationPathwayID=data_medicationpathway.ID
 WHERE t_vacc.OrgnizationID=?p1
 AND t_vacc.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
-            res["status"] = 200;
-            res["msg"] = "读取成功";
             return res;
         }
 
@@ -103,6 +108,13 @@ AND t_vacc.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
         [HttpGet]
         [Route("Get[controller]ListP")]
         public JObject GetListP(int personid)
+        {
+            JObject res = GetListPImp(personid);
+            return Response_200_read.GetResult(res);
+        }
+
+        [NonAction]
+        public JObject GetListPImp(int personid)
         {
             JObject res = new JObject();
             res["list"] = db.GetArray(@"
@@ -145,11 +157,8 @@ LEFT JOIN data_medicationpathway
 ON t_vacc.MedicationPathwayID=data_medicationpathway.ID
 WHERE t_vacc.PatientID=?p1
 AND t_vacc.IsDeleted=0", personid);
-            res["status"] = 200;
-            res["msg"] = "读取成功";
             return res;
         }
-
 
         /// <summary>
         /// 获取“接种记录”信息
