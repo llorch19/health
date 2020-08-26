@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Google.Protobuf.WellKnownTypes;
 using System;
 using IdGen;
+using health.web.common;
 
 namespace health
 {
@@ -121,6 +122,8 @@ namespace health
             #endregion
 
             services.AddMemoryCache();
+
+            services.AddLazyResolution();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

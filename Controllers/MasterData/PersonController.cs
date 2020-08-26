@@ -29,33 +29,33 @@ namespace health.Controllers
     public class PersonController : AbstractBLLController
     {
         private readonly ILogger<PersonController> _logger;
-        OrganizationController _org;
-        GenderController _gender;
-        OccupationController _occupation;
-        AddressCategoryController _addrcategory;
-        CheckController _check;
-        AppointController _appoint;
-        AttandentController _attandent;
-        FollowupController _followup;
-        TreatController _treat;
-        TreatItemController _treatitem;
-        VaccController _vacc;
+        Lazy<OrganizationController> _org;
+        Lazy<GenderController> _gender;
+        Lazy<OccupationController> _occupation;
+        Lazy<AddressCategoryController> _addrcategory;
+        Lazy<CheckController> _check;
+        Lazy<AppointController> _appoint;
+        Lazy<AttandentController> _attandent;
+        Lazy<FollowupController> _followup;
+        Lazy<TreatController> _treat;
+        Lazy<TreatItemController> _treatitem;
+        Lazy<VaccController> _vacc;
         IdGenerator _idGenerator;
         public override string TableName => "t_patient";
 
         public PersonController(ILogger<PersonController> logger
             , IdGenerator generator
-            , OrganizationController org
-            , GenderController gender
-            , OccupationController occupation
-            , AddressCategoryController addrcategory
-            , CheckController check
-            , AppointController appoint
-            , AttandentController attandent
-            , FollowupController followup
-            , TreatController treat
-            , TreatItemController treatitem
-            , VaccController vacc)
+            , Lazy<OrganizationController> org
+            , Lazy<GenderController> gender
+            , Lazy<OccupationController> occupation
+            , Lazy<AddressCategoryController> addrcategory
+            , Lazy<CheckController> check
+            , Lazy<AppointController> appoint
+            , Lazy<AttandentController> attandent
+            , Lazy<FollowupController> followup
+            , Lazy<TreatController> treat
+            , Lazy<TreatItemController> treatitem
+            , Lazy<VaccController> vacc)
         {
             _logger = logger;
             _idGenerator = generator;
@@ -202,12 +202,12 @@ ON t_patient.ID=t_attandent.PatientID
 where t_patient.ID=?p1
 and t_patient.IsDeleted=0"
                 , id);
-            res["primaryorg"] = _org.GetOrgInfo(res["primaryorgnizationid"].ToObject<int>());
-            res["orgnization"] = _org.GetOrgInfo(res["orgnizationid"].ToObject<int>());
+            res["primaryorg"] = _org.Value.GetOrgInfo(res["primaryorgnizationid"].ToObject<int>());
+            res["orgnization"] = _org.Value.GetOrgInfo(res["orgnizationid"].ToObject<int>());
 
-            res["gender"] = _gender.GetGenderInfo(res["genderid"].ToObject<int>());
-            res["occupation"] = _occupation.GetOccupationInfo(res["occupationcategoryid"].ToObject<int>());
-            res["addresscategory"] = _addrcategory.GetAddressCategoryInfo(res["addresscategoryid"].ToObject<int>());
+            res["gender"] = _gender.Value.GetGenderInfo(res["genderid"].ToObject<int>());
+            res["occupation"] = _occupation.Value.GetOccupationInfo(res["occupationcategoryid"].ToObject<int>());
+            res["addresscategory"] = _addrcategory.Value.GetAddressCategoryInfo(res["addresscategoryid"].ToObject<int>());
 
             res["province"] = conf.GetAreaInfo(res["provinceid"].ToObject<int>());
             res["city"] = conf.GetAreaInfo(res["cityid"].ToObject<int>());
@@ -231,7 +231,7 @@ and t_patient.IsDeleted=0"
             if (res["personinfo"].HasValues)
                 return Response_201_read.GetResult();
 
-            res["checkinfo"] = _check.GetListPImp(id);
+            res["checkinfo"] = _check.Value.GetListPImp(id);
             res["treatinfo"] = db.GetArray(@"
 SELECT
 IFNULL(t_treat.ID,'') AS ID
@@ -245,8 +245,8 @@ ON t_treatitem.TreatID=t_treat.ID
 WHERE t_treat.PatientID=?p1
 AND t_treatitem.IsDeleted=0", id);
 
-            res["followupinfo"] = _followup.GetListPImp(id);
-            res["vaccinfo"] = _vacc.GetListPImp(id);
+            res["followupinfo"] = _followup.Value.GetListPImp(id);
+            res["vaccinfo"] = _vacc.Value.GetListPImp(id);
 
             return Response_200_read.GetResult(res);
         }
@@ -314,7 +314,7 @@ AND t_treatitem.IsDeleted=0", id);
             return res;
         }
 
-        
+        [NonAction]
         public override Dictionary<string, object> GetReq(JObject req)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
