@@ -155,9 +155,15 @@ AND t_followup.IsDeleted=0
         public override JObject Set([FromBody] JObject req)
         {
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
-            if (!canwrite)
-                return Response_201_write.GetResult();
+            var id = req.ToInt("id");
+            if (id == 0) // 新增
+                req["orgnizationid"] = orgid;
+            else
+            {
+                var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+                if (!canwrite)
+                    return Response_201_write.GetResult();
+            }
 
             return base.Set(req);
         }

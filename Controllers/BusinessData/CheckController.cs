@@ -231,10 +231,16 @@ AND t_check.IsDeleted=0", id);
         {
             JObject req = (JObject)request;
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
-            if (!canwrite)
-                return Response_201_write.GetResult();
-           
+            var id = req.ToInt("id");
+            if (id == 0) // 新增
+                req["orgnizationid"] = orgid;
+            else
+            {
+                var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+                if (!canwrite)
+                    return Response_201_write.GetResult();
+            }
+
             Dictionary<string, object> dict = new Dictionary<string, object>();
 
             var strTreatArray = JsonConvert.SerializeObject(req["recommend"]);
