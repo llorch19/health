@@ -42,7 +42,7 @@ data_treatmentoption.ID
 ,data_treatmentoption.IsActive 
 ,Introduction
 FROM data_treatmentoption 
-INNER JOIN data_detectionresulttype
+LEFT JOIN data_detectionresulttype
 ON data_treatmentoption.ResultTypeID=data_detectionresulttype.ID
 WHERE  data_treatmentoption.IsDeleted=0
 ");
@@ -137,7 +137,7 @@ AND data_treatmentoption.IsDeleted=0
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["Introduction"] = req["introduction"]?.ToObject<string>();
             dict["Name"] = req["name"]?.ToObject<string>();
-
+            dict["ResultTypeID"] = req.ToInt("resulttypeid");
 
             return dict;
         }
