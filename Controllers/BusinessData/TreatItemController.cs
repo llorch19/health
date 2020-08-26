@@ -43,16 +43,12 @@ namespace health.Controllers
         /// <param name="personid">检索指定个人的id</param>
         /// <returns>JSON对象，包含相应的“用药记录明细”数组</returns>
         [NonAction]
-        public JArray GetPersonRecipeDetails(int personid)
+        public JArray ListItemJointByPerson(int personid)
         {
             return db.GetArray(@"
 SELECT 
-t_treat.ID
-,PatientID AS PersonID
-,t_patient.FamilyName AS PersonName
-,t_patient.IDCardNO AS PersionIDCard
-,t_patient.GenderID
-,data_gender.GenderName
+t_treatitem.ID
+t_treat.PrescribeTime
 ,MedicationID
 ,t_medication.`Name` AS MedicationName
 ,t_medication.Specification 
@@ -62,21 +58,11 @@ t_treat.ID
 ,data_medicationdosageform.`Name` AS DosageName
 ,MedicationPathwayID
 ,data_medicationpathway.`Name` AS PathwayName
-,Type
-,SingleDoseAmount
-,SingleDoseUnit
-,TotalDoseAmount
-,Prescriber
-,PrescribeTime
-,ReviewPharmacist
-,ReviewTime
-,AllocationPharmacist
-,AllocationTime
-,VerifyPharmacist
-,VerifyTime
-,DispensePharmacist
-,DispenseTime
-,Remarks
+,IFNULL(Type,'') AS Type
+,IFNULL(SingleDoseAmount,'') AS SingleDoseAmount
+,IFNULL(SingleDoseUnit,'') AS SingleDoseUnit
+,IFNULL(TotalDoseAmount,'') AS TotalDoseAmount
+,IFNULL(Remarks,'') AS Remarks
 FROM t_treatitem
 LEFT JOIN t_treat
 ON t_treatitem.TreatID=t_treat.ID
@@ -93,6 +79,7 @@ ON t_treatitem.MedicationDosageFormID=data_medicationdosageform.ID
 LEFT JOIN data_medicationpathway
 ON t_treatitem.MedicationPathwayID=data_medicationpathway.ID
 WHERE t_treat.PatientID=?p1
+ORDER BY t_treat.PrescribeTime ASC
 ", personid);
         }
 
@@ -102,7 +89,7 @@ WHERE t_treat.PatientID=?p1
         /// <param name="treatid">检索指定个人的id</param>
         /// <returns>JSON对象，包含相应的“用药记录明细”数组</returns>
         [NonAction]
-        public JArray GetTreatItemList(int treatid)
+        public JArray ListItemJointByTreat(int treatid)
         {
             return db.GetArray(@"
 SELECT 
@@ -141,7 +128,7 @@ AND t_treatitem.IsDeleted=0
         /// <param name="id">指定的id</param>
         /// <returns>JSON对象，包含相应的“用药记录明细”信息</returns>
         [NonAction]
-        public JObject GetTreatItem(int id)
+        public JObject GetTreatItemRawImp(int id)
         {
             JObject res = db.GetOne(@"
 SELECT 

@@ -105,7 +105,8 @@ namespace health.Controllers
 
             JObject res = new JObject();
             JArray list = db.GetArray(
-                @"SELECT 
+                @"
+SELECT 
 IFNULL(t_patient.ID,'') as ID
 ,IFNULL(t_attandent.IsReferral,'') as IsReferral
 ,IFNULL(t_patient.OrgnizationID,'') as OrgnizationID
@@ -164,21 +165,11 @@ LIMIT ?p2,?p3"
             return res;
         }
 
-
-            /// <summary>
-            /// 获取人员信息，初始化[人员信息录入]菜单
-            /// </summary>
-            /// <returns>JSON形式的某位个人信息，包括个人信息，</returns>
-            [HttpGet]
-        [Route("GetPerson")]
-        public override JObject Get(int id)
+        [NonAction]
+        public JObject GetPersonRawImp(int id)
         {
             common.BaseConfig conf = new common.BaseConfig();
-            JObject res = new JObject();
-
-            // 个人信息
-            JObject personinfo =
-             db.GetOne(
+            var res = db.GetOne(
                 @"SELECT 
 IFNULL(t_patient.ID,'') as ID
 ,IFNULL(t_attandent.IsReferral,'') as IsReferral
@@ -211,23 +202,36 @@ ON t_patient.ID=t_attandent.PatientID
 where t_patient.ID=?p1
 and t_patient.IsDeleted=0"
                 , id);
-            personinfo["primaryorg"] = _org.GetOrgInfo(personinfo["primaryorgnizationid"].ToObject<int>());
-            personinfo["orgnization"] = _org.GetOrgInfo(personinfo["orgnizationid"].ToObject<int>());
+            res["primaryorg"] = _org.GetOrgInfo(res["primaryorgnizationid"].ToObject<int>());
+            res["orgnization"] = _org.GetOrgInfo(res["orgnizationid"].ToObject<int>());
 
-            personinfo["gender"] = _gender.GetGenderInfo(personinfo["genderid"].ToObject<int>());
-            personinfo["occupation"] = _occupation.GetOccupationInfo(personinfo["occupationcategoryid"].ToObject<int>());
-            personinfo["addresscategory"] = _addrcategory.GetAddressCategoryInfo(personinfo["addresscategoryid"].ToObject<int>());
+            res["gender"] = _gender.GetGenderInfo(res["genderid"].ToObject<int>());
+            res["occupation"] = _occupation.GetOccupationInfo(res["occupationcategoryid"].ToObject<int>());
+            res["addresscategory"] = _addrcategory.GetAddressCategoryInfo(res["addresscategoryid"].ToObject<int>());
 
-            personinfo["province"] = conf.GetAreaInfo(personinfo["provinceid"].ToObject<int>());
-            personinfo["city"] = conf.GetAreaInfo(personinfo["cityid"].ToObject<int>());
-            personinfo["county"] = conf.GetAreaInfo(personinfo["countyid"].ToObject<int>());
+            res["province"] = conf.GetAreaInfo(res["provinceid"].ToObject<int>());
+            res["city"] = conf.GetAreaInfo(res["cityid"].ToObject<int>());
+            res["county"] = conf.GetAreaInfo(res["countyid"].ToObject<int>());
 
 
-            res["personinfo"] = personinfo;
-            // 检查信息
-            //where IsReexam = 0
+            return res;
+        }
+
+
+        /// <summary>
+        /// 获取人员信息，初始化[人员信息录入]菜单
+        /// </summary>
+        /// <returns>JSON形式的某位个人信息，包括个人信息，</returns>
+        [HttpGet]
+        [Route("GetPerson")]
+        public override JObject Get(int id)
+        {
+            JObject res = new JObject();
+            res["personinfo"] = GetPersonRawImp(id);
+            if (res["personinfo"].HasValues)
+                return Response_201_read.GetResult();
+
             res["checkinfo"] = _check.GetListPImp(id);
-
             res["treatinfo"] = db.GetArray(@"
 SELECT
 IFNULL(t_treat.ID,'') AS ID
@@ -241,22 +245,10 @@ ON t_treatitem.TreatID=t_treat.ID
 WHERE t_treat.PatientID=?p1
 AND t_treatitem.IsDeleted=0", id);
 
-            // 随访信息
             res["followupinfo"] = _followup.GetListPImp(id);
             res["vaccinfo"] = _vacc.GetListPImp(id);
 
-            if (res["personinfo"].HasValues)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取数据成功";
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "查询不到对应的数据";
-            }
-
-            return res;
+            return Response_200_read.GetResult(res);
         }
 
         /// <summary>

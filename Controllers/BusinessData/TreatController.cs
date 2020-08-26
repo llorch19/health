@@ -295,7 +295,7 @@ AND IsDeleted=0
 
             res["orgnization"] = _org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
             res["person"] = _person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
-            res["items"] = _items.GetTreatItemList(res["id"].ToObject<int>());
+            res["items"] = _items.ListItemJointByTreat(res["id"].ToObject<int>());
             return Response_200_read.GetResult(res);
         }
 
@@ -328,7 +328,7 @@ AND IsDeleted=0
                 dict["LastUpdatedTime"] = DateTime.Now;
                 var tmp = this.db.Update("t_treat", dict, condi);
 
-                JArray list = _items.GetTreatItemList(req["id"].ToObject<int>());
+                JArray list = _items.ListItemJointByTreat(req["id"].ToObject<int>());
                 var item = list.FirstOrDefault();
                 if (item==null)
                 {

@@ -29,16 +29,23 @@ namespace health.Controllers
     public class MessageController : AbstractBLLController
     {
         private readonly ILogger<MessageController> _logger;
+        OrganizationController _org;
+        PersonController _person;
         IWebHostEnvironment _env;
         config conf = new config();
         const string spliter = "$$";
         string[] permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
         public override string TableName => "t_messagesent";
 
-        public MessageController(ILogger<MessageController> logger, IWebHostEnvironment env)
+        public MessageController(ILogger<MessageController> logger
+            , IWebHostEnvironment env
+            , OrganizationController org
+            , PersonController person)
         {
             _logger = logger;
             _env = env;
+            _org = org;
+            _person = person;
         }
 
         /// <summary>
@@ -125,21 +132,13 @@ AND IsPublic=1
 ";
 
             JObject res = db.GetOne(sql, id);
-            if (res["id"] != null)
-            {
-                OrganizationController org = new OrganizationController(null);
-                res["orgnization"] = org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
-                PersonController person = new PersonController(null, null);
-                res["publish"] = person.GetUserInfo(res["publishuserid"]?.ToObject<int>() ?? 0);
-                res["status"] = 200;
-                res["msg"] = "获取数据成功";
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "没有获取到相应的数据";
-            }
-            return res;
+            if (res["id"] == null)
+                return Response_201_read.GetResult();
+
+            res["orgnization"] = _org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
+            res["publish"] = _person.GetUserInfo(res["publishuserid"]?.ToObject<int>() ?? 0);
+
+            return Response_200_read.GetResult(res);
         }
 
 
