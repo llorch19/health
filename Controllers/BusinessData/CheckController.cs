@@ -260,7 +260,8 @@ AND t_check.IsDeleted=0", id);
                 dict["Chosen"] = JsonConvert.SerializeObject(chosen);
                 var bChoiceInRecommend =
                     dict["Recommend"].ToString().Contains(dict["Chosen"].ToString())
-                    || (!recommend.HasValues && !chosen.HasValues);
+                    || (!recommend.HasValues && !chosen.HasValues
+                    || (recommend.HasValues && !chosen.HasValues));
                 if (!bChoiceInRecommend)
                     return Response_201_write.GetResult(null, "选择方案与提供方案不符");
                 dict["PatientID"] = req.ToInt("patientid");
