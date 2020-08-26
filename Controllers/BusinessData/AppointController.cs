@@ -42,15 +42,15 @@ namespace health.Controllers
         [Route("GetAppointList")]
         public override JObject GetList()
         {
-            JObject res = GetListImp();
+            JObject res = new JObject();
+            res["list"] = GetListImp();
             return Response_200_read.GetResult(res);
         }
 
         [NonAction]
-        public JObject GetListImp()
+        public JArray GetListImp()
         {
-            JObject res = new JObject();
-            JArray list = db.GetArray(@"SELECT   
+            return db.GetArray(@"SELECT   
 IFNULL(t_appoint.ID,'') AS ID
 ,IFNULL(t_appoint.OrgnizationID,'') AS OrgnizationID
 ,IFNULL(t_orgnization.OrgName,'') AS OrgName
@@ -80,10 +80,6 @@ LEFT JOIN t_patient
 ON t_appoint.PatientID=t_patient.ID
 WHERE t_appoint.OrgnizationID=?p1
 AND t_appoint.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
-
-
-            res["list"] = list;
-            return res;
         }
 
         /// <summary>

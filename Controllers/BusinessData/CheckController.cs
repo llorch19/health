@@ -58,15 +58,15 @@ namespace health.Controllers
         [Route("GetCheckList")]
         public JObject GetList()
         {
-            JObject res = GetListImp();
+            JObject res = new JObject();
+            res["list"] = GetListImp();
             return Response_200_read.GetResult(res);
         }
         [NonAction]
-        public JObject GetListImp()
+        public JArray GetListImp()
         {
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            JObject res = new JObject();
-            res["list"] = db.GetArray(@"
+            return db.GetArray(@"
 SELECT 
 t_check.ID
 ,IFNULL(CType,'') AS CheckType
@@ -99,8 +99,6 @@ ON t_check.ResultTypeID=data_detectionresulttype.ID
 WHERE t_check.OrgnizationID =?p1
 AND t_check.IsDeleted=0
 ", orgid);
-
-            return res;
         }
 
 

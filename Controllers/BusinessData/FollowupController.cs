@@ -42,15 +42,15 @@ namespace health.Controllers
         [Route("Get[controller]List")]
         public override JObject GetList()
         {
-            JObject res = GetListImp();
+            JObject res = new JObject();
+            res["list"] = GetListImp();
             return Response_200_read.GetResult(res);
         }
 
         [NonAction]
-        public JObject GetListImp()
+        public JArray GetListImp()
         {
-            JObject res = new JObject();
-            res["list"] = db.GetArray(@"
+            return db.GetArray(@"
 SELECT 
 t_followup.ID
 ,t_followup.PatientID AS PersonID
@@ -71,7 +71,6 @@ LEFT JOIN t_orgnization
 ON t_followup.OrgnizationID=t_orgnization.ID
 WHERE t_followup.OrgnizationID=?p1
 AND t_followup.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
-            return res;
         }
 
         /// <summary>
