@@ -301,7 +301,14 @@ AND IsDeleted=0
             }
 
             Dictionary<string, object> dict =GetReq(req);
-           
+            if (req.ContainsKey("isactive"))
+            {
+                dict["IsActive"] = req["isactive"]?.ToObject<bool?>();
+            }
+            else
+            {
+                dict = GetReq(req);
+            }
 
             JObject res = new JObject();
 
@@ -324,7 +331,7 @@ AND IsDeleted=0
                     itemReq["medicationpathwayid"] = req.ToInt("medicationpathwayid");
                     itemReq["medicationdosageformid"] = req.ToInt("medicationdosageformid");
                     itemReq["medicationfreqcategoryid"] = req.ToInt("medicationfreqcategoryid");
-                    var rows = _items.SetTreatItem(new JObject[] { itemReq },HttpContext).Aggregate((sum, p) => sum += p);
+                    var rows = _items.AddOrUpdate(new JObject[] { itemReq },HttpContext).Aggregate((sum, p) => sum += p);
                 }
                 else
                 {
@@ -354,7 +361,7 @@ AND IsDeleted=0
                 itemReq["medicationpathwayid"] = req.ToInt("medicationpathwayid");
                 itemReq["medicationdosageformid"] = req.ToInt("medicationdosageformid");
                 itemReq["medicationfreqcategoryid"] = req.ToInt("medicationfreqcategoryid");
-                var rows = _items.SetTreatItem(new JObject[] { itemReq },HttpContext).Aggregate((sum, p) => sum += p);
+                var rows = _items.AddOrUpdate(new JObject[] { itemReq },HttpContext).Aggregate((sum, p) => sum += p);
                
             }
 

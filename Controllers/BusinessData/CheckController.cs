@@ -242,36 +242,44 @@ AND t_check.IsDeleted=0", id);
             }
 
             Dictionary<string, object> dict = new Dictionary<string, object>();
+            if (req.ContainsKey("isactive"))
+            {
+                dict["IsActive"] = req["isactive"]?.ToObject<bool?>();
+            }
+            else
+            {
+                JArray recommend = JArray.FromObject(req["recommend"]);
+                bool bNonResultRecommend = req.Challenge(r =>
+                    string.IsNullOrEmpty(r["result"]?.ToObject<string>())
+                    && recommend.HasValues
+                );
+                if (bNonResultRecommend)
+                    return Response_201_write.GetResult(null, "未保存检测结果，不可以推荐方案");
+                dict["Recommend"] = JsonConvert.SerializeObject(recommend);
+                JObject chosen = JObject.FromObject(req["chosen"]);
+                dict["Chosen"] = JsonConvert.SerializeObject(chosen);
+                var bChoiceInRecommend =
+                    dict["Recommend"].ToString().Contains(dict["Chosen"].ToString())
+                    || (!recommend.HasValues && !chosen.HasValues);
+                if (!bChoiceInRecommend)
+                    return Response_201_write.GetResult(null, "选择方案与提供方案不符");
+                dict["PatientID"] = req.ToInt("patientid");
+                dict["OrgnizationID"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+                dict["ResultTypeID"] = req.ToInt("resulttypeid");
+                // POST过来只有ID数组
+                // [1,2,3]
+
+                dict["IsRexam"] = req["isreexam"]?.ToObject<int?>();
+                dict["CType"] = req["checktype"]?.ToObject<string>();
+                dict["CheckNO"] = req["detectionno"]?.ToObject<string>();
+                dict["PName"] = req["productname"]?.ToObject<string>();
+                dict["Spec"] = req["specification"]?.ToObject<string>();
+                dict["Batch"] = req["batchnumber"]?.ToObject<string>();
+                dict["OperTime"] = req["operationtime"]?.ToObject<DateTime?>();
+                dict["ReportTime"] = req["reporttime"]?.ToObject<DateTime?>();
+            }
+
             
-            JArray recommend = JArray.FromObject(req["recommend"]);
-            bool bNonResultRecommend = req.Challenge(r =>
-                string.IsNullOrEmpty(r["result"]?.ToObject<string>())
-                && recommend.HasValues
-            );
-            if (bNonResultRecommend)
-                return Response_201_write.GetResult(null, "未保存检测结果，不可以推荐方案");
-            dict["Recommend"] = JsonConvert.SerializeObject(recommend);
-            JObject chosen = JObject.FromObject(req["chosen"]);
-            dict["Chosen"] = JsonConvert.SerializeObject(chosen);
-            var bChoiceInRecommend = 
-                dict["Recommend"].ToString().Contains(dict["Chosen"].ToString())
-                || (!recommend.HasValues && !chosen.HasValues);
-            if (!bChoiceInRecommend)
-                return Response_201_write.GetResult(null,"选择方案与提供方案不符");
-            dict["PatientID"] = req.ToInt("patientid");
-            dict["OrgnizationID"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            dict["ResultTypeID"] = req.ToInt("resulttypeid");
-            // POST过来只有ID数组
-            // [1,2,3]
-            
-            dict["IsRexam"] = req["isreexam"]?.ToObject<int?>();
-            dict["CType"] = req["checktype"]?.ToObject<string>();
-            dict["CheckNO"] = req["detectionno"]?.ToObject<string>();
-            dict["PName"] = req["productname"]?.ToObject<string>();
-            dict["Spec"] = req["specification"]?.ToObject<string>();
-            dict["Batch"] = req["batchnumber"]?.ToObject<string>();
-            dict["OperTime"] = req["operationtime"]?.ToObject<DateTime?>();
-            dict["ReportTime"] = req["reporttime"]?.ToObject<DateTime?>();
 
             JObject res = new JObject();
             if (req["id"]?.ToObject<int>() > 0)

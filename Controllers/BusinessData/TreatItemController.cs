@@ -163,7 +163,7 @@ AND IsDeleted=0
         /// <param name="httpContext">请求上下文对象</param>
         /// <returns>响应状态信息</returns>
         [NonAction]
-        public int[] SetTreatItem([FromBody] JObject[] items,Microsoft.AspNetCore.Http.HttpContext httpContext)
+        public int[] AddOrUpdate([FromBody] JObject[] items,Microsoft.AspNetCore.Http.HttpContext httpContext)
         {
             int[] res = new int[items.Length];
             for (int i = 0; i < items.Length; i++)
