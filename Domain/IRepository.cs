@@ -8,12 +8,11 @@ namespace health.web
 {
     public interface IRepository
     {
-
         JArray GetListJointImp();
         JArray GetListByOrgJointImp(int orgid);
         JArray GetListByPersonJointImp(int personid);
         JObject GetOneRawImp(int id);
         int AddOrUpdateRaw(JObject data,string username);
-        bool DelRaw(JObject data,string username);
+        int DelRaw(JObject data,string username);
     }
 }

@@ -53,5 +53,10 @@ select ID,Code,AddressCategory,IsActive from data_addresscategory where id=?p1 A
             dict["IsDeleted"] = 0;
             return dict;
         }
+
+        public override int GetId(JObject data)
+        {
+            return data.ToInt("id") ?? 0;
+        }
     }
 }

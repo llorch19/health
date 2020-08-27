@@ -23,6 +23,8 @@ using Google.Protobuf.WellKnownTypes;
 using System;
 using IdGen;
 using health.web.common;
+using health.web.Domain;
+using util.mysql;
 
 namespace health
 {
@@ -124,6 +126,10 @@ namespace health
             services.AddMemoryCache();
 
             services.AddLazyResolution();
+
+
+            services.AddTransient(typeof(dbfactory));
+            services.AddTransient(typeof(AddressCategoryRepository));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

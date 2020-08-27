@@ -33,7 +33,8 @@ namespace health.web.Domain
             else
             {
                 if (IsLockAction(data))
-                    return SetLock(data);
+                    return SetLock(data, username) > 0 
+                        ? GetId(data) : 0;
                 else
                 {
                     var valuedata = GetValue(data);
@@ -42,27 +43,31 @@ namespace health.web.Domain
                     valuedata["LastUpdatedTime"] = DateTime.Now;
                     valuedata["IsActive"] = 0;
                     valuedata["IsDeleted"] = 0;
-                    return _db.Update(TableName, valuedata, keydata);
+                    return _db.Update(TableName, valuedata, keydata)>0
+                        ?GetId(data)
+                        :0;
                 }
             }
         }
 
-        public virtual bool DelRaw(JObject data,string username)
+        public virtual int DelRaw(JObject data,string username)
         {
-            var valuedata = GetValue(data);
+            var valuedata = new Dictionary<string,object>();
             valuedata["IsDeleted"] = 1;
             valuedata["IsActive"] = 0;
             valuedata["LastUpdatedBy"] = username;
             valuedata["LastUpdatedTime"] = DateTime.Now;
-            return 0 < _db.Update("data_addresscategory"
-                , valuedata
-                , GetKey(data));
+            return _db.Update(TableName, valuedata, GetKey(data)) > 0
+                        ? GetId(data)
+                        : 0;
         }
 
-        public virtual int SetLock(JObject data)
+        public virtual int SetLock(JObject data,string username)
         {
             var value = new Dictionary<string, object>();
             value["IsActive"] = data.ToInt("isactive");
+            value["LastUpdatedBy"] = username;
+            value["LastUpdatedTime"] = DateTime.Now;
             var keys = GetKey(data);
             var rc = _db.Update(TableName, value, keys);
             return rc;
@@ -74,5 +79,6 @@ namespace health.web.Domain
         public abstract JObject GetOneRawImp(int id);
         public abstract Dictionary<string, object> GetValue(JObject data);
         public abstract Dictionary<string, object> GetKey(JObject data);
+        public abstract int GetId(JObject data);
     }
 }
