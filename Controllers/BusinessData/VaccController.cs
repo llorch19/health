@@ -258,7 +258,7 @@ and IsDeleted=0", id);
             dict["NextTime"] = req.ToDateTime("nexttime");
             dict["Fstatus"] = req["fstatus"]?.ToObject<string>();
             dict["Ftime"] = req.ToInt("ftime");
-
+            dict["Effect"] = req["effect"]?.ToObject<string>();
 
             return dict;
         }
