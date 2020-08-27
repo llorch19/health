@@ -93,6 +93,7 @@ namespace health.BaseData
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["Code"] = req["code"]?.ToObject<string>();
             dict["AddressCategory"] = req["addresscategory"]?.ToObject<string>();
+            
             return dict;
         }
     }
