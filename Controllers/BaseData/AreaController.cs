@@ -8,6 +8,8 @@
  * - 新增AreaList接口返回地域的树形结构。     @xuedi  2020-07-20  10:25
  * */
 
+using health.web.Domain;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -18,14 +20,15 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class AreaController : AbstractBLLController
+    public class AreaController : AbstractBLLControllerT
     {
-        private readonly ILogger<AreaController> _logger;
-        public override string TableName => "data_area";
-
-        public AreaController(ILogger<AreaController> logger)
+        ILogger<AreaController> _logger;
+        AreaRepository _repository;
+        public AreaController(AreaRepository repository,IServiceProvider serviceProvider)
+            :base(repository,serviceProvider)
         {
-            _logger = logger;
+            _logger = serviceProvider.GetService(typeof(ILogger<AreaController>)) as ILogger<AreaController>;
+            _repository = repository;
         }
 
         /// <summary>
@@ -38,11 +41,8 @@ namespace health.Controllers
         public JObject GetAreaList(int parentId)
         {
             JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            res["list"] = db.GetArray("select id,AreaCode,AreaName,parentID,cs,AreaCodeV2 from data_area where parentID=?p1", parentId);
-
-            return res;
+            res["list"] = _repository.GetListJointImp(parentId);
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -54,7 +54,7 @@ namespace health.Controllers
         [Route("GetAreaList")]
         public override JObject GetList()
         {
-            return GetAreaList(0);
+            return base.GetList();
         }
 
 
@@ -83,21 +83,7 @@ namespace health.Controllers
         [Route("GetArea")]
         public override JObject Get(int id)
         {
-            //int id = 0;
-            //int.TryParse(HttpContext.Request.Query["id"],out id);
-            dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,AreaCode,AreaName,parentID,cs,AreaCodeV2 from data_area where id=?p1", id);
-            if (res["id"] != null)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "查询不到对应的数据";
-            }
-            return res;
+            return base.Get(id);
         }
 
         /// <summary>
@@ -110,41 +96,7 @@ namespace health.Controllers
         [NonAction]
         public override JObject Set([FromBody] JObject req)
         {
-            JObject res = new JObject();
-            res["status"] = 201;
-            res["msg"] = "操作失败";
-            return res;
-
-
-            //Dictionary<string, object> dict = new Dictionary<string, object>();
-            //dict["AreaCode"] = req["areacode"]?.ToObject<string>();
-            //dict["AreaName"] = req["areaname"]?.ToObject<string>();
-            //dict["ParentID"] = req.ToInt("parentid");
-            //dict["dingdingDept"] = req["dingdingdept"]?.ToObject<string>();
-            //dict["cs"] = req.ToInt("cs");
-            //dict["AreaCodeV2"] = req["areacodev2"]?.ToObject<string>();
-
-            //JObject res = new JObject();
-            //if (req["id"]?.ToObject<int>() > 0)
-            //{
-            //    Dictionary<string, object> condi = new Dictionary<string, object>();
-            //    condi["id"] = req["id"];
-            //    dict["LastUpdatedBy"] = FilterUtil.GetUser(HttpContext);
-            //    dict["LastUpdatedTime"] = DateTime.Now;
-            //    var tmp = this.db.Update(TableName, dict, condi);
-            //    res["id"] = req["id"];
-            //}
-            //else
-            //{
-            //    dict["CreatedBy"] = FilterUtil.GetUser(HttpContext);
-            //    dict["CreatedTime"] = DateTime.Now;
-            //    res["id"] = this.db.Insert(TableName, dict);
-            //}
-
-
-            //res["status"] = 200;
-            //res["msg"] = "提交成功";
-            //return res;
+            return base.Set(req);
         }
 
 
@@ -158,10 +110,7 @@ namespace health.Controllers
         [NonAction]
         public override JObject Del([FromBody] JObject req)
         {
-            JObject res = new JObject();
-            res["status"] = 201;
-            res["msg"] = "操作失败";
-            return res;
+            return Response_201_write.GetResult();
         }
 
 
@@ -171,19 +120,6 @@ namespace health.Controllers
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,AreaName text from data_area where id=?p1", id);
             return res;
-        }
-
-        public override Dictionary<string, object> GetReq(JObject req)
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["AreaCode"] = req["areacode"]?.ToObject<string>();
-            dict["AreaName"] = req["areaname"]?.ToObject<string>();
-            dict["ParentID"] = req.ToInt("parentid");
-            dict["dingdingDept"] = req["dingdingdept"]?.ToObject<string>();
-            dict["cs"] = req.ToInt("cs");
-            dict["AreaCodeV2"] = req["areacodev2"]?.ToObject<string>();
-
-            return dict;
         }
     }
 }

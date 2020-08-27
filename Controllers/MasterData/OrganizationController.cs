@@ -186,7 +186,7 @@ AND IsDeleted=0"
             }
             else
             {
-                AreaController area = new AreaController(null);
+                AreaController area = new AreaController(null,null);
                 res["province"] = area.GetAreaInfo(res.ToInt("provinceid"));
                 res["city"] = area.GetAreaInfo(res.ToInt("cityid"));
                 res["county"] = area.GetAreaInfo(res.ToInt("countyid"));
