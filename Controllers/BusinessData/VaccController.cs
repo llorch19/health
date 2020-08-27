@@ -64,8 +64,7 @@ t_vacc.ID
 ,t_patient.FamilyName AS Person
 ,t_vacc.OrgnizationID
 ,t_orgnization.OrgName AS OrgName
-,OperationUserID
-,t_user.ChineseName AS Operator
+,OperatorName 
 ,MedicationID
 ,t_medication.`Name` AS Medication
 ,t_medication.`CommonName` AS CommonName
@@ -87,8 +86,6 @@ LEFT JOIN t_patient
 ON t_vacc.PatientID=t_patient.ID
 LEFT JOIN t_orgnization
 ON t_vacc.OrgnizationID=t_orgnization.ID
-LEFT JOIN t_user
-ON t_vacc.OperationUserID=t_user.ID
 LEFT JOIN t_medication
 ON t_vacc.MedicationID=t_medication.ID
 LEFT JOIN data_medicationdosageform
@@ -123,7 +120,7 @@ t_vacc.ID
 ,t_medication.`CommonName` AS CommonName
 ,IFNULL(t_medication.ESC,'') AS ESC
 ,t_orgnization.OrgName AS OrgName
-,t_user.ChineseName AS Operator
+,OperatorName 
 ,PatientID
 ,t_patient.FamilyName AS Person
 ,t_vacc.OrgnizationID
@@ -147,8 +144,6 @@ LEFT JOIN t_patient
 ON t_vacc.PatientID=t_patient.ID
 LEFT JOIN t_orgnization
 ON t_vacc.OrgnizationID=t_orgnization.ID
-LEFT JOIN t_user
-ON t_vacc.OperationUserID=t_user.ID
 LEFT JOIN t_medication
 ON t_vacc.MedicationID=t_medication.ID
 LEFT JOIN data_medicationdosageform
@@ -173,7 +168,7 @@ SELECT
 ID
 ,PatientID
 ,OrgnizationID
-,OperationUserID
+,OperatorName
 ,MedicationID
 ,MedicationDosageFormID
 ,MedicationPathwayID
@@ -194,7 +189,6 @@ and IsDeleted=0", id);
 
             res["person"] = _person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
             res["org"] = _org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
-            res["operator"] = _person.GetUserInfo(res["operationuserid"]?.ToObject<int>() ?? 0);
             res["medication"] = _med.GetMedicationInfo(res["medicationid"]?.ToObject<int>() ?? 0);
             res["dosage"] = _dosage.GetDosageInfo(res["medicationdosageformid"]?.ToObject<int>() ?? 0);
             res["pathway"] = _pathway.GetPathwayInfo(res["medicationpathwayid"]?.ToObject<int>() ?? 0);
@@ -254,7 +248,8 @@ and IsDeleted=0", id);
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["PatientID"] = req.ToInt("patientid");
             dict["OrgnizationID"] = req.ToInt("orgnizationid");
-            dict["OperationUserID"] = req.ToInt("operationuserid");
+            //dict["OperationUserID"] = req.ToInt("operationuserid");
+            dict["OperatorName"] = req["operatorname"]?.ToObject<string>();
             dict["MedicationID"] = req.ToInt("medicationid");
             dict["MedicationDosageFormID"] = req.ToInt("medicationdosageformid");
             dict["MedicationPathwayID"] = req.ToInt("medicationpathwayid");
