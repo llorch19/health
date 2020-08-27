@@ -325,6 +325,8 @@ and t_patient.IsDeleted=0"
                 // 新增人员生成邀请码和档案号
                 dict["InviteCode"] = ShareCodeUtils.New();
                 dict["RegisterNO"] = _idGenerator.CreateId();
+                // 在 添加Attandent 记录
+                // 为Patient指定当前orgid
             }
 
 

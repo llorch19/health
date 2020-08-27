@@ -151,5 +151,16 @@ AND t_attandent.IsDeleted=0
         {
             throw new NotImplementedException();
         }
+
+
+        public JArray GetTransOut(int orgid)
+        {
+            var res = _db.GetArray(@"
+SELECT 
+PatientID
+
+");
+            return res;
+        }
     }
 }
