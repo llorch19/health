@@ -1,4 +1,5 @@
 using health.Controllers;
+using health.web.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -10,15 +11,14 @@ using util.mysql;
 namespace health.BaseData
 {
     [Route("api")]
-    public class AddressCategoryController : AbstractBLLController
+    public class AddressCategoryController : AbstractBLLControllerT
     {
-        private readonly ILogger<AddressCategoryController> _logger;
-        public override string TableName => "data_addresscategory";
+        public AddressCategoryController(AddressCategoryRepository addressCategoryRepository,IServiceProvider serviceProvider) 
+            : base(addressCategoryRepository,serviceProvider) 
+        { 
 
-        public AddressCategoryController(ILogger<AddressCategoryController> logger)
-        {
-            _logger = logger;
         }
+
 
         /// <summary>
         /// 获取“地址类型”列表
@@ -27,11 +27,7 @@ namespace health.BaseData
         [HttpGet("GetAddressCategoryList")]
         public override JObject GetList()
         {
-            JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            res["list"] = db.GetArray("select ID,Code,AddressCategory,IsActive from data_addresscategory WHERE IsDeleted=0");
-            return res;
+            return base.GetList();
         }
 
         /// <summary>
@@ -42,19 +38,7 @@ namespace health.BaseData
         [HttpGet("GetAddressCategory")]
         public override JObject Get(int id)
         {
-            JObject res = db.GetOne("select ID,Code,AddressCategory,IsActive from data_addresscategory where id=?p1 AND IsDeleted=0", id);
-            if (res["id"] != null)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "查询不到对应的数据";
-            }
-
-            return res;
+            return base.Get(id);
         }
 
         /// <summary>
@@ -86,15 +70,6 @@ namespace health.BaseData
             dbfactory db = new dbfactory();
             JObject res = db.GetOne("select id,AddressCategory text from data_addresscategory where id=?p1 and isdeleted=0", id);
             return res;
-        }
-
-        public override Dictionary<string, object> GetReq(JObject req)
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Code"] = req["code"]?.ToObject<string>();
-            dict["AddressCategory"] = req["addresscategory"]?.ToObject<string>();
-            
-            return dict;
         }
     }
 }
