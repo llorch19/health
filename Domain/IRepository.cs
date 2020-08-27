@@ -12,6 +12,7 @@ namespace health.web
         JArray GetListByOrgJointImp(int orgid);
         JArray GetListByPersonJointImp(int personid);
         JObject GetOneRawImp(int id);
+        JObject GetAltInfo(int? id);
         int AddOrUpdateRaw(JObject data,string username);
         int DelRaw(JObject data,string username);
     }

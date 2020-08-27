@@ -55,5 +55,11 @@ namespace health.Controllers
             res["id"] = _repo.DelRaw(req, StampUtil.Stamp(HttpContext));
             return Response_200_write.GetResult(res);
         }
+
+        [NonAction]
+        public virtual JObject GetAltInfo(int? id)
+        {
+            return _repo.GetAltInfo(id);
+        }
     }
 }

@@ -1,3 +1,4 @@
+using health.web.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -8,14 +9,15 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class DetectionResultTypeController : AbstractBLLController
+    public class DetectionResultTypeController : AbstractBLLControllerT
     {
         private readonly ILogger<DetectionResultTypeController> _logger;
-        public override string TableName => "data_detectionresulttype";
 
-        public DetectionResultTypeController(ILogger<DetectionResultTypeController> logger)
+        public DetectionResultTypeController(DetectionResultTypeRepository repository
+            ,IServiceProvider serviceProvider)
+            :base(repository,serviceProvider)
         {
-            _logger = logger;
+            _logger = serviceProvider.GetService(typeof(ILogger<DetectionResultTypeController>)) as ILogger<DetectionResultTypeController>;
         }
 
         /// <summary>
@@ -26,26 +28,7 @@ namespace health.Controllers
         [Route("Get[controller]List")]
         public override JObject GetList()
         {
-            //int id = 0;
-            //int.TryParse(HttpContext.Request.Query["id"],out id);
-            JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-
-            dbfactory db = new dbfactory();
-            JArray rows = db.GetArray(@"
-select 
-ID
-,ResultName
-,IFNULL(data_detectionresulttype.control1,'') AS CType
-,IFNULL(data_detectionresulttype.control2,'') AS CValue
-,IsActive 
-from data_detectionresulttype 
-where isdeleted=0
-");
-
-            res["list"] = rows;
-            return res;
+            return base.GetList();
         }
 
         /// <summary>
@@ -56,29 +39,7 @@ where isdeleted=0
         [Route("Get[controller]")]
         public override JObject Get(int id)
         {
-            //int id = 0;
-            //int.TryParse(HttpContext.Request.Query["id"],out id);
-            JObject res = db.GetOne(@"
-select 
-ID
-,ResultName
-,IFNULL(data_detectionresulttype.control1,'') AS CType
-,IFNULL(data_detectionresulttype.control2,'') AS CValue
-,IsActive 
-from data_detectionresulttype 
-where id=?p1 
-and isdeleted=0", id);
-            if (res["id"] != null)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "查询不到对应的数据";
-            }
-            return res;
+            return base.Get(id);
         }
 
 
@@ -109,25 +70,7 @@ and isdeleted=0", id);
         [NonAction]
         public JObject GetResultTypeInfo(int? id)
         {
-            dbfactory db = new dbfactory();
-            JObject res = db.GetOne(@"
-select id
-,ResultName text 
-,control1 CType
-,control2 CValue
-from data_detectionresulttype where id=?p1 and isdeleted=0"
-, id);
-            return res;
-        }
-
-        public override Dictionary<string, object> GetReq(JObject req)
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Code"] = req["code"]?.ToObject<string>();
-            dict["ResultName"] = req["resultname"]?.ToObject<string>();
-            dict["control1"] = req["ctype"]?.ToObject<string>();
-            dict["control2"] = req["cvalue"]?.ToObject<string>();
-            return dict;
+            return base.GetAltInfo(id);
         }
     }
 }

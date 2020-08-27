@@ -80,5 +80,7 @@ namespace health.web.Domain
         public abstract Dictionary<string, object> GetValue(JObject data);
         public abstract Dictionary<string, object> GetKey(JObject data);
         public abstract int GetId(JObject data);
+
+        public abstract JObject GetAltInfo(int? id);
     }
 }

@@ -58,5 +58,12 @@ select ID,Code,AddressCategory,IsActive from data_addresscategory where id=?p1 A
         {
             return data.ToInt("id") ?? 0;
         }
+
+        public override JObject GetAltInfo(int? id)
+        {
+            return _db.GetOne(@"
+select id,AddressCategory text from data_addresscategory where id=?p1 and isdeleted=0
+", id);
+        }
     }
 }

@@ -7,12 +7,12 @@ using util.mysql;
 
 namespace health.web.Domain
 {
-    public class AreaRepository : BaseRepository
+    public class DetectionResultTypeRepository : BaseRepository
     {
-        public AreaRepository(dbfactory db) : base(db) { }
+        public DetectionResultTypeRepository(dbfactory db) : base(db) { }
         public override Func<JObject, bool> IsAddAction => req => req.ToInt("id") == 0;
-        public override string TableName => "data_area";
-        public override Func<JObject, bool> IsLockAction => req => false;
+        public override string TableName => "data_detectionresulttype";
+        public override Func<JObject, bool> IsLockAction => req => req.ContainsKey("isactive");
 
         public override JArray GetListByOrgJointImp(int orgid)
         {
@@ -24,42 +24,50 @@ namespace health.web.Domain
             throw new NotImplementedException();
         }
 
-        public JArray GetListJointImp(int parentid)
-        {
-            return _db.GetArray(@"
-select id,AreaCode,AreaName,parentID,cs,AreaCodeV2 from data_area where parentID=?p1
-", parentid);
-        }
-
         public override JArray GetListJointImp()
         {
-            return GetListJointImp(0);
+            return _db.GetArray(@"
+select 
+ID
+,ResultName
+,IFNULL(data_detectionresulttype.control1,'') AS CType
+,IFNULL(data_detectionresulttype.control2,'') AS CValue
+,IsActive 
+from data_detectionresulttype 
+where isdeleted=0
+");
         }
 
         public override JObject GetOneRawImp(int id)
         {
             return _db.GetOne(@"
-select id,AreaCode,AreaName,parentID,cs,AreaCodeV2 from data_area where id=?p1
+select 
+ID
+,ResultName
+,IFNULL(data_detectionresulttype.control1,'') AS CType
+,IFNULL(data_detectionresulttype.control2,'') AS CValue
+,IsActive 
+from data_detectionresulttype 
+where id=?p1 
+and isdeleted=0
 ", id);
         }
 
         public override Dictionary<string, object> GetValue(JObject data)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["AreaCode"] = data["areacode"]?.ToObject<string>();
-            dict["AreaName"] = data["areaname"]?.ToObject<string>();
-            dict["ParentID"] = data.ToInt("parentid");
-            dict["dingdingDept"] = data["dingdingdept"]?.ToObject<string>();
-            dict["cs"] = data.ToInt("cs");
-            dict["AreaCodeV2"] = data["areacodev2"]?.ToObject<string>();
-
+            dict["Code"] = data["code"]?.ToObject<string>();
+            dict["ResultName"] = data["resultname"]?.ToObject<string>();
+            dict["control1"] = data["ctype"]?.ToObject<string>();
+            dict["control2"] = data["cvalue"]?.ToObject<string>();
             return dict;
         }
 
         public override Dictionary<string, object> GetKey(JObject data)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["id"] = data.ToInt("id");
+            dict["ID"] = data.ToInt("id");
+            dict["IsDeleted"] = 0;
             return dict;
         }
 
@@ -71,8 +79,12 @@ select id,AreaCode,AreaName,parentID,cs,AreaCodeV2 from data_area where id=?p1
         public override JObject GetAltInfo(int? id)
         {
             return _db.GetOne(@"
-select id,AreaName text from data_area where id=?p1
-", id);
+select id
+,ResultName text 
+,control1 CType
+,control2 CValue
+from data_detectionresulttype where id=?p1 and isdeleted=0"
+, id);
         }
     }
 }

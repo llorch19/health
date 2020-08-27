@@ -131,6 +131,7 @@ namespace health
             services.AddTransient(typeof(dbfactory));
             services.AddTransient(typeof(AddressCategoryRepository));
             services.AddTransient(typeof(AreaRepository));
+            services.AddTransient(typeof(DetectionResultTypeRepository));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
