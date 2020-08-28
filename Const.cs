@@ -21,5 +21,8 @@ namespace health
         /// 如果重新登陆，则刷新这个值
         /// </summary>
         public static string ValidAudience;
+
+        public const int defaultPageSize = 10;
+        public const int defaultPageIndex = 0;
     }
 }

@@ -41,7 +41,7 @@ namespace health.Controllers
         public JObject GetAreaList(int parentId)
         {
             JObject res = new JObject();
-            res["list"] = _repository.GetListJointImp(parentId);
+            res["list"] = _repository.GetListJointImp(parentId, Const.defaultPageSize, Const.defaultPageIndex);
             return Response_200_read.GetResult(res);
         }
 

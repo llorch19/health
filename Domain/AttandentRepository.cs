@@ -14,8 +14,11 @@ namespace health.web.Domain
         public override string TableName => "t_attandent";
         public override Func<JObject, bool> IsLockAction => req => false;
 
-        public override JArray GetListByOrgJointImp(int orgid)
+        public override JArray GetListByOrgJointImp(int orgid, int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
+            int offset = 0;
+            if (pageIndex > 0)
+                offset = pageSize * (pageIndex - 1);
             return _db.GetArray(@"
 SELECT 
 IFNULL(t_attandent.ID, '') AS ID
@@ -46,11 +49,15 @@ ON t_attandent.SrcOrgID=src.ID
 LEFT JOIN t_orgnization des
 ON t_attandent.DesOrgID=des.id
 WHERE t_attandent.OrgnizationID=?p1
-AND t_attandent.IsDeleted=0", orgid);
+AND t_attandent.IsDeleted=0
+LIMIT ?p2,?p3", orgid, offset, pageSize);
         }
 
-        public override JArray GetListByPersonJointImp(int personid)
+        public override JArray GetListByPersonJointImp(int personid, int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
+            int offset = 0;
+            if (pageIndex > 0)
+                offset = pageSize * (pageIndex - 1);
             return _db.GetArray(@"
 SELECT 
 IFNULL(t_attandent.ID, '') AS ID
@@ -81,10 +88,11 @@ ON t_attandent.SrcOrgID=src.ID
 LEFT JOIN t_orgnization des
 ON t_attandent.DesOrgID=des.id
 WHERE t_attandent.PatientID=?p1
-AND t_attandent.IsDeleted=0", personid);
+AND t_attandent.IsDeleted=0
+LIMIT ?p2,?p3", personid, offset, pageSize);
         }
 
-        public override JArray GetListJointImp()
+        public override JArray GetListJointImp(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
             throw new NotImplementedException();
         }

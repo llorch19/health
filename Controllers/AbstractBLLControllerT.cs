@@ -32,7 +32,7 @@ namespace health.Controllers
         public virtual JObject GetList()
         {
             JObject res = new JObject();
-            res["list"] = _repo.GetListJointImp();
+            res["list"] = _repo.GetListJointImp(Const.defaultPageSize,Const.defaultPageIndex);
             return Response_200_read.GetResult(res);
         }
 

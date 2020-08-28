@@ -61,6 +61,7 @@ namespace health.Controllers
             _treat = serviceProvider.GetService(typeof(Lazy<TreatController>)) as Lazy<TreatController>;
             _treatitem = serviceProvider.GetService(typeof(Lazy<TreatItemController>)) as Lazy<TreatItemController>;
             _vacc = serviceProvider.GetService(typeof(Lazy<VaccController>)) as Lazy<VaccController>;
+            _repository = repository;
         }
 
         /// <summary>
@@ -81,14 +82,14 @@ namespace health.Controllers
         /// <returns>JSON数组形式的个人信息</returns>
         [HttpGet]
         [Route("GetPersonList")]
-        public JObject GetPersonList(int pageSize = 10, int pageIndex = 0)
+        public JObject GetPersonList(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
             JObject res = GetPersonListImp(pageSize,pageIndex);
             return Response_200_read.GetResult(res);
         }
 
         [NonAction]
-        public JObject GetPersonListImp(int pageSize = 10, int pageIndex = 0)
+        public JObject GetPersonListImp(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             int offset = 0;
@@ -96,7 +97,7 @@ namespace health.Controllers
                 offset = pageSize * (pageIndex - 1);
 
             JObject res = new JObject();
-            JArray list = _repo.GetListByOrgJointImp(orgid ?? 0);
+            JArray list = _repo.GetListByOrgJointImp(orgid ?? 0,pageSize,pageIndex);
             res["list"] = list;
             return res;
         }

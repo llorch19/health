@@ -12,12 +12,12 @@ using System.Threading.Tasks;
 namespace health.web.Controllers.BusinessData
 {
     [Route("api")]
-    public class TransferController:AbstractBLLControllerT
+    public class TransferController : AbstractBLLControllerT
     {
         TransferRepository _repository;
         public TransferController(TransferRepository repository
-            ,IServiceProvider serviceProvider)
-            :base(repository, serviceProvider)
+            , IServiceProvider serviceProvider)
+            : base(repository, serviceProvider)
         {
             _repository = repository;
         }
@@ -27,7 +27,7 @@ namespace health.web.Controllers.BusinessData
         {
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             JObject res = new JObject();
-            res["list"] = _repository.GetListByOrgJointImp(orgid ?? 0);
+            res["list"] = _repository.GetListByOrgJointImp(orgid ?? 0, Const.defaultPageSize, Const.defaultPageIndex);
             return Response_200_read.GetResult(res);
         }
 
@@ -36,7 +36,7 @@ namespace health.web.Controllers.BusinessData
         {
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             JObject res = new JObject();
-            res["list"] = _repository.GetListByRecvOrgJointImp(orgid ?? 0);
+            res["list"] = _repository.GetListByRecvOrgJointImp(orgid ?? 0, Const.defaultPageSize, Const.defaultPageIndex);
             return Response_200_read.GetResult(res);
         }
 
@@ -44,7 +44,7 @@ namespace health.web.Controllers.BusinessData
         public JObject GetTransferListForPerson(int personid)
         {
             JObject res = new JObject();
-            res["list"] = _repository.GetListByPersonJointImp(personid);
+            res["list"] = _repository.GetListByPersonJointImp(personid, Const.defaultPageSize, Const.defaultPageIndex);
             return Response_200_read.GetResult(res);
         }
 

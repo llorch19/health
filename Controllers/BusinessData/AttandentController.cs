@@ -43,7 +43,7 @@ namespace health.Controllers
         {
             JObject res = new JObject();
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            res["list"] = _repo.GetListByOrgJointImp(orgid??0);
+            res["list"] = _repo.GetListByOrgJointImp(orgid??0, Const.defaultPageSize, Const.defaultPageIndex);
             return Response_200_read.GetResult(res);
         }
 
@@ -57,14 +57,14 @@ namespace health.Controllers
         public JObject GetListP(int personid)
         {
             JObject res = new JObject();
-            res["list"] = _repo.GetListByPersonJointImp(personid);
+            res["list"] = _repo.GetListByPersonJointImp(personid, Const.defaultPageSize, Const.defaultPageIndex);
             return Response_200_read.GetResult(res);
         }
 
         [NonAction]
         public JArray GetListPImp(int personid)
         {
-            return _repo.GetListByPersonJointImp(personid);
+            return _repo.GetListByPersonJointImp(personid, Const.defaultPageSize, Const.defaultPageIndex);
         }
 
         /// <summary>

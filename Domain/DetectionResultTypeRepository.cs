@@ -14,18 +14,21 @@ namespace health.web.Domain
         public override string TableName => "data_detectionresulttype";
         public override Func<JObject, bool> IsLockAction => req => false;
 
-        public override JArray GetListByOrgJointImp(int orgid)
+        public override JArray GetListByOrgJointImp(int orgid, int pageSize, int pageIndex)
         {
             throw new NotImplementedException();
         }
 
-        public override JArray GetListByPersonJointImp(int personid)
+        public override JArray GetListByPersonJointImp(int personid, int pageSize, int pageIndex)
         {
             throw new NotImplementedException();
         }
 
-        public override JArray GetListJointImp()
+        public override JArray GetListJointImp(int pageSize, int pageIndex)
         {
+            int offset = 0;
+            if (pageIndex > 0)
+                offset = pageSize * (pageIndex - 1);
             return _db.GetArray(@"
 select 
 ID
@@ -35,7 +38,8 @@ ID
 ,IsActive 
 from data_detectionresulttype 
 where isdeleted=0
-");
+limit ?p1,?p2
+",offset,pageSize);
         }
 
         public override JObject GetOneRawImp(int id)

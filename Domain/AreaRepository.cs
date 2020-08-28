@@ -14,26 +14,29 @@ namespace health.web.Domain
         public override string TableName => "data_area";
         public override Func<JObject, bool> IsLockAction => req => false;
 
-        public override JArray GetListByOrgJointImp(int orgid)
+        public override JArray GetListByOrgJointImp(int orgid,int pageSize, int pageIndex)
         {
             throw new NotImplementedException();
         }
 
-        public override JArray GetListByPersonJointImp(int personid)
+        public override JArray GetListByPersonJointImp(int personid, int pageSize, int pageIndex)
         {
             throw new NotImplementedException();
         }
 
-        public JArray GetListJointImp(int parentid)
+        public JArray GetListJointImp(int parentid, int pageSize, int pageIndex)
         {
+            int offset = 0;
+            if (pageIndex > 0)
+                offset = pageSize * (pageIndex - 1);
             return _db.GetArray(@"
-select id,AreaCode,AreaName,parentID,cs,AreaCodeV2 from data_area where parentID=?p1
-", parentid);
+select id,AreaCode,AreaName,parentID,cs,AreaCodeV2 from data_area where parentID=?p1 limit ?p1,?p2
+", parentid,offset,pageSize);
         }
 
-        public override JArray GetListJointImp()
+        public override JArray GetListJointImp(int pageSize, int pageIndex)
         {
-            return GetListJointImp(0);
+            return GetListJointImp(0,pageSize,pageIndex);
         }
 
         public override JObject GetOneRawImp(int id)

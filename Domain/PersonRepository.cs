@@ -60,7 +60,7 @@ and t_user.IsDeleted=0
 
        
 
-        public JArray GetListByOrgJointImp(int orgid, int pageSize = 10, int pageIndex = 0)
+        public override JArray GetListByOrgJointImp(int orgid, int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
             int offset = 0;
             if (pageIndex > 0)
@@ -127,12 +127,12 @@ LIMIT ?p2,?p3
             return array;
         }
 
-        public override JArray GetListByPersonJointImp(int personid)
+        public override JArray GetListByPersonJointImp(int personid, int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
             throw new NotImplementedException();
         }
 
-        public override JArray GetListJointImp()
+        public override JArray GetListJointImp(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
             throw new NotImplementedException();
         }
@@ -226,9 +226,6 @@ and t_patient.IsDeleted=0"
             return dict;
         }
 
-        public override JArray GetListByOrgJointImp(int orgid)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

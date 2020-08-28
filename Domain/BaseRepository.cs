@@ -34,7 +34,7 @@ namespace health.web.Domain
         /// <summary>
         /// 判断提交的数据是否触发IsActive字段，形成锁定/解锁的效果
         /// </summary>
-        public abstract Func<JObject,bool> IsLockAction { get; }
+        public abstract Func<JObject, bool> IsLockAction { get; }
 
         /// <summary>
         /// 新增或修改一条数据
@@ -42,7 +42,7 @@ namespace health.web.Domain
         /// <param name="data"></param>
         /// <param name="username"></param>
         /// <returns></returns>
-        public virtual int AddOrUpdateRaw(JObject data,string username)
+        public virtual int AddOrUpdateRaw(JObject data, string username)
         {
             if (IsAddAction(data))
             {
@@ -56,7 +56,7 @@ namespace health.web.Domain
             else
             {
                 if (IsLockAction(data))
-                    return SetLock(data, username) > 0 
+                    return SetLock(data, username) > 0
                         ? GetId(data) : 0;
                 else
                 {
@@ -66,9 +66,9 @@ namespace health.web.Domain
                     valuedata["LastUpdatedTime"] = DateTime.Now;
                     valuedata["IsActive"] = 1;  // 修改后为 IsActive = true
                     valuedata["IsDeleted"] = 0;
-                    return _db.Update(TableName, valuedata, keydata)>0
-                        ?GetId(data)
-                        :0;
+                    return _db.Update(TableName, valuedata, keydata) > 0
+                        ? GetId(data)
+                        : 0;
                 }
             }
         }
@@ -79,9 +79,9 @@ namespace health.web.Domain
         /// <param name="data"></param>
         /// <param name="username"></param>
         /// <returns></returns>
-        public virtual int DelRaw(JObject data,string username)
+        public virtual int DelRaw(JObject data, string username)
         {
-            var valuedata = new Dictionary<string,object>();
+            var valuedata = new Dictionary<string, object>();
             valuedata["IsDeleted"] = 1;
             valuedata["IsActive"] = 0;
             valuedata["LastUpdatedBy"] = username;
@@ -97,7 +97,7 @@ namespace health.web.Domain
         /// <param name="data"></param>
         /// <param name="username"></param>
         /// <returns></returns>
-        public virtual int SetLock(JObject data,string username)
+        public virtual int SetLock(JObject data, string username)
         {
             var value = new Dictionary<string, object>();
             value["IsActive"] = data.ToInt("isactive");
@@ -112,19 +112,23 @@ namespace health.web.Domain
         /// 根据组织，获取数据列表
         /// </summary>
         /// <param name="orgid"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="pageIndex"></param>
         /// <returns></returns>
-        public abstract JArray GetListByOrgJointImp(int orgid);
+        public abstract JArray GetListByOrgJointImp(int orgid, int pageSize, int pageIndex);
         /// <summary>
         /// 根据患者，获取数据列表
         /// </summary>
         /// <param name="personid"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="pageIndex"></param>
         /// <returns></returns>
-        public abstract JArray GetListByPersonJointImp(int personid);
+        public abstract JArray GetListByPersonJointImp(int personid, int pageSize, int pageIndex);
         /// <summary>
         /// 获取全表数据的列表
         /// </summary>
         /// <returns></returns>
-        public abstract JArray GetListJointImp();
+        public abstract JArray GetListJointImp(int pageSize, int pageIndex);
         /// <summary>
         /// 获取特定的一条数据
         /// </summary>

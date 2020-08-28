@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using util.mysql;
@@ -16,8 +17,12 @@ namespace health.web.Domain
         public override string TableName => "t_transfer";
         public override Func<JObject, bool> IsLockAction => req => false;
 
-        public override JArray GetListByOrgJointImp(int orgid)
+        public override JArray GetListByOrgJointImp(int orgid, int pageSize, int pageIndex)
         {
+            int offset = 0;
+            if (pageIndex > 0)
+                offset = pageSize * (pageIndex - 1);
+
             var array = _db.GetArray(@"
 SELECT 
 t.ID
@@ -41,12 +46,16 @@ LEFT JOIN t_patient person
 ON t.PatientID=person.ID
 WHERE t.IsDeleted=0
 AND t.OrgnizationID=?p1
-",orgid);
+LIMIT ?p2,?p3
+",orgid,offset,pageSize);
             return array;
         }
 
-        public  JArray GetListByRecvOrgJointImp(int orgid)
+        public  JArray GetListByRecvOrgJointImp(int orgid, int pageSize, int pageIndex)
         {
+            int offset = 0;
+            if (pageIndex > 0)
+                offset = pageSize * (pageIndex - 1);
             var array = _db.GetArray(@"
 SELECT 
 t.ID
@@ -70,12 +79,16 @@ LEFT JOIN t_patient person
 ON t.PatientID=person.ID
 WHERE t.IsDeleted=0
 AND t.DestOrgID=?p1
-", orgid);
+LIMIT ?p2,?p3
+", orgid,offset,pageSize);
             return array;
         }
 
-        public override JArray GetListByPersonJointImp(int personid)
+        public override JArray GetListByPersonJointImp(int personid, int pageSize, int pageIndex)
         {
+            int offset = 0;
+            if (pageIndex > 0)
+                offset = pageSize * (pageIndex - 1);
             var array = _db.GetArray(@"
 SELECT 
 t.ID
@@ -99,11 +112,12 @@ LEFT JOIN t_patient person
 ON t.PatientID=person.ID
 WHERE t.IsDeleted=0
 AND t.PatientID=?p1
-", personid);
+LIMIT ?p2,?p3
+", personid,offset,pageSize);
             return array;
         }
 
-        public override JArray GetListJointImp()
+        public override JArray GetListJointImp(int pageSize, int pageIndex)
         {
             throw new NotImplementedException();
         }
