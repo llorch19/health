@@ -77,11 +77,13 @@ select id,AreaName text from data_area where id=?p1
 
         public override int AddOrUpdateRaw(JObject data, string username)
         {
+            // 需要针对表格定制新增修改方法时，重写基类的此方法
             throw new NotImplementedException();
         }
 
         public override int DelRaw(JObject data, string username)
         {
+            // 需要针对表格定制删除方法时，重写基类的此方法
             throw new NotImplementedException();
         }
     }
