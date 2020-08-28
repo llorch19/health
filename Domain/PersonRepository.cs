@@ -177,7 +177,11 @@ and t_patient.IsDeleted=0"
 
         public override Dictionary<string, object> GetKey(JObject data)
         {
-            throw new NotImplementedException();
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["ID"] = data.ToInt("id");
+            dict["IsDeleted"] = 0; // IsDeleted=0 的记录可以被查看
+            dict["IsActive"] = 1;  // IsActive=1 的记录可以被修改和删除
+            return dict;
         }
 
         public override Dictionary<string, object> GetValue(JObject data)

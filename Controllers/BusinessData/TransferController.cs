@@ -40,6 +40,7 @@ namespace health.web.Controllers.BusinessData
             return Response_200_read.GetResult(res);
         }
 
+        [HttpGet("GetTransferListForPerson")]
         public JObject GetTransferListForPerson(int personid)
         {
             JObject res = new JObject();
@@ -47,6 +48,7 @@ namespace health.web.Controllers.BusinessData
             return Response_200_read.GetResult(res);
         }
 
+        [HttpPost("DoTransfer")]
         public JObject DoTransfer(JObject data)
         {
             throw new NotImplementedException();
@@ -54,16 +56,47 @@ namespace health.web.Controllers.BusinessData
             return Response_200_read.GetResult(res);
         }
 
+        [HttpPost("CancelTransfer")]
         public JObject CancelTransfer()
         {
             throw new NotImplementedException();
         }
 
-
+        [HttpPost("AcceptTransfer")]
         public JObject AcceptTransfer()
         {
             throw new NotImplementedException();
         }
 
+        [NonAction]
+        public override JObject GetList()
+        {
+            return base.GetList();
+        }
+
+        [NonAction]
+        public override JObject Get(int id)
+        {
+            return base.Get(id);
+        }
+
+        [NonAction]
+        public override JObject Set(JObject req)
+        {
+            return base.Set(req);
+        }
+
+        [NonAction]
+        public override JObject Del(JObject req)
+        {
+            return base.Del(req);
+        }
+
+
+        [NonAction]
+        public override JObject GetAltInfo(int? id)
+        {
+            return base.GetAltInfo(id);
+        }
     }
 }
