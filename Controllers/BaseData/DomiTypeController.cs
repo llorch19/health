@@ -104,7 +104,8 @@ namespace health.Controllers
         [NonAction]
         public JObject GetDomiTypeInfo(int? id)
         {
-            JObject res = db.GetOne("select id,Name text from data_domitype where id=?p1 and isdeleted=0", id);
+            JObject res = db.GetOne(@"
+select id,Name text from data_domitype where id=?p1 and isdeleted=0", id);
             return res;
         }
 
