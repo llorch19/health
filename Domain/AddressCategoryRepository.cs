@@ -12,7 +12,7 @@ namespace health.web.Domain
         public AddressCategoryRepository(dbfactory db) : base(db) { }
         public override Func<JObject, bool> IsAddAction => req => req.ToInt("id") == 0;
         public override string TableName => "data_addresscategory";
-        public override Func<JObject, bool> IsLockAction => req => req.ContainsKey("isactive");
+        public override Func<JObject, bool> IsLockAction => req => false;
 
         public override JArray GetListByOrgJointImp(int orgid)
         {
@@ -50,7 +50,8 @@ select ID,Code,AddressCategory,IsActive from data_addresscategory where id=?p1 A
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["ID"] = data.ToInt("id");
-            dict["IsDeleted"] = 0;
+            dict["IsDeleted"] = 0; // IsDeleted=0 的记录可以被查看
+            dict["IsActive"] = 1;  // IsActive=1 的记录可以被修改和删除
             return dict;
         }
 

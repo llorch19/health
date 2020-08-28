@@ -41,7 +41,7 @@ namespace health.web.Domain
                     var keydata = GetKey(data);
                     valuedata["LastUpdatedBy"] = username;
                     valuedata["LastUpdatedTime"] = DateTime.Now;
-                    valuedata["IsActive"] = 0;
+                    valuedata["IsActive"] = 1;  // 新增后为 IsActive = true
                     valuedata["IsDeleted"] = 0;
                     return _db.Update(TableName, valuedata, keydata)>0
                         ?GetId(data)

@@ -12,7 +12,7 @@ namespace health.web.Domain
         public AttandentRepository(dbfactory db) : base(db) { }
         public override Func<JObject, bool> IsAddAction => req => req.ToInt("id") == 0;
         public override string TableName => "t_attandent";
-        public override Func<JObject, bool> IsLockAction => req => req.ContainsKey("isactive");
+        public override Func<JObject, bool> IsLockAction => req => false;
 
         public override JArray GetListByOrgJointImp(int orgid)
         {
@@ -139,6 +139,7 @@ AND t_attandent.IsDeleted=0
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["ID"] = data.ToInt("id");
             dict["IsDeleted"] = 0;
+            dict["IsActive"] = 1;  // IsActive=1 的记录可以被修改和删除
             return dict;
         }
 
