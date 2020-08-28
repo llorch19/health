@@ -81,7 +81,7 @@ namespace health.web.Domain
         /// <returns></returns>
         public virtual int DelRaw(JObject data, string username)
         {
-            var valuedata = new Dictionary<string, object>();
+            var valuedata = GetPostDelSetting(data);
             valuedata["IsDeleted"] = 1;
             valuedata["IsActive"] = 0;
             valuedata["LastUpdatedBy"] = username;
@@ -147,6 +147,16 @@ namespace health.web.Domain
         /// <param name="data"></param>
         /// <returns></returns>
         public abstract Dictionary<string, object> GetKey(JObject data);
+
+        /// <summary>
+        /// 删除后需要保留的额外字段
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public virtual Dictionary<string, object> GetPostDelSetting(JObject data)
+        {
+            return new Dictionary<string, object>();
+        }
         /// <summary>
         /// 从请求的数据中，获取对象的主体标识
         /// </summary>

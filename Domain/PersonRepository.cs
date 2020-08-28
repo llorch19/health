@@ -1,6 +1,7 @@
 ﻿using IdGen;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,7 +69,6 @@ and t_user.IsDeleted=0
             JArray array = _db.GetArray(@"
 SELECT 
 IFNULL(t_patient.ID,'') as ID
-,IFNULL(t_attandent.IsReferral,'') as IsReferral
 ,IFNULL(t_patient.OrgnizationID,'') as OrgnizationID
 ,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
 ,IFNULL(OrgName,'') as OrgName
@@ -100,6 +100,8 @@ IFNULL(t_patient.ID,'') as ID
 ,IFNULL(t_patient.CountyID,'') as CountyID
 ,IFNULL(County.AreaName,'') as County
 ,IFNULL(t_patient.IsActive,'') as IsActive
+,IFNULL(t_transfer.IsCancel,'') as TransferCancel
+,IFNULL(t_transfer.IsFinish,'') as TransferFinish
 FROM t_patient 
 LEFT JOIN t_orgnization
 ON t_patient.PrimaryOrgnizationID=t_orgnization.ID
@@ -115,13 +117,13 @@ LEFT JOIN data_area City
 ON t_patient.CityID=City.ID
 LEFT JOIN data_area County
 ON t_patient.CountyID=County.ID
-LEFT JOIN t_attandent
-ON t_patient.ID=t_attandent.PatientID
+LEFT JOIN t_transfer
+ON t_patient.ID = t_transfer.PatientID
 WHERE t_patient.OrgnizationID=?p1
 AND t_patient.IsDeleted=0
 LIMIT ?p2,?p3
 "
-,orgid
+, orgid
 ,offset
 ,pageSize);
             return array;
@@ -223,9 +225,17 @@ and t_patient.IsDeleted=0"
             dict["GuardianContact"] = data["guardiancontact"]?.ToObject<string>();
             dict["GuardianName"] = data["guardianname"]?.ToObject<string>();
             dict["GuardianEmail"] = data["guardianemail"]?.ToObject<string>();
+            dict["InviteCode"] = data["invitecode"]?.ToObject<string>();
+            dict["RegisterNO"] = data["registerno"]?.ToObject<string>();
+            dict["Birthday"] = data.ToDateTime("birthday");
             return dict;
         }
 
-        
+        public override Dictionary<string, object> GetPostDelSetting(JObject data)
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict["IDCardNO"] = null;
+            return dict;
+        }
     }
 }

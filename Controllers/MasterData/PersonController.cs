@@ -72,7 +72,7 @@ namespace health.Controllers
         [Route("GetPersonListD")]
         public override JObject GetList()
         {
-            return GetPersonList(10,0);
+            return GetPersonList(Const.defaultPageSize, Const.defaultPageIndex);
         }
 
 
@@ -107,6 +107,9 @@ namespace health.Controllers
         {
             common.BaseConfig conf = new common.BaseConfig();
             var res = _repo.GetOneRawImp(id);
+            if (!res.HasValues)
+                return res;
+
             res["primaryorg"] = _org.Value.GetOrgInfo(res["primaryorgnizationid"].ToObject<int>());
             res["orgnization"] = _org.Value.GetOrgInfo(res["orgnizationid"].ToObject<int>());
 
@@ -181,6 +184,8 @@ namespace health.Controllers
         [Route("DelPerson")]
         public override JObject Del([FromBody] JObject req)
         {
+            req["orgnization"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            req["idcardno"] = null; // 身份证上有Uniq唯一索引
             return base.Del(req);
         }
 

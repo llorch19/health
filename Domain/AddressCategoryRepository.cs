@@ -69,5 +69,10 @@ select ID,Code,AddressCategory,IsActive from data_addresscategory where id=?p1 A
 select id,AddressCategory text from data_addresscategory where id=?p1 and isdeleted=0
 ", id);
         }
+
+        public override Dictionary<string, object> GetPostDelSetting(JObject data)
+        {
+            return new Dictionary<string, object>();
+        }
     }
 }
