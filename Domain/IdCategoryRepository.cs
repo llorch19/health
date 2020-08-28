@@ -71,7 +71,9 @@ where id=?p1 and isdeleted=0
         public override JObject GetAltInfo(int? id)
         {
             return _db.GetOne(@"
-select id,Name text from data_idcategory where id=?p1 and isdeleted=0
+select id,Name text 
+from data_idcategory 
+where id=?p1 and isdeleted=0
 ", id);
         }
     }

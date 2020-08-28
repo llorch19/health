@@ -37,6 +37,7 @@ IFNULL(id,'') AS id
 ,IFNULL(`value`,'') AS `value`
 ,IFNULL(`description`,'') AS `description`
 FROM t_option
+LIMIT ?p1,?p2
 ", offset,pageSize);
         }
 
@@ -55,6 +56,7 @@ IFNULL(id,'') AS id
 FROM t_option
 WHERE section=?p1
 AND t_option.IsDeleted = 0
+LIMIT ?p1,?p2
 ", offset, pageSize);
         }
 

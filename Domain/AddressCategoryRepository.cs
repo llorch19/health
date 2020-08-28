@@ -30,14 +30,18 @@ namespace health.web.Domain
             if (pageIndex > 0)
                 offset = pageSize * (pageIndex - 1);
             return _db.GetArray(@"
-select ID,Code,AddressCategory,IsActive from data_addresscategory WHERE IsDeleted=0 LIMIT ?p1,?p2
+select ID,Code,AddressCategory,IsActive 
+from data_addresscategory 
+WHERE IsDeleted=0 LIMIT ?p1,?p2
 ",offset,pageSize);
         }
 
         public override JObject GetOneRawImp(int id)
         {
             return _db.GetOne(@"
-select ID,Code,AddressCategory,IsActive from data_addresscategory where id=?p1 AND IsDeleted=0
+select ID,Code,AddressCategory,IsActive 
+from data_addresscategory 
+where id=?p1 AND IsDeleted=0
 ", id);
         }
 
@@ -66,7 +70,9 @@ select ID,Code,AddressCategory,IsActive from data_addresscategory where id=?p1 A
         public override JObject GetAltInfo(int? id)
         {
             return _db.GetOne(@"
-select id,AddressCategory text from data_addresscategory where id=?p1 and isdeleted=0
+select id,AddressCategory text 
+from data_addresscategory 
+where id=?p1 and isdeleted=0
 ", id);
         }
 

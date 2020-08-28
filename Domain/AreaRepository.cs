@@ -29,9 +29,10 @@ namespace health.web.Domain
             int offset = 0;
             if (pageIndex > 0)
                 offset = pageSize * (pageIndex - 1);
-            return _db.GetArray(@"
-select id,AreaCode,AreaName,parentID,cs,AreaCodeV2 from data_area where parentID=?p1 limit ?p1,?p2
+            var res =  _db.GetArray(@"
+select id,AreaCode,AreaName,parentID,cs,AreaCodeV2 from data_area where parentID=?p1 limit ?p2,?p3
 ", parentid,offset,pageSize);
+            return res;
         }
 
         public override JArray GetListJointImp(int pageSize, int pageIndex)

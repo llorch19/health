@@ -7,6 +7,8 @@
  * - 需要户籍类型控制器，支持增删查改。    @xuedi  2020-07-20 16:55
  */
 
+using health.web.Domain;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -17,15 +19,32 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class DomiTypeController : AbstractBLLController
+    public class DomiTypeController : AbstractBLLControllerT
     {
 
         private readonly ILogger<DomiTypeController> _logger;
-        public override string TableName => "data_domitype";
 
-        public DomiTypeController(ILogger<DomiTypeController> logger)
+        public DomiTypeController(
+            DomiTypeRepository repository
+            ,IServiceProvider serviceProvider
+            )
+            :base(repository,serviceProvider)
         {
-            _logger = logger;
+            _logger = serviceProvider.GetService(typeof(ILogger<DomiTypeController>)) as ILogger<DomiTypeController>;
+        }
+
+        /// <summary>
+        /// 获取“户籍类型”列表
+        /// </summary>
+        /// <returns>JSON对象，包含所有可用的“户籍类型”数组</returns>
+        [HttpGet]
+        [Route("GetDomiTypeListPaged")]
+        public JObject GetList(int pageSize = Const.defaultPageSize
+            ,int pageIndex = Const.defaultPageIndex)
+        {
+            JObject res = new JObject();
+            res["list"] = _repo.GetListJointImp(pageSize, pageIndex);
+            return Response_200_read.GetResult(res);
         }
 
         /// <summary>
@@ -37,23 +56,9 @@ namespace health.Controllers
         public override JObject GetList()
         {
             JObject res = new JObject();
-            JArray rows = db.GetArray("select ID,Name,IsActive from data_domitype WHERE IsActive=1 AND IsDeleted=0");
-
-            if (rows.HasValues)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-                res["list"] = rows;
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "无法读取相应的数据";
-            }
-           
-            return res;
+            res["list"] = _repo.GetListJointImp(Const.defaultPageSize, Const.defaultPageIndex);
+            return Response_200_read.GetResult(res);
         }
-
         /// <summary>
         /// 获取“户籍类型”信息
         /// </summary>
@@ -63,18 +68,11 @@ namespace health.Controllers
         [Route("GetDomiType")]
         public override JObject Get(int id)
         {
-            JObject res = db.GetOne("select ID,Name,IsActive from data_domitype where id=?p1 and isdeleted=0", id);
+            JObject res = base.Get(id);
             if (res["id"] != null)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-            }
+                return Response_200_read.GetResult(res);
             else
-            {
-                res["status"] = 201;
-                res["msg"] = "查询不到对应的数据";
-            }
-            return res;
+                return Response_201_read.GetResult(res);
         }
 
 
@@ -104,18 +102,7 @@ namespace health.Controllers
         [NonAction]
         public JObject GetDomiTypeInfo(int? id)
         {
-            JObject res = db.GetOne(@"
-select id,Name text from data_domitype where id=?p1 and isdeleted=0", id);
-            return res;
-        }
-
-
-        public override Dictionary<string, object> GetReq(JObject req)
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["ID"] = req["id"]?.ToObject<string>();
-            dict["Name"] = req["name"]?.ToObject<string>();
-            return dict;
+            return base.GetAltInfo(id);
         }
     }
 }

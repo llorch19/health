@@ -30,7 +30,9 @@ namespace health.web.Domain
             if (pageIndex > 0)
                 offset = pageSize * (pageIndex - 1);
             return _db.GetArray(@"
-select id,Code,GenderName,IsActive from data_gender where IsDeleted=0
+select id,Code,GenderName,IsActive 
+from data_gender 
+where IsDeleted=0
 limit ?p1,?p2
 ", offset,pageSize);
         }
@@ -66,7 +68,10 @@ limit ?p1,?p2
         public override JObject GetAltInfo(int? id)
         {
             return _db.GetOne(@"
-select id,GenderName text from data_gender where id=?p1 and IsDeleted=0", id);
+select id,GenderName text 
+from data_gender 
+where id=?p1 
+and IsDeleted=0", id);
         }
     }
 }

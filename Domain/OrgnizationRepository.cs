@@ -28,7 +28,8 @@ namespace health.web.Domain
         public JArray GetListJointImp(int provinceid = 0, int cityid = 0, int countyid = 0)
         {
             JArray rows = _db.GetArray(
-               @"SELECT 
+               @"
+SELECT 
 one.ID
 ,IFNULL(one.OrgName,'') as OrgName
 ,IFNULL(one.OrgCode,'') as OrgCode

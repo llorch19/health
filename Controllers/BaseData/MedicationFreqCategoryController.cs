@@ -1,3 +1,5 @@
+using health.web.Domain;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -8,15 +10,18 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class MedicationFreqCategoryController : AbstractBLLController
+    public class MedicationFreqCategoryController : AbstractBLLControllerT
     {
 
         private readonly ILogger<MedicationFreqCategoryController> _logger;
-        public override string TableName => "data_medicationfreqcategory";
 
-        public MedicationFreqCategoryController(ILogger<MedicationFreqCategoryController> logger)
+        public MedicationFreqCategoryController(
+            MedicationFreqCategoryRepository repository
+            ,IServiceProvider serviceProvider
+           )
+           :base(repository,serviceProvider)
         {
-            _logger = logger;
+            _logger = serviceProvider.GetService(typeof(ILogger<MedicationFreqCategoryController>)) as ILogger<MedicationFreqCategoryController>;
         }
 
         /// <summary>
@@ -27,17 +32,9 @@ namespace health.Controllers
         [Route("GetMedicationFreqCategoryList")]
         public override JObject GetList()
         {
-            //int id = 0;
-            //int.TryParse(HttpContext.Request.Query["id"],out id);
             JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-
-            dbfactory db = new dbfactory();
-            JArray rows = db.GetArray("select ID,Code,Value,ValueMessage,IsActive from data_medicationfreqcategory where IsActive=1 and IsDeleted=0");
-
-            res["list"] = rows;
-            return res;
+            res["list"] = base.GetList();
+            return Response_200_read.GetResult(res);
         }
 
         /// <summary>
@@ -49,21 +46,11 @@ namespace health.Controllers
         [Route("GetMedicationFreqCategory")]
         public override JObject Get(int id)
         {
-            //int id = 0;
-            //int.TryParse(HttpContext.Request.Query["id"],out id);
-            dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select ID,Code,Value,ValueMessage,IsActive from data_medicationfreqcategory where id=?p1 and IsDeleted=0", id);
+            JObject res = base.Get(id);
             if (res["id"] != null)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-            }
+                return Response_200_read.GetResult(res);
             else
-            {
-                res["status"] = 201;
-                res["msg"] = "查询不到对应的数据";
-            }
-            return res;
+                return Response_201_read.GetResult();
         }
 
         /// <summary>
@@ -93,20 +80,8 @@ namespace health.Controllers
         [NonAction]
         public JObject GetFreqInfo(int? id)
         {
-            dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,ValueMessage text from data_medicationfreqcategory where id=?p1 and IsDeleted=0", id);
-            return res;
+            return base.GetAltInfo(id);
         }
 
-        public override Dictionary<string, object> GetReq(JObject req)
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Code"] = req["code"]?.ToObject<string>();
-            dict["Value"] = req["value"]?.ToObject<string>();
-            dict["ValueMessage"] = req["valuemessage"]?.ToObject<string>();
-
-
-            return dict;
-        }
     }
 }

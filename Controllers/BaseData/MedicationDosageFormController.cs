@@ -1,3 +1,5 @@
+using health.web.Domain;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -8,15 +10,16 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class MedicationDosageFormController : AbstractBLLController
+    public class MedicationDosageFormController : AbstractBLLControllerT
     {
 
         private readonly ILogger<MedicationDosageFormController> _logger;
-        public override string TableName => "data_medicationdosageform";
 
-        public MedicationDosageFormController(ILogger<MedicationDosageFormController> logger)
+        public MedicationDosageFormController(MedicationDosageFormRepository repository
+            ,IServiceProvider serviceProvider)
+            :base(repository,serviceProvider)
         {
-            _logger = logger;
+            _logger = serviceProvider.GetService(typeof(ILogger<MedicationDosageFormController>)) as ILogger<MedicationDosageFormController>;
         }
 
         /// <summary>
@@ -27,19 +30,9 @@ namespace health.Controllers
         [Route("GetMedicationDosageFormList")]
         public override JObject GetList()
         {
-            //int id = 0;
-            //int.TryParse(HttpContext.Request.Query["id"],out id);
             JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-
-            JArray rows = db.GetArray(@"
-select ID,Code,Name,IsActive from data_medicationdosageform
-where IsDeleted=0
-");
-
-            res["list"] = rows;
-            return res;
+            res["list"] = base.GetList();
+            return Response_200_read.GetResult(res);
         }
 
         /// <summary>
@@ -51,20 +44,11 @@ where IsDeleted=0
         [Route("GetMedicationDosageForm")]
         public override JObject Get(int id)
         {
-            JObject res = db.GetOne(@"
-select ID,Code,Name,IsActive from data_medicationdosageform where id=?p1 and IsDeleted=0
-", id);
+            JObject res = base.Get(id);
             if (res["id"] != null)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-            }
+                return Response_200_read.GetResult(res);
             else
-            {
-                res["status"] = 201;
-                res["msg"] = "查询不到对应的数据";
-            }
-            return res;
+                return Response_201_read.GetResult();
         }
 
 
@@ -94,18 +78,7 @@ select ID,Code,Name,IsActive from data_medicationdosageform where id=?p1 and IsD
         [NonAction]
         public JObject GetDosageInfo(int? id)
         {
-            dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,Name text from data_medicationdosageform where id=?p1 and IsDeleted=0", id);
-            return res;
-        }
-
-        public override Dictionary<string, object> GetReq(JObject req)
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Code"] = req["code"]?.ToObject<string>();
-            dict["Name"] = req["name"]?.ToObject<string>();
-
-            return dict;
+            return base.GetAltInfo(id);
         }
     }
 }

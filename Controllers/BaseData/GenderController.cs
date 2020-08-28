@@ -1,3 +1,5 @@
+using health.web.Domain;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -8,14 +10,15 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class GenderController : AbstractBLLController
+    public class GenderController : AbstractBLLControllerT
     {
         private readonly ILogger<GenderController> _logger;
-        public override string TableName => "data_gender";
 
-        public GenderController(ILogger<GenderController> logger)
+        public GenderController(GenderRepository repository
+            ,IServiceProvider serviceProvider)
+            :base(repository,serviceProvider)
         {
-            _logger = logger;
+            _logger = serviceProvider.GetService(typeof(ILogger<GenderController>)) as ILogger<GenderController>;
         }
 
         /// <summary>
@@ -26,17 +29,9 @@ namespace health.Controllers
         [Route("GetGenderList")]
         public override JObject GetList()
         {
-            //int id = 0;
-            //int.TryParse(HttpContext.Request.Query["id"],out id);
             JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-
-            dbfactory db = new dbfactory();
-            JArray rows = db.GetArray("select id,Code,GenderName,IsActive from data_gender where IsActive=1 and IsDeleted=0");
-
-            res["list"] = rows;
-            return res;
+            res["list"] = base.GetList();
+            return Response_200_read.GetResult(res);
         }
 
         /// <summary>
@@ -48,21 +43,11 @@ namespace health.Controllers
         [Route("GetGender")]
         public override JObject Get(int id)
         {
-            //int id = 0;
-            //int.TryParse(HttpContext.Request.Query["id"],out id);
-            dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,Code,GenderName,IsActive  from data_gender where id=?p1 and IsDeleted = 0", id);
+            var res = base.Get(id);
             if (res["id"] != null)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-            }
+                return Response_200_read.GetResult(res);
             else
-            {
-                res["status"] = 201;
-                res["msg"] = "查询不到对应的数据";
-            }
-            return res;
+                return Response_201_read.GetResult(res);
         }
 
         /// <summary>
@@ -74,12 +59,8 @@ namespace health.Controllers
         [Route("SetGender")]
         public override JObject Set([FromBody] JObject req)
         {
-            if (req["code"].ToObject<string>().Length>1)
-            {
-                JObject res = new JObject();
-                res["status"] = 201;
-                res["msg"] = "编码长度不大于1";
-            }
+            if (req["code"]?.ToObject<string>()?.Length > 1)
+                return Response_201_write.GetResult(null, "编码长度不大于1");
             return base.Set(req);
         }
 
@@ -99,18 +80,7 @@ namespace health.Controllers
         [NonAction]
         public JObject GetGenderInfo(int? id)
         {
-            dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,GenderName text from data_gender where id=?p1 and IsDeleted=0", id);
-            return res;
-        }
-
-        public override Dictionary<string, object> GetReq(JObject req)
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Code"] = req["code"]?.ToObject<string>();
-            dict["GenderName"] = req["gendername"]?.ToObject<string>();
-
-            return dict;
+            return base.GetAltInfo(id);
         }
     }
 }

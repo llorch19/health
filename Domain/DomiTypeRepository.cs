@@ -30,14 +30,19 @@ namespace health.web.Domain
             if (pageIndex > 0)
                 offset = pageSize * (pageIndex - 1);
             return _db.GetArray(@"
-select ID,Name,IsActive from data_domitype WHERE IsDeleted=0
+select ID,Name,IsActive 
+from data_domitype 
+WHERE IsDeleted=0
 limit ?p1,?p2
 ", offset,pageSize);
         }
 
         public override JObject GetOneRawImp(int id)
         {
-            return _db.GetOne("select ID,Name,IsActive from data_domitype where id=?p1 and isdeleted=0", id);
+            return _db.GetOne(@"
+select ID,Name,IsActive 
+from data_domitype 
+where id=?p1 and isdeleted=0", id);
         }
 
         public override Dictionary<string, object> GetValue(JObject data)
@@ -65,7 +70,9 @@ limit ?p1,?p2
         public override JObject GetAltInfo(int? id)
         {
             return _db.GetOne(@"
-select id,Name text from data_domitype where id=?p1 and isdeleted=0", id);
+select id,Name text 
+from data_domitype 
+where id=?p1 and isdeleted=0", id);
         }
     }
 }
