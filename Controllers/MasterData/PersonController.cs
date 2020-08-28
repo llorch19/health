@@ -13,6 +13,7 @@
  */
 using health.BaseData;
 using health.common;
+using health.web.Domain;
 using health.web.StdResponse;
 using IdGen;
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +27,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class PersonController : AbstractBLLController
+    public class PersonController : AbstractBLLControllerT
     {
         private readonly ILogger<PersonController> _logger;
         Lazy<OrganizationController> _org;
@@ -41,35 +42,25 @@ namespace health.Controllers
         Lazy<TreatItemController> _treatitem;
         Lazy<VaccController> _vacc;
         IdGenerator _idGenerator;
-        public override string TableName => "t_patient";
+        PersonRepository _repository;
 
-        public PersonController(ILogger<PersonController> logger
-            , IdGenerator generator
-            , Lazy<OrganizationController> org
-            , Lazy<GenderController> gender
-            , Lazy<OccupationController> occupation
-            , Lazy<AddressCategoryController> addrcategory
-            , Lazy<CheckController> check
-            , Lazy<AppointController> appoint
-            , Lazy<AttandentController> attandent
-            , Lazy<FollowupController> followup
-            , Lazy<TreatController> treat
-            , Lazy<TreatItemController> treatitem
-            , Lazy<VaccController> vacc)
+        public PersonController(PersonRepository repository,
+                                IServiceProvider serviceProvider)
+            :base(repository,serviceProvider)
         {
-            _logger = logger;
-            _idGenerator = generator;
-            _org = org;
-            _gender = gender;
-            _occupation = occupation;
-            _addrcategory = addrcategory;
-            _check = check;
-            _appoint = appoint;
-            _attandent = attandent;
-            _followup = followup;
-            _treat = treat;
-            _treatitem = treatitem;
-            _vacc = vacc;
+            _logger = serviceProvider.GetService(typeof(ILogger<PersonController>)) as ILogger<PersonController>;
+            _idGenerator = serviceProvider.GetService(typeof(IdGenerator)) as IdGenerator;
+            _org = serviceProvider.GetService(typeof(Lazy<OrganizationController>)) as Lazy<OrganizationController>;
+            _gender = serviceProvider.GetService(typeof(Lazy<GenderController>)) as Lazy<GenderController>;
+            _occupation = serviceProvider.GetService(typeof(Lazy<OccupationController>)) as Lazy<OccupationController>;
+            _addrcategory = serviceProvider.GetService(typeof(Lazy<AddressCategoryController>)) as Lazy<AddressCategoryController>;
+            _check = serviceProvider.GetService(typeof(Lazy<CheckController>)) as Lazy<CheckController>;
+            _appoint = serviceProvider.GetService(typeof(Lazy<AppointController>)) as Lazy<AppointController>;
+            _attandent = serviceProvider.GetService(typeof(Lazy<AttandentController>)) as Lazy<AttandentController>;
+            _followup = serviceProvider.GetService(typeof(Lazy<FollowupController>)) as Lazy<FollowupController>;
+            _treat = serviceProvider.GetService(typeof(Lazy<TreatController>)) as Lazy<TreatController>;
+            _treatitem = serviceProvider.GetService(typeof(Lazy<TreatItemController>)) as Lazy<TreatItemController>;
+            _vacc = serviceProvider.GetService(typeof(Lazy<VaccController>)) as Lazy<VaccController>;
         }
 
         /// <summary>
@@ -99,68 +90,13 @@ namespace health.Controllers
         [NonAction]
         public JObject GetPersonListImp(int pageSize = 10, int pageIndex = 0)
         {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             int offset = 0;
             if (pageIndex > 0)
                 offset = pageSize * (pageIndex - 1);
 
             JObject res = new JObject();
-            JArray list = db.GetArray(
-                @"
-SELECT 
-IFNULL(t_patient.ID,'') as ID
-,IFNULL(t_attandent.IsReferral,'') as IsReferral
-,IFNULL(t_patient.OrgnizationID,'') as OrgnizationID
-,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
-,IFNULL(OrgName,'') as OrgName
-,IFNULL(OrgCode,'') as OrgCode
-,IFNULL(InviteCode,'') as InviteCode
-,IFNULL(RegisterNO,'') as RegisterNO
-,IFNULL(FamilyName,'') as FamilyName
-,IFNULL(t_patient.Tel,'') as Tel
-,IFNULL(t_patient.IDCardNO,'') as IDCardNO
-,IFNULL(GenderID,'') as GenderID
-,IFNULL(GenderName,'') as GenderName
-,IFNULL(t_patient.Birthday,'') as Birthday
-,IFNULL(t_patient.Nation,'') as Nation
-,IFNULL(DomicileType,'') as DomicileType
-,IFNULL(t_patient.DomicileDetail,'') as DomicileDetail
-,IFNULL(WorkUnitName,'') as WorkUnitName
-,IFNULL(OccupationCategoryID,'') as OccupationCategoryID
-,IFNULL(data_occupation.OccupationName,'') as OccupationName
-,IFNULL(Detainees,'') as Detainees
-,IFNULL(AddressCategoryID,'') as AddressCategoryID
-,IFNULL(data_addresscategory.AddressCategory,'') as AddressCategory
-,IFNULL(t_patient.Address,'') as Address
-,IFNULL(GuardianName,'') as GuardianName
-,IFNULL(GuardianContact,'') as GuardianContact
-,IFNULL(t_patient.ProvinceID,'') as ProvinceID
-,IFNULL(Province.AreaName,'') as Province
-,IFNULL(t_patient.CityID,'') as CityID
-,IFNULL(City.AreaName,'') as City
-,IFNULL(t_patient.CountyID,'') as CountyID
-,IFNULL(County.AreaName,'') as County
-,IFNULL(t_patient.IsActive,'') as IsActive
-FROM t_patient 
-LEFT JOIN t_orgnization
-ON t_patient.PrimaryOrgnizationID=t_orgnization.ID
-LEFT JOIN data_gender
-ON t_patient.GenderID=data_gender.ID
-LEFT JOIN data_occupation
-ON t_patient.OccupationCategoryID=data_occupation.ID
-LEFT JOIN data_addresscategory
-ON t_patient.AddressCategoryID=data_addresscategory.ID
-LEFT JOIN data_area Province
-ON t_patient.ProvinceID=Province.ID
-LEFT JOIN data_area City
-ON t_patient.CityID=City.ID
-LEFT JOIN data_area County
-ON t_patient.CountyID=County.ID
-LEFT JOIN t_attandent
-ON t_patient.ID=t_attandent.PatientID
-WHERE t_patient.OrgnizationID=?p1
-AND t_patient.IsDeleted=0
-LIMIT ?p2,?p3"
-                , HttpContext.GetIdentityInfo<int?>("orgnizationid"), offset, pageSize);
+            JArray list = _repo.GetListByOrgJointImp(orgid ?? 0);
             res["list"] = list;
             return res;
         }
@@ -169,39 +105,7 @@ LIMIT ?p2,?p3"
         public JObject GetPersonRawImp(int id)
         {
             common.BaseConfig conf = new common.BaseConfig();
-            var res = db.GetOne(
-                @"SELECT 
-IFNULL(t_patient.ID,'') as ID
-,IFNULL(t_attandent.IsReferral,'') as IsReferral
-,IFNULL(t_patient.OrgnizationID,'') as OrgnizationID
-,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
-,IFNULL(RegisterNO,'') as RegisterNO
-,IFNULL(InviteCode,'') as InviteCode
-,IFNULL(FamilyName,'') as FamilyName
-,IFNULL(t_patient.Tel,'') as Tel
-,IFNULL(t_patient.IDCardNO,'') as IDCardNO
-,IFNULL(GenderID,'') as GenderID
-,IFNULL(t_patient.Birthday,'') as Birthday
-,IFNULL(t_patient.Nation,'') as Nation
-,IFNULL(DomicileType,'') as DomicileType
-,IFNULL(t_patient.DomicileDetail,'') as DomicileDetail
-,IFNULL(WorkUnitName,'') as WorkUnitName
-,IFNULL(OccupationCategoryID,'') as OccupationCategoryID
-,IFNULL(Detainees,'') as Detainees
-,IFNULL(AddressCategoryID,'') as AddressCategoryID
-,IFNULL(t_patient.Address,'') as Address
-,IFNULL(GuardianName,'') as GuardianName
-,IFNULL(GuardianContact,'') as GuardianContact
-,IFNULL(t_patient.ProvinceID,'') as ProvinceID
-,IFNULL(t_patient.CityID,'') as CityID
-,IFNULL(t_patient.CountyID,'') as CountyID
-,IFNULL(t_patient.IsActive,'') as IsActive
-FROM t_patient 
-LEFT JOIN t_attandent
-ON t_patient.ID=t_attandent.PatientID
-where t_patient.ID=?p1
-and t_patient.IsDeleted=0"
-                , id);
+            var res = _repo.GetOneRawImp(id);
             res["primaryorg"] = _org.Value.GetOrgInfo(res["primaryorgnizationid"].ToObject<int>());
             res["orgnization"] = _org.Value.GetOrgInfo(res["orgnizationid"].ToObject<int>());
 
@@ -249,6 +153,21 @@ and t_patient.IsDeleted=0"
         [Route("SetPerson")]
         public override JObject Set([FromBody] JObject req)
         {
+            DateTime dt;
+            if (DateTime.TryParse(req["birthday"].ToObject<string>(), out dt))
+            {
+                req["Birthday"] = dt;
+            }
+
+
+            if (req.ToInt("id") == 0)
+            {
+                // 新增人员生成邀请码和档案号
+                req["InviteCode"] = ShareCodeUtils.New();
+                req["RegisterNO"] = _idGenerator.CreateId();
+                // 在 添加Attandent 记录
+                // 为Patient指定当前orgid
+            }
             return base.Set(req);
         }
 
@@ -291,80 +210,14 @@ and t_patient.IsDeleted=0"
         [NonAction]
         public JObject GetPersonInfo(int? id)
         {
-            JObject res = db.GetOne("select id,FamilyName text,IDCardNO code ,InviteCode invite from t_patient where id=?p1 and t_patient.IsDeleted=0", id);
-            return res;
+            return _repository.GetAltInfo(id);
         }
 
 
         [NonAction]
         public JObject GetUserInfo(int? id)
         {
-            JObject res = db.GetOne("select id,ChineseName text,IDCardNO code from t_user where id=?p1 and t_user.IsDeleted=0", id);
-            return res;
-        }
-
-        [NonAction]
-        public override Dictionary<string, object> GetReq(JObject req)
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["OrgnizationID"] = req.ToInt("orgnizationid");
-            dict["PrimaryOrgnizationID"] = req.ToInt("primaryorgnizationid");
-            dict["Tel"] = req["tel"]?.ToObject<string>();
-            dict["IDCardNO"] = req["idcardno"]?.ToObject<string>();
-            dict["GenderID"] = req.ToInt("genderid");
-            dict["FamilyName"] = req["familyname"]?.ToObject<string>();
-            DateTime dt;
-            if (DateTime.TryParse(req["birthday"].ToObject<string>(), out dt))
-            {
-                dict["Birthday"] = dt;
-            }
-
-
-            if (req.ToInt("id")==0)
-            {
-                // 新增人员生成邀请码和档案号
-                dict["InviteCode"] = ShareCodeUtils.New();
-                dict["RegisterNO"] = _idGenerator.CreateId();
-                // 在 添加Attandent 记录
-                // 为Patient指定当前orgid
-            }
-
-
-            dict["Nation"] = req["nation"]?.ToObject<string>();
-            dict["DomicileType"] = req["domiciletype"]?.ToObject<string>();
-            dict["DomicileType"] = req["domiciletype"]?.ToObject<string>();
-            dict["DomicileDetail"] = req["domiciledetail"]?.ToObject<string>();
-            dict["WorkUnitName"] = req["workunitname"]?.ToObject<string>();
-            dict["OccupationCategoryID"] = req.ToInt("occupationcategoryid");
-            dict["Detainees"] = req["detainees"]?.ToObject<string>();
-            dict["AddressCategoryID"] = req.ToInt("addresscategoryid");
-            dict["Address"] = req["address"]?.ToObject<string>();
-            dict["GuardianName"] = req["guardianname"]?.ToObject<string>();
-            dict["GuardianContact"] = req["guardiancontact"]?.ToObject<string>();
-            dict["ProvinceID"] = req.ToInt("provinceid");
-            dict["CityID"] = req.ToInt("cityid");
-            dict["CountyID"] = req.ToInt("countyid");
-            dict["TownAddr"] = req["townaddr"]?.ToObject<string>();
-            dict["VillageAddr"] = req["villageaddr"]?.ToObject<string>();
-            dict["HouseNumberAddr"] = req["housenumberaddr"]?.ToObject<string>();
-            dict["PostalCode"] = req["postalcode"]?.ToObject<string>();
-            dict["AreaCode"] = req["areacode"]?.ToObject<string>();
-            dict["DomicileType"] = req.ToInt("domiciletype");
-            dict["DomicileChosen"] = req["domicilechosen"]?.ToObject<string>();
-            dict["DomicileStandard"] = req["domicilestandard"]?.ToObject<string>();
-            dict["DomicileDetail"] = req["domiciledetail"]?.ToObject<string>();
-            dict["WorkUnitName"] = req["workunitname"]?.ToObject<string>();
-            dict["WorkUnitContact"] = req["workunitcontact"]?.ToObject<string>();
-            dict["Email"] = req["email"]?.ToObject<string>();
-            dict["GuardianName"] = req["guardianname"]?.ToObject<string>();
-            dict["GuardianContact"] = req["guardiancontact"]?.ToObject<string>();
-            dict["GuardianName"] = req["guardianname"]?.ToObject<string>();
-            dict["GuardianEmail"] = req["guardianemail"]?.ToObject<string>();
-
-
-
-
-            return dict;
+            return _repository.GetUserAltInfo(id ?? 0);
         }
 
     }
