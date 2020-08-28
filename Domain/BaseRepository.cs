@@ -1,8 +1,15 @@
-﻿using Newtonsoft.Json.Linq;
+﻿/*
+ * “仓储”的基础类型
+ * Author : zudan@zhifeishengwu.cn
+ * Date:  2020-08-28
+ * 规定了IsActive和IsDeleted的用法。
+ * - IsActive: 代表记录是否可以写更新。客户端尽量不调用SetLock来修改IsActive。
+ * - IsDeleted: 代表记录是否可以读取。客户端可以通过Del函数置位。
+ */
+
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using util.mysql;
 
 namespace health.web.Domain
@@ -26,7 +33,7 @@ namespace health.web.Domain
                 var dict = GetValue(data);
                 dict["CreatedBy"] = username;
                 dict["CreatedTime"] = DateTime.Now;
-                dict["IsActive"] = 0;
+                dict["IsActive"] = 1;  // 新增的默认是激活的,如果Repository需要自动锁定新增，在AddOrUpdate之后调用SetLock()
                 dict["IsDeleted"] = 0;
                 return _db.Insert(TableName, dict);
             }
@@ -41,7 +48,7 @@ namespace health.web.Domain
                     var keydata = GetKey(data);
                     valuedata["LastUpdatedBy"] = username;
                     valuedata["LastUpdatedTime"] = DateTime.Now;
-                    valuedata["IsActive"] = 1;  // 新增后为 IsActive = true
+                    valuedata["IsActive"] = 1;  // 修改后为 IsActive = true
                     valuedata["IsDeleted"] = 0;
                     return _db.Update(TableName, valuedata, keydata)>0
                         ?GetId(data)
@@ -80,7 +87,6 @@ namespace health.web.Domain
         public abstract Dictionary<string, object> GetValue(JObject data);
         public abstract Dictionary<string, object> GetKey(JObject data);
         public abstract int GetId(JObject data);
-
         public abstract JObject GetAltInfo(int? id);
     }
 }

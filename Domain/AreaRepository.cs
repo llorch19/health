@@ -74,5 +74,15 @@ select id,AreaCode,AreaName,parentID,cs,AreaCodeV2 from data_area where id=?p1
 select id,AreaName text from data_area where id=?p1
 ", id);
         }
+
+        public override int AddOrUpdateRaw(JObject data, string username)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int DelRaw(JObject data, string username)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
