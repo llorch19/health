@@ -183,6 +183,14 @@ AND t.ID=1
 
         public int Transfer(HttpContext ctx,int patientid,int desorgid,string remarks)
         {
+            /* todo from service get 
+             * - Appoint
+             * - Attandent
+             * - Check
+             * - Followup
+             * - Treat
+             * - Vacc
+            */
             JObject data = new JObject();
             data["ID"] = 0;
             data["OrgnizationID"] = ctx.GetIdentityInfo<int?>("orgnizationid");
@@ -205,6 +213,7 @@ AND t.ID=1
             data["Remarks"] = remarks;
             data["IsCancel"] = 1;
             data["IsFinish"] = 0;
+            data["IsActive"] = 0;  // 取消转诊后，该条转诊记录不再可写更新
             data["EndTime"] = DateTime.Now;
             return AddOrUpdateRaw(data, StampUtil.Stamp(ctx));
         }
@@ -217,6 +226,7 @@ AND t.ID=1
             data["Remarks"] = remarks;
             data["IsCancel"] = 0;
             data["IsFinish"] = 1;
+            data["IsActive"] = 0; // 接收转诊后，该条转诊记录不再可写更新
             data["EndTime"] = DateTime.Now;
             return AddOrUpdateRaw(data, StampUtil.Stamp(ctx));
         }
