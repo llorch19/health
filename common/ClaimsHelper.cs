@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
@@ -16,6 +17,39 @@ namespace health.common
     /// </summary>
     public static class ClaimsHelper
     {
+        public static T GetClaimInfo<T>(this HttpContext httpContext,string claimtype)
+        {
+            var loggerFactory = httpContext.RequestServices.GetService<ILoggerFactory>();
+            var logger = loggerFactory.CreateLogger("GettingClaimInfo");
+            try
+            {
+              
+                var value = httpContext.User.Claims.First(c=>c.Type==claimtype).Value;
+                return StringToType<T>(value);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                return default(T);
+            }
+        }
+
+        private static T StringToType<T>(string s)
+        {
+            try
+            {
+                var makeNullableType = Nullable.GetUnderlyingType(typeof(T));
+                if (makeNullableType == null)
+                    return (T)System.Convert.ChangeType(s, typeof(T));
+                else
+                    return (T)System.Convert.ChangeType(s, makeNullableType);
+            }
+            catch (Exception)
+            {
+                return default(T);
+            }
+        }
+
         public static Dictionary<string,string> GetRequestClaims(this HttpContext httpContext)
         {
             return httpContext.User.Claims

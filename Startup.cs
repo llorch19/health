@@ -144,6 +144,9 @@ namespace health
             services.AddTransient(typeof(NationRepository));
             services.AddTransient(typeof(OccupationRepository));
             services.AddTransient(typeof(TreatmentOptionRepository));
+            services.AddTransient(typeof(CheckProductRepository));
+            services.AddTransient(typeof(MedicationRepository));
+            services.AddTransient(typeof(MenuRepository));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

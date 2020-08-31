@@ -49,6 +49,7 @@ LIMIT ?p1,?p2
         public override JObject GetOneRawImp(int id)
         {
             return _db.GetOne(@"
+SELECT
 IFNULL(ID,'') AS ID
 ,IFNULL(`Name`,'') AS `Name`
 ,IFNULL(CommonName,'') AS CommonName

@@ -6,33 +6,38 @@
  * Comments
  * - 开会时说过，Medication总数不多，需要手选药品    @xuedi  2020-07-22
  */
+using health.web.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
 using util.mysql;
+using health.web.StdResponse;
 
 namespace health.Controllers
 {
     [Route("api")]
-    public class MedicationController : AbstractBLLController
+    public class MedicationController : AbstractBLLControllerT
     {
         private readonly ILogger<MedicationController> _logger;
-        public override string TableName => "t_medication";
 
-        public MedicationController(ILogger<MedicationController> logger)
+        public MedicationController(
+            MedicationRepository repository
+            ,IServiceProvider serviceProvider
+            )
+            :base(repository,serviceProvider)
         {
-            _logger = logger;
+            _logger = serviceProvider.GetService<ILogger<MedicationController>>();
         }
 
         /// <summary>
         /// 获取机构的“药品”列表
         /// </summary>
         /// <returns>JSON对象，包含相应的“药品”数组</returns>
-        [HttpGet]
-        [Route("GetMedicationListD")]
+        [NonAction]
         public override JObject GetList()
         {
             return GetMedicationList(10,0);
@@ -46,32 +51,11 @@ namespace health.Controllers
         /// <returns>JSON对象，包含相应的“药品”数组</returns>
         [HttpGet]
         [Route("GetMedicationList")]
-        public JObject GetMedicationList(int pageSize = int.MaxValue, int pageIndex = 0)
+        public JObject GetMedicationList(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
-            int offset = 0;
-            if (pageIndex > 0)
-                offset = pageSize * (pageIndex - 1);
-
             JObject res = new JObject();
-            JArray rows = db.GetArray(@"
-SELECT   
-IFNULL(ID,'') AS ID
-,IFNULL(`Name`,'') AS `Name`
-,IFNULL(CommonName,'') AS CommonName
-,IFNULL(Specification,'') AS Specification
-,IFNULL(ESC,'') AS ESC
-,IFNULL(ProductionDate,'') AS ProductionDate
-,IFNULL(ExpiryDate,'') AS ExpiryDate
-,IFNULL(Manufacturer,'') AS Manufacturer
-,IFNULL(t_medication.IsActive,'') AS IsActive
-FROM t_medication
-WHERE t_medication.IsDeleted=0
-LIMIT ?p1,?p2
-", offset, pageSize);
-            res["list"] = rows;
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            return res;
+            res["list"] = _repo.GetListJointImp(pageSize, pageIndex);
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -84,30 +68,7 @@ LIMIT ?p1,?p2
         [Route("GetMedication")]
         public override JObject Get(int id)
         {
-            JObject res = db.GetOne(@"SELECT   
-IFNULL(ID,'') AS ID
-,IFNULL(`Name`,'') AS `Name`
-,IFNULL(CommonName,'') AS CommonName
-,IFNULL(Specification,'') AS Specification
-,IFNULL(ESC,'') AS ESC
-,IFNULL(ProductionDate,'') AS ProductionDate
-,IFNULL(ExpiryDate,'') AS ExpiryDate
-,IFNULL(Manufacturer,'') AS Manufacturer
-,IFNULL(t_medication.IsActive,'') AS IsActive
-FROM t_medication
-WHERE ID=?p1
-AND t_medication.IsDeleted=0", id);
-            if (res["id"]!=null)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "无法读取相应的数据";
-            }
-            return res;
+            return base.Get(id);
         }
 
 
@@ -142,25 +103,7 @@ AND t_medication.IsDeleted=0", id);
         [NonAction]
         public JObject GetMedicationInfo(int? id)
         {
-            JObject res = db.GetOne("SELECT id,Name text,ESC code FROM t_medication where id=?p1", id);
-            return res;
-        }
-
-      
-
-        public override Dictionary<string, object> GetReq(JObject req)
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Name"] = req["name"]?.ToObject<string>();
-            dict["CommonName"] = req["commonname"]?.ToObject<string>();
-            dict["Specification"] = req["specification"]?.ToObject<string>();
-            dict["ESC"] = req["esc"]?.ToObject<string>();
-            dict["ProductionDate"] = req["productiondate"]?.ToObject<string>();
-            dict["ExpiryDate"] = req["expirydate"]?.ToObject<string>();
-            dict["Manufacturer"] = req["manufacturer"]?.ToObject<string>();
-
-
-            return dict;
+            return base.GetAltInfo(id);
         }
     }
 }

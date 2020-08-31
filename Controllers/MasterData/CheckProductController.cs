@@ -5,7 +5,10 @@
  * Description: 对“检测产品”信息的增删查改
  * Comments
  */
+using health.web.Domain;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MySqlX.XDevAPI.Relational;
 using Newtonsoft.Json.Linq;
@@ -17,21 +20,23 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class CheckProductController : AbstractBLLController
+    public class CheckProductController : AbstractBLLControllerT
     {
         private readonly ILogger<CheckProductController> _logger;
-        public override string TableName => "t_detectionproduct";
 
-        public CheckProductController(ILogger<CheckProductController> logger)
+        public CheckProductController(
+            CheckProductRepository repository
+            , IServiceProvider serviceProvider
+        )
+            : base(repository, serviceProvider)
         {
-            _logger = logger;
+            _logger = serviceProvider.GetService<ILogger<CheckProductController>>();
         }
 
-        [HttpGet]
-        [Route("GetCheckProductListDefault")]
+        [NonAction]
         public override JObject GetList()
         {
-            return GetCheckProductList(10, 0);
+            return base.GetList();
         }
 
         /// <summary>
@@ -40,34 +45,11 @@ namespace health.Controllers
         /// <returns>JSON对象，包含相应的“检测产品”数组</returns>
         [HttpGet]
         [Route("Get[controller]List")]
-        public JObject GetCheckProductList(int pageSize,int pageIndex)
+        public JObject GetCheckProductList(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
-            int offset = 0;
-            if (pageIndex > 0)
-                offset = pageSize * (pageIndex - 1);
-
             JObject res = new JObject();
-            JArray rows = db.GetArray(@"
-SELECT 
-ID
-,`Name`
-,ShortName
-,CommonName
-,Specification
-,BatchNumber
-,Manufacturer
-,ESC
-,ProductionDate
-,ExpiryDate
-,IsActive
-FROM t_detectionproduct
-WHERE IsDeleted=0
-LIMIT ?p1,?p2
-", offset, pageSize);
-            res["list"] = rows;
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            return res;
+            res["list"] = _repo.GetListJointImp(pageSize, pageIndex);
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -82,32 +64,7 @@ LIMIT ?p1,?p2
         [Route("Get[controller]")]
         public override JObject Get(int id)
         {
-            JObject res = db.GetOne(@"SELECT 
-ID
-,`Name`
-,ShortName
-,CommonName
-,Specification
-,BatchNumber
-,Manufacturer
-,ESC
-,ProductionDate
-,ExpiryDate
-,IsActive
-FROM t_detectionproduct
-WHERE ID=?p1
-AND IsDeleted=0", id);
-            if (res["id"] != null)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "无法读取相应的数据";
-            }
-            return res;
+            return base.Get(id);
         }
 
 
@@ -143,27 +100,7 @@ AND IsDeleted=0", id);
         [NonAction]
         public JObject GetCheckProductInfo(int? id)
         {
-            dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,Name text from t_detectionproduct where id=?p1 and isdeleted=0", id);
-            return res;
-        }
-
-        
-
-        public override Dictionary<string, object> GetReq(JObject req)
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Name"] = req["name"]?.ToObject<string>();
-            dict["ShortName"] = req["shortname"]?.ToObject<string>();
-            dict["BatchNumber"] = req["batchnumber"]?.ToObject<string>();
-            dict["CommonName"] = req["commonname"]?.ToObject<string>();
-            dict["Specification"] = req["specification"]?.ToObject<string>();
-            dict["ESC"] = req["esc"]?.ToObject<string>();
-            dict["ProductionDate"] = req["productiondate"]?.ToObject<string>();
-            dict["ExpiryDate"] = req["expirydate"]?.ToObject<string>();
-            dict["Manufacturer"] = req["manufacturer"]?.ToObject<string>();
-
-            return dict;
+            return base.GetAltInfo(id);
         }
     }
 }

@@ -139,23 +139,34 @@
  * - 给菜单项添加一个seq字段，方便前端操作           @xuedi   2020-07-14 11:50
  */
 using health.common;
+using health.web.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
+using Ubiety.Dns.Core.Records.NotUsed;
+using health.web.StdResponse;
+using System.Security.Claims;
 
 namespace health.Controllers
 {
     [Route("api")]
-    public class MenuController : AbstractBLLController
+    public class MenuController : AbstractBLLControllerT
     {
         private readonly ILogger<MenuController> _logger;
-        public override string TableName => "t_menu";
-
-        public MenuController(ILogger<MenuController> logger)
+        MenuRepository menuRepository;
+        public MenuController(
+            MenuRepository repository
+            , IServiceProvider serviceProvider
+            )
+            : base(repository, serviceProvider)
         {
-            _logger = logger;
+            menuRepository = repository;
+            _logger = serviceProvider.GetService<ILogger<MenuController>>();
         }
 
         /// <summary>
@@ -164,23 +175,13 @@ namespace health.Controllers
         /// <param name="pid">指定根菜单的id</param>
         /// <returns>JSON对象，递归地包含了相应的系统菜单</returns>
         [HttpGet]
-        [Route("GetMenu")]
+        [Route("GetMenuTree")]
         public JObject GetMenu(int pid)
         {
             JObject res = new JObject();
-            res["status"] = 200;
-            //  在这里添加判断usergroup的中间件，并将usergroup应用于筛选菜单的条件
-            JArray tmp = db.GetArray("select id,name,icon,label,pid,seq from t_menu where isdeleted=0");
-            JObject[] menus = new JObject[0];
-            var input = tmp.ToObject<JObject[]>();
-            BuildMenu(input.ToArray(), pid, ref menus);
-            JArray list = new JArray();
-            foreach (var item in menus)
-                list.Add(item);
-
-            res.Add("list", list);
-            res["msg"] = "读取成功";
-            return res;
+            int groupid = HttpContext.GetClaimInfo<int>(ClaimTypes.GroupSid);
+            res["list"] = menuRepository.GetListJointImp(groupid, pid, int.MaxValue, 0);
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -193,20 +194,9 @@ namespace health.Controllers
         public override JObject GetList()
         {
             JObject res = new JObject();
-            res["status"] = 200;
-            //  在这里添加判断usergroup的中间件，并将usergroup应用于筛选菜单的条件
-            var groupid = HttpContext.GetIdentityInfo<int?>("groupid");
-            JArray tmp = db.GetArray("select id,name,icon,label,pid,seq from t_menu where isdeleted=0 and usergroup=?p1",groupid);
-            JObject[] menus = new JObject[0];
-            var input = tmp.ToObject<JObject[]>();
-            BuildMenu(input.ToArray(), 0, ref menus);
-            JArray list = new JArray();
-            foreach (var item in menus)
-                list.Add(item);
-
-            res.Add("list", list);
-            res["msg"] = "读取成功";
-            return res;
+            int groupid = HttpContext.GetClaimInfo<int>(ClaimTypes.GroupSid);
+            res["list"] = menuRepository.GetListJointImp(groupid, int.MaxValue, 0);
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -215,14 +205,16 @@ namespace health.Controllers
         /// </summary>
         /// <returns>JSON对象，递归地包含了相应的系统菜单</returns>
         [HttpGet]
-        [Route("GetMenuId")]
+        [Route("GetMenu")]
         public override JObject Get(int id)
         {
-            //  在这里添加判断usergroup的中间件，并将usergroup应用于筛选菜单的条件
-            JObject res = db.GetOne("select id,name,icon,label,pid,seq,usergroup from t_menu where id=?p1 and isdeleted=0",id);
-            res["status"] = 200;
-            res["msg"] = "读取成功";
-            return res;
+            JObject res = new JObject();
+            res = menuRepository.GetOneRawImp(id);
+            var groupid =  HttpContext.GetClaimInfo<int>(ClaimTypes.GroupSid);
+            if (res.ToInt("usergroup") != groupid)
+                return Response_201_read.GetResult();
+            else
+                return Response_200_read.GetResult(res);
         }
 
 
@@ -287,19 +279,6 @@ namespace health.Controllers
         public override JObject Del([FromBody] JObject req)
         {
             return base.Del(req);
-        }
-
-        public override Dictionary<string, object> GetReq(JObject req)
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["name"] = req["name"]?.ToString();
-            dict["icon"] = req["icon"]?.ToString();
-            dict["label"] = req["label"]?.ToString();
-            dict["pid"] = req["pid"]?.ToString();
-            dict["usergroup"] = req["usergroup"]?.ToString();
-            dict["seq"] = req["seq"]?.ToString();
-
-            return dict;
         }
     }
 }

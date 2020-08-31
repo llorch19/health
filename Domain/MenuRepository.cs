@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using util.mysql;
 
@@ -62,14 +63,15 @@ namespace health.web.Domain
             throw new NotImplementedException();
         }
 
-        public override JArray GetListJointImp(int pageSize, int pageIndex)
+
+        public JArray GetListJointImp(int groupid, int pageSize, int pageIndex)
         {
             JArray list = new JArray();
-            var dbArray =  _db.GetArray(@"
+            var dbArray = _db.GetArray(@"
 select id,name,icon,label,pid,seq 
 from t_menu 
 where isdeleted=0 and usergroup=?p1
-");
+", groupid);
             JObject[] menus = new JObject[0];
             var input = dbArray.ToObject<JObject[]>();
             BuildMenu(input.ToArray(), 0, ref menus);
@@ -79,14 +81,19 @@ where isdeleted=0 and usergroup=?p1
             return list;
         }
 
-        public JArray GetListJointImp(int pid,int pageSize, int pageIndex)
+        public override JArray GetListJointImp(int pageSize, int pageIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public JArray GetListJointImp(int groupid,int pid,int pageSize, int pageIndex)
         {
             JArray list = new JArray();
             var dbArray = _db.GetArray(@"
 select id,name,icon,label,pid,seq 
 from t_menu 
 where isdeleted=0 and usergroup=?p1
-");
+", groupid);
             JObject[] menus = new JObject[0];
             var input = dbArray.ToObject<JObject[]>();
             BuildMenu(input.ToArray(), pid, ref menus);
