@@ -7,16 +7,20 @@
  * - GetOrgVaccList 应该和GetPeron["vacc"]字段一致     @xuedi      2020-07-22      15:20
  */
 using health.common;
+using health.web.Domain;
 using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace health.Controllers
 {
     [Route("api")]
-    public class VaccController : AbstractBLLController
+    public class VaccController : AbstractBLLControllerT
     {
         private readonly ILogger<VaccController> _logger;
         PersonController _person;
@@ -24,21 +28,18 @@ namespace health.Controllers
         MedicationController _med;
         MedicationDosageFormController _dosage;
         MedicationPathwayController _pathway;
-        public override string TableName => "t_vacc";
 
-        public VaccController(ILogger<VaccController> logger
-            ,PersonController person
-            ,OrganizationController org
-            ,MedicationController med
-            ,MedicationDosageFormController dosage
-            ,MedicationPathwayController pathway)
+        public VaccController(
+            VaccRepository repository
+            ,IServiceProvider serviceProvider)
+            :base(repository,serviceProvider)
         {
-            _logger = logger;
-            _person = person;
-            _org = org;
-            _med = med;
-            _dosage = dosage;
-            _pathway = pathway;
+            _logger = serviceProvider.GetService<ILogger<VaccController>>();
+            _person = serviceProvider.GetService<PersonController>();
+            _org = serviceProvider.GetService<OrganizationController>();
+            _med = serviceProvider.GetService<MedicationController>();
+            _dosage = serviceProvider.GetService<MedicationDosageFormController>();
+            _pathway = serviceProvider.GetService<MedicationPathwayController>();
         }
 
         /// <summary>
@@ -50,50 +51,9 @@ namespace health.Controllers
         public override JObject GetList()
         {
             JObject res = new JObject();
-            res["list"] = GetListImp();
-            return res;
-        }
-
-        [NonAction]
-        public JArray GetListImp()
-        {
-            return db.GetArray(@"
-SELECT 
-t_vacc.ID
-,PatientID
-,t_patient.FamilyName AS Person
-,t_vacc.OrgnizationID
-,t_orgnization.OrgName AS OrgName
-,OperatorName 
-,MedicationID
-,t_medication.`Name` AS Medication
-,t_medication.`CommonName` AS CommonName
-,MedicationDosageFormID
-,data_medicationdosageform.`Name` AS Dosage
-,MedicationPathwayID
-,data_medicationpathway.`Name` AS Pathway
-,Ftime
-,OperationTime
-,LeaveTime
-,NextTime
-,Fstatus
-,TempratureP
-,TempratureN
-,Effect
-,t_vacc.IsActive AS IsActive
-FROM t_vacc
-LEFT JOIN t_patient
-ON t_vacc.PatientID=t_patient.ID
-LEFT JOIN t_orgnization
-ON t_vacc.OrgnizationID=t_orgnization.ID
-LEFT JOIN t_medication
-ON t_vacc.MedicationID=t_medication.ID
-LEFT JOIN data_medicationdosageform
-ON t_vacc.MedicationDosageFormID=data_medicationdosageform.ID
-LEFT JOIN data_medicationpathway
-ON t_vacc.MedicationPathwayID=data_medicationpathway.ID
-WHERE t_vacc.OrgnizationID=?p1
-AND t_vacc.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            res["list"] = _repo.GetListByOrgJointImp(orgid ?? 0, int.MaxValue, 0);
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -106,53 +66,10 @@ AND t_vacc.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
         public JObject GetListP(int personid)
         {
             JObject res = new JObject();
-            res["list"] = GetListPImp(personid);
+            res["list"] = _repo.GetListByPersonJointImp(personid, int.MaxValue, 0);
             return Response_200_read.GetResult(res);
         }
 
-        [NonAction]
-        public JArray GetListPImp(int personid)
-        {
-            return db.GetArray(@"
-SELECT 
-t_vacc.ID
-,OperationTime
-,t_medication.`CommonName` AS CommonName
-,IFNULL(t_medication.ESC,'') AS ESC
-,t_orgnization.OrgName AS OrgName
-,OperatorName 
-,PatientID
-,t_patient.FamilyName AS Person
-,t_vacc.OrgnizationID
-,OperationUserID
-,MedicationID
-,t_medication.`Name` AS Medication
-,MedicationDosageFormID
-,data_medicationdosageform.`Name` AS Dosage
-,MedicationPathwayID
-,data_medicationpathway.`Name` AS Pathway
-,Ftime
-,LeaveTime
-,NextTime
-,Fstatus
-,TempratureP
-,TempratureN
-,Effect
-,t_vacc.IsActive AS IsActive
-FROM t_vacc
-LEFT JOIN t_patient
-ON t_vacc.PatientID=t_patient.ID
-LEFT JOIN t_orgnization
-ON t_vacc.OrgnizationID=t_orgnization.ID
-LEFT JOIN t_medication
-ON t_vacc.MedicationID=t_medication.ID
-LEFT JOIN data_medicationdosageform
-ON t_vacc.MedicationDosageFormID=data_medicationdosageform.ID
-LEFT JOIN data_medicationpathway
-ON t_vacc.MedicationPathwayID=data_medicationpathway.ID
-WHERE t_vacc.PatientID=?p1
-AND t_vacc.IsDeleted=0", personid);
-        }
 
         /// <summary>
         /// 获取“接种记录”信息
@@ -163,29 +80,7 @@ AND t_vacc.IsDeleted=0", personid);
         [Route("Get[controller]")]
         public override JObject Get(int id)
         {
-            JObject res = db.GetOne(@"
-SELECT 
-ID
-,PatientID
-,OrgnizationID
-,OperatorName
-,MedicationID
-,MedicationDosageFormID
-,MedicationPathwayID
-,Ftime
-,OperationTime
-,LeaveTime
-,NextTime
-,Fstatus
-,TempratureP
-,TempratureN
-,Effect
-,IsActive
-FROM t_vacc
-WHERE ID=?p1
-and IsDeleted=0", id);
-            if (!res.HasValues)
-                return Response_201_read.GetResult();
+            JObject res = base.Get(id);
 
             res["person"] = _person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
             res["org"] = _org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
@@ -217,7 +112,6 @@ and IsDeleted=0", id);
                     return Response_201_write.GetResult();
             }
 
-            req["orgnizationid"] = orgid;
             return base.Set(req);
         }
 
@@ -235,32 +129,12 @@ and IsDeleted=0", id);
         {
             var id = req.ToInt("id");
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            var objDatabase = db.GetOne("SELECT OrgnizationID FROM " + TableName + " WHERE ID=?p1 AND IsDeleted=0", id);
-            var canwrite = req.Challenge(r => objDatabase.ToInt("orgnizationid") == orgid);
+            var orgaltinfo = _org.GetOrgInfo(id);
+            var canwrite = req.Challenge(r => orgaltinfo.ToInt("id") == orgid);
             if (!canwrite)
                 return Response_201_write.GetResult();
 
             return base.Del(req);
-        }
-
-        public override Dictionary<string, object> GetReq(JObject req)
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["PatientID"] = req.ToInt("patientid");
-            dict["OrgnizationID"] = req.ToInt("orgnizationid");
-            //dict["OperationUserID"] = req.ToInt("operationuserid");
-            dict["OperatorName"] = req["operatorname"]?.ToObject<string>();
-            dict["MedicationID"] = req.ToInt("medicationid");
-            dict["MedicationDosageFormID"] = req.ToInt("medicationdosageformid");
-            dict["MedicationPathwayID"] = req.ToInt("medicationpathwayid");
-            dict["OperationTime"] = req.ToDateTime("operationtime");
-            dict["LeaveTime"] = req.ToDateTime("leavetime");
-            dict["NextTime"] = req.ToDateTime("nexttime");
-            dict["Fstatus"] = req["fstatus"]?.ToObject<string>();
-            dict["Ftime"] = req.ToInt("ftime");
-            dict["Effect"] = req["effect"]?.ToObject<string>();
-
-            return dict;
         }
     }
 }

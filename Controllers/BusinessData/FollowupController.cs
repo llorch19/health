@@ -6,9 +6,11 @@
  * Comments
  */
 using health.common;
+using health.web.Domain;
 using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Asn1.X509;
 using System;
@@ -18,20 +20,20 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class FollowupController : AbstractBLLController
+    public class FollowupController : AbstractBLLControllerT
     {
         private readonly ILogger<FollowupController> _logger;
         PersonController _person;
         OrganizationController _org;
-        public override string TableName => "t_followup";
 
-        public FollowupController(ILogger<FollowupController> logger
-            ,PersonController person
-            ,OrganizationController org)
+        public FollowupController(
+            FollowupRepository repository
+            ,IServiceProvider serviceProvider)
+            :base(repository,serviceProvider)
         {
-            _logger = logger;
-            _person = person;
-            _org = org; 
+            _logger = serviceProvider.GetService<ILogger<FollowupController>>();
+            _person = serviceProvider.GetService<PersonController>(); 
+            _org = serviceProvider.GetService<OrganizationController>(); 
         }
 
         /// <summary>
@@ -43,35 +45,11 @@ namespace health.Controllers
         public override JObject GetList()
         {
             JObject res = new JObject();
-            res["list"] = GetListImp();
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            res["list"] = _repo.GetListByOrgJointImp(orgid ?? 0, int.MaxValue, 0);
             return Response_200_read.GetResult(res);
         }
 
-        [NonAction]
-        public JArray GetListImp()
-        {
-            return db.GetArray(@"
-SELECT 
-t_followup.ID
-,t_followup.PatientID AS PersonID
-,t_patient.FamilyName AS PersonName
-,t_patient.IDCardNO AS PersonCode
-,t_followup.OrgnizationID
-,t_orgnization.OrgName
-,t_orgnization.OrgCode
-,t_followup.TIME
-,t_followup.PersonList
-,t_followup.Abstract
-,t_followup.Detail
-,t_followup.IsActive
-FROM t_followup
-LEFT JOIN t_patient
-ON t_followup.PatientID=t_patient.ID
-LEFT JOIN t_orgnization
-ON t_followup.OrgnizationID=t_orgnization.ID
-WHERE t_followup.OrgnizationID=?p1
-AND t_followup.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"));
-        }
 
         /// <summary>
         /// 获取机构的“随访”列表
@@ -82,37 +60,10 @@ AND t_followup.IsDeleted=0", HttpContext.GetIdentityInfo<int?>("orgnizationid"))
         public JObject GetListP(int personid)
         {
             JObject res = new JObject();
-            res["list"] = GetListPImp(personid);
+            res["list"] = _repo.GetListByPersonJointImp(personid, int.MaxValue, 0);
             return Response_200_read.GetResult(res);
         }
 
-        [NonAction]
-        public JArray GetListPImp(int personid)
-        {
-            return db.GetArray(@"
-SELECT 
-t_followup.ID
-,t_followup.PatientID AS PersonID
-,t_patient.FamilyName AS PersonName
-,t_patient.IDCardNO AS PersonCode
-,t_followup.OrgnizationID
-,t_orgnization.OrgName
-,t_orgnization.OrgCode
-,t_followup.Time
-,t_followup.PersonList
-,t_followup.Abstract
-,t_followup.Detail
-,t_followup.IsActive
-FROM t_followup
-LEFT JOIN t_patient
-ON t_followup.PatientID=t_patient.ID
-LEFT JOIN t_orgnization
-ON t_followup.OrgnizationID=t_orgnization.ID
-WHERE t_followup.PatientID=?p1
-AND t_followup.IsDeleted=0
-ORDER BY Time DESC
-", personid);
-        }
 
         /// <summary>
         /// 获取“随访”信息
@@ -123,19 +74,7 @@ ORDER BY Time DESC
         [Route("GetFollowup")]
         public override JObject Get(int id)
         {
-            JObject res = db.GetOne(@"
-SELECT 
-ID
-,PatientID
-,OrgnizationID
-,TIME
-,PersonList
-,Abstract
-,Detail
-FROM t_followup
-WHERE ID=?p1
-AND t_followup.IsDeleted=0
-", id);
+            JObject res = base.Get(id);
             if (res["id"] == null)
                 return Response_201_read.GetResult();
 
@@ -182,27 +121,12 @@ AND t_followup.IsDeleted=0
         {
             var id = req.ToInt("id");
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            var objDatabase = db.GetOne("SELECT OrgnizationID FROM "+TableName+" WHERE ID=?p1 AND IsDeleted=0",id);
-            var canwrite = req.Challenge(r => objDatabase.ToInt("orgnizationid") == orgid);
+            var orgaltinfo = _org.GetOrgInfo(id);
+            var canwrite = req.Challenge(r => orgaltinfo.ToInt("id") == orgid);
             if (!canwrite)
                 return Response_201_write.GetResult();
 
             return base.Del(req);
-        }
-
-        public override Dictionary<string, object> GetReq(JObject req)
-        {
-
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["PatientID"] = req.ToInt("patientid");
-            dict["OrgnizationID"] = req.ToInt("orgnizationid");
-            dict["Time"] = req.ToDateTime("time");
-            dict["PersonList"] = req["personlist"]?.ToObject<string>();
-            dict["Abstract"] = req["abstract"]?.ToObject<string>();
-            dict["Detail"] = req["detail"]?.ToObject<string>();
-
-
-            return dict;
         }
     }
 }

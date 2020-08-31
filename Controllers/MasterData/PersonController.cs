@@ -37,10 +37,10 @@ namespace health.Controllers
         Lazy<CheckController> _check;
         Lazy<AppointController> _appoint;
         Lazy<AttandentController> _attandent;
-        Lazy<FollowupController> _followup;
+        Lazy<FollowupRepository> _followup;
         Lazy<TreatController> _treat;
         Lazy<TreatItemController> _treatitem;
-        Lazy<VaccController> _vacc;
+        Lazy<VaccRepository> _vacc;
         IdGenerator _idGenerator;
         PersonRepository _repository;
 
@@ -57,10 +57,10 @@ namespace health.Controllers
             _check = serviceProvider.GetService(typeof(Lazy<CheckController>)) as Lazy<CheckController>;
             _appoint = serviceProvider.GetService(typeof(Lazy<AppointController>)) as Lazy<AppointController>;
             _attandent = serviceProvider.GetService(typeof(Lazy<AttandentController>)) as Lazy<AttandentController>;
-            _followup = serviceProvider.GetService(typeof(Lazy<FollowupController>)) as Lazy<FollowupController>;
+            _followup = serviceProvider.GetService(typeof(Lazy<FollowupRepository>)) as Lazy<FollowupRepository>;
             _treat = serviceProvider.GetService(typeof(Lazy<TreatController>)) as Lazy<TreatController>;
             _treatitem = serviceProvider.GetService(typeof(Lazy<TreatItemController>)) as Lazy<TreatItemController>;
-            _vacc = serviceProvider.GetService(typeof(Lazy<VaccController>)) as Lazy<VaccController>;
+            _vacc = serviceProvider.GetService(typeof(Lazy<VaccRepository>)) as Lazy<VaccRepository>;
             _repository = repository;
         }
 
@@ -142,8 +142,8 @@ namespace health.Controllers
             res["checkinfo"] = _check.Value.GetListPImp(id);
             res["treatinfo"] = _treat.Value.GetListPImp(id);
 
-            res["followupinfo"] = _followup.Value.GetListPImp(id);
-            res["vaccinfo"] = _vacc.Value.GetListPImp(id);
+            res["followupinfo"] = _followup.Value.GetListByPersonJointImp(id,int.MaxValue,0);
+            res["vaccinfo"] = _vacc.Value.GetListByPersonJointImp(id);
 
             return Response_200_read.GetResult(res);
         }
