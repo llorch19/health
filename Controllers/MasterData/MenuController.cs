@@ -175,7 +175,7 @@ namespace health.Controllers
         /// <param name="pid">指定根菜单的id</param>
         /// <returns>JSON对象，递归地包含了相应的系统菜单</returns>
         [HttpGet]
-        [Route("GetMenuTree")]
+        [Route("GetMenu")]
         public JObject GetMenu(int pid)
         {
             JObject res = new JObject();
@@ -205,7 +205,7 @@ namespace health.Controllers
         /// </summary>
         /// <returns>JSON对象，递归地包含了相应的系统菜单</returns>
         [HttpGet]
-        [Route("GetMenu")]
+        [Route("GetMenuId")]
         public override JObject Get(int id)
         {
             JObject res = new JObject();
