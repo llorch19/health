@@ -18,6 +18,7 @@ using health.web.StdResponse;
 using IdGen;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -34,7 +35,7 @@ namespace health.Controllers
         Lazy<GenderController> _gender;
         Lazy<OccupationController> _occupation;
         Lazy<AddressCategoryController> _addrcategory;
-        Lazy<CheckController> _check;
+        CheckProductRepository _check;
         Lazy<AppointController> _appoint;
         Lazy<AttandentController> _attandent;
         FollowupRepository _followup;
@@ -54,7 +55,7 @@ namespace health.Controllers
             _gender = serviceProvider.GetService(typeof(Lazy<GenderController>)) as Lazy<GenderController>;
             _occupation = serviceProvider.GetService(typeof(Lazy<OccupationController>)) as Lazy<OccupationController>;
             _addrcategory = serviceProvider.GetService(typeof(Lazy<AddressCategoryController>)) as Lazy<AddressCategoryController>;
-            _check = serviceProvider.GetService(typeof(Lazy<CheckController>)) as Lazy<CheckController>;
+            _check = serviceProvider.GetService<CheckProductRepository>(); 
             _appoint = serviceProvider.GetService(typeof(Lazy<AppointController>)) as Lazy<AppointController>;
             _attandent = serviceProvider.GetService(typeof(Lazy<AttandentController>)) as Lazy<AttandentController>;
             _followup = serviceProvider.GetService(typeof(FollowupRepository)) as FollowupRepository;
@@ -139,7 +140,7 @@ namespace health.Controllers
             if (res["personinfo"]?.HasValues==false)
                 return Response_201_read.GetResult();
 
-            res["checkinfo"] = _check.Value.GetListPImp(id);
+            res["checkinfo"] = _check.GetListByPersonJointImp(id, int.MaxValue, 0);
             res["treatinfo"] = _treat.Value.GetListPImp(id);
 
             res["followupinfo"] = _followup.GetListByPersonJointImp(id,int.MaxValue,0);
