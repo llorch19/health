@@ -200,7 +200,6 @@ and t_patient.IsDeleted=0"
             dict["FamilyName"] = data["familyname"]?.ToObject<string>();
             dict["Nation"] = data["nation"]?.ToObject<string>();
             dict["DomicileType"] = data["domiciletype"]?.ToObject<string>();
-            dict["DomicileType"] = data["domiciletype"]?.ToObject<string>();
             dict["DomicileDetail"] = data["domiciledetail"]?.ToObject<string>();
             dict["WorkUnitName"] = data["workunitname"]?.ToObject<string>();
             dict["OccupationCategoryID"] = data.ToInt("occupationcategoryid");
@@ -224,12 +223,9 @@ and t_patient.IsDeleted=0"
             dict["WorkUnitName"] = data["workunitname"]?.ToObject<string>();
             dict["WorkUnitContact"] = data["workunitcontact"]?.ToObject<string>();
             dict["Email"] = data["email"]?.ToObject<string>();
-            dict["GuardianName"] = data["guardianname"]?.ToObject<string>();
             dict["GuardianContact"] = data["guardiancontact"]?.ToObject<string>();
             dict["GuardianName"] = data["guardianname"]?.ToObject<string>();
             dict["GuardianEmail"] = data["guardianemail"]?.ToObject<string>();
-            dict["InviteCode"] = data["invitecode"]?.ToObject<string>();
-            dict["RegisterNO"] = data["registerno"]?.ToObject<string>();
             dict["Birthday"] = data.ToDateTime("birthday");
             return dict;
         }
@@ -239,6 +235,40 @@ and t_patient.IsDeleted=0"
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["IDCardNO"] = null;
             return dict;
+        }
+
+
+        public override int AddOrUpdateRaw(JObject data, string username)
+        {
+            if (IsAddAction(data))
+            {
+                var dict = GetValue(data);
+                dict["InviteCode"] = data["invitecode"]?.ToObject<string>();
+                dict["RegisterNO"] = data["registerno"]?.ToObject<string>();
+                dict["CreatedBy"] = username;
+                dict["CreatedTime"] = DateTime.Now;
+                dict["IsActive"] = 1;  // 新增的默认是激活的,如果Repository需要自动锁定新增，在AddOrUpdate之后调用SetLock()
+                dict["IsDeleted"] = 0;
+                return _db.Insert(TableName, dict);
+            }
+            else
+            {
+                if (IsLockAction(data))
+                    return SetLock(data, username) > 0
+                        ? GetId(data) : 0;
+                else
+                {
+                    var valuedata = GetValue(data);
+                    var keydata = GetKey(data);
+                    valuedata["LastUpdatedBy"] = username;
+                    valuedata["LastUpdatedTime"] = DateTime.Now;
+                    valuedata["IsActive"] = 1;  // 修改后为 IsActive = true
+                    valuedata["IsDeleted"] = 0;
+                    return _db.Update(TableName, valuedata, keydata) > 0
+                        ? GetId(data)
+                        : 0;
+                }
+            }
         }
     }
 }

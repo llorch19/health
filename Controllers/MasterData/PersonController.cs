@@ -157,6 +157,18 @@ namespace health.Controllers
         [Route("SetPerson")]
         public override JObject Set([FromBody] JObject req)
         {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var id = req.ToInt("id");
+            if (id == 0) // 新增
+                req["orgnizationid"] = orgid;
+            else
+            {
+                var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+                if (!canwrite)
+                    return Response_201_write.GetResult();
+            }
+
+
             DateTime dt;
             if (DateTime.TryParse(req["birthday"].ToObject<string>(), out dt))
             {
@@ -167,11 +179,12 @@ namespace health.Controllers
             if (req.ToInt("id") == 0)
             {
                 // 新增人员生成邀请码和档案号
-                req["InviteCode"] = ShareCodeUtils.New();
-                req["RegisterNO"] = _idGenerator.CreateId();
+                req["invitecode"] = ShareCodeUtils.New();
+                req["registerno"] = _idGenerator.CreateId();
                 // 在 添加Attandent 记录
                 // 为Patient指定当前orgid
             }
+
             return base.Set(req);
         }
 

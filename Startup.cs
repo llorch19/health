@@ -41,31 +41,7 @@ namespace health
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient(typeof(dbfactory));
-            services.AddTransient(typeof(AddressCategoryRepository));
-            services.AddTransient(typeof(AreaRepository));
-            services.AddTransient(typeof(DetectionResultTypeRepository));
-            services.AddTransient(typeof(AttandentRepository));
-            services.AddTransient(typeof(TransferRepository));
-            services.AddTransient(typeof(PersonRepository));
-            services.AddTransient(typeof(DomiTypeRepository));
-            services.AddTransient(typeof(GenderRepository));
-            services.AddTransient(typeof(IdCategoryRepository));
-            services.AddTransient(typeof(MedicationDosageFormRepository));
-            services.AddTransient(typeof(MedicationFreqCategoryRepository));
-            services.AddTransient(typeof(MedicationPathwayRepository));
-            services.AddTransient(typeof(NationRepository));
-            services.AddTransient(typeof(OccupationRepository));
-            services.AddTransient(typeof(TreatmentOptionRepository));
-            services.AddTransient(typeof(CheckProductRepository));
-            services.AddTransient(typeof(MedicationRepository));
-            services.AddTransient(typeof(MenuRepository));
-            services.AddTransient(typeof(OptionRepository));
-            services.AddTransient(typeof(OrgnizationRepository));
-            services.AddTransient(typeof(AppointRepository));
-            services.AddTransient(typeof(VaccRepository));
-            services.AddTransient(typeof(FollowupRepository));
-
+           
 
             services.AddSingleton<FastFailException>();
             services.AddControllers( options =>
@@ -154,7 +130,31 @@ namespace health
             services.AddLazyResolution();
 
 
-            
+            services.AddTransient(typeof(dbfactory));
+            services.AddTransient(typeof(AddressCategoryRepository));
+            services.AddTransient(typeof(AreaRepository));
+            services.AddTransient(typeof(DetectionResultTypeRepository));
+            services.AddTransient(typeof(AttandentRepository));
+            services.AddTransient(typeof(TransferRepository));
+            services.AddTransient(typeof(PersonRepository));
+            services.AddTransient(typeof(DomiTypeRepository));
+            services.AddTransient(typeof(GenderRepository));
+            services.AddTransient(typeof(IdCategoryRepository));
+            services.AddTransient(typeof(MedicationDosageFormRepository));
+            services.AddTransient(typeof(MedicationFreqCategoryRepository));
+            services.AddTransient(typeof(MedicationPathwayRepository));
+            services.AddTransient(typeof(NationRepository));
+            services.AddTransient(typeof(OccupationRepository));
+            services.AddTransient(typeof(TreatmentOptionRepository));
+            services.AddTransient(typeof(CheckProductRepository));
+            services.AddTransient(typeof(MedicationRepository));
+            services.AddTransient(typeof(MenuRepository));
+            services.AddTransient(typeof(OptionRepository));
+            services.AddTransient(typeof(OrgnizationRepository));
+            services.AddTransient(typeof(AppointRepository));
+            services.AddTransient(typeof(VaccRepository));
+            services.AddTransient(typeof(FollowupRepository));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
