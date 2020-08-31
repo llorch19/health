@@ -37,6 +37,7 @@ IFNULL(id,'') AS id
 ,IFNULL(`value`,'') AS `value`
 ,IFNULL(`description`,'') AS `description`
 FROM t_option
+WHERE t_option.IsDeleted = 0
 LIMIT ?p1,?p2
 ", offset,pageSize);
         }
@@ -56,8 +57,8 @@ IFNULL(id,'') AS id
 FROM t_option
 WHERE section=?p1
 AND t_option.IsDeleted = 0
-LIMIT ?p1,?p2
-", offset, pageSize);
+LIMIT ?p2,?p3
+", section,  offset, pageSize);
         }
 
         public override JObject GetOneRawImp(int id)

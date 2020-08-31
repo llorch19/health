@@ -6,37 +6,33 @@
  * Comments
  * - 支持其他可变参数   @xuedi  2020-07-15 09:52
  */
+using health.web.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using util.mysql;
+using health.web.StdResponse;
 
 namespace health.Controllers
 {
     [Route("api")]
-    public class OptionController : AbstractBLLController
+    public class OptionController : AbstractBLLControllerT
     {
-
+        OptionRepository optionRepository;
         private readonly ILogger<OptionController> _logger;
-        public override string TableName => "t_option";
 
-        public OptionController(ILogger<OptionController> logger)
+        public OptionController(
+            OptionRepository repository
+            , IServiceProvider serviceProvider
+            )
+            : base(repository, serviceProvider)
         {
-            _logger = logger;
-        }
-
-        /// <summary>
-        /// 获取“参数”列表
-        /// </summary>
-        /// <returns>JSON数组形式的“参数”信息</returns>
-        [HttpGet]
-        [Route("GetOptionListD")]
-        public override JObject GetList()
-        {
-            return GetOptionList(null);
+            optionRepository = repository;
+            _logger = serviceProvider.GetService<ILogger<OptionController>>();
         }
 
         /// <summary>
@@ -44,41 +40,30 @@ namespace health.Controllers
         /// </summary>
         /// <param name="section">节名</param>
         /// <returns>JSON数组形式的“参数”信息</returns>
-        [HttpGet]
-        [Route("GetOptionList")]
-        public JObject GetOptionList(string section = null)
+        [HttpGet("GetOptionSectionList")]
+        public JObject GetList([FromQuery]string section = null)
         {
             JObject res = new JObject();
-            res["status"] = 200;
-            res["msg"] = "读取成功";
+            res["list"] = optionRepository.GetListJointImp(section, int.MaxValue, 0);
+            return Response_200_read.GetResult(res);
+        }
 
-            dbfactory db = new dbfactory();
-            string sql = null;
-            if (section == null)
-                sql = @"SELECT 
-IFNULL(id,'') AS id
-,IFNULL(section,'') AS section
-,IFNULL(`name`,'') AS `name`
-,IFNULL(`value`,'') AS `value`
-,IFNULL(`description`,'') AS `description`
-FROM t_option
-";
-            else
-                sql = @"SELECT 
-IFNULL(id,'') AS id
-,IFNULL(section,'') AS section
-,IFNULL(`name`,'') AS `name`
-,IFNULL(`value`,'') AS `value`
-,IFNULL(`description`,'') AS `description`
-FROM t_option
-WHERE section=?p1
-";
-            JArray rows = db.GetArray(
-                sql
-                , section);
+        [NonAction]
+        public override JObject GetList()
+        {
+            throw new NotImplementedException();
+        }
 
-            res["list"] = rows;
-            return res;
+        /// <summary>
+        /// 获取“参数”列表
+        /// </summary>
+        /// <returns>JSON数组形式的“参数”信息</returns>
+        [HttpGet("GetOptionList")]
+        public JObject GetOptionList()
+        {
+            JObject res = new JObject();
+            res["list"] = optionRepository.GetListJointImp(int.MaxValue, 0);
+            return Response_200_read.GetResult(res);
         }
 
         /// <summary>
@@ -89,28 +74,7 @@ WHERE section=?p1
         [Route("GetOption")]
         public override JObject Get(int id)
         {
-            dbfactory db = new dbfactory();
-            JObject res = db.GetOne(
-                @"SELECT 
-IFNULL(id,'') AS id
-,IFNULL(section,'') AS section
-,IFNULL(`name`,'') AS `name`
-,IFNULL(`value`,'') AS `value`
-,IFNULL(`description`,'') AS `description`
-FROM t_option
-WHERE id=?p1"
-                , id);
-            if (res["id"] != null)
-            {
-                res["status"] = 200;
-                res["msg"] = "读取成功";
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "查询不到对应的数据";
-            }
-            return res;
+            return base.Get(id);
         }
 
         /// <summary>
@@ -135,20 +99,6 @@ WHERE id=?p1"
         public override JObject Del([FromBody] JObject req)
         {
             return base.Del(req);
-        }
-
-      
-
-        public override Dictionary<string, object> GetReq(JObject req)
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["section"] = req["orgname"]?.ToObject<string>();
-            dict["name"] = req["orgcode"]?.ToObject<string>();
-            dict["value"] = req["certcode"]?.ToObject<string>();
-            dict["description"] = req["legalname"]?.ToObject<string>();
-            //dict["OrgnizationID"] = req["legalidcode"]?.ToObject<string>();
-
-            return dict;
         }
     }
 }
