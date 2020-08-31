@@ -1,5 +1,6 @@
 using health.Controllers;
 using health.web.Domain;
+using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -27,7 +28,9 @@ namespace health.BaseData
         [HttpGet("GetAddressCategoryList")]
         public override JObject GetList()
         {
-            return base.GetList();
+            JObject res = new JObject();
+            res["list"] = _repo.GetListJointImp(int.MaxValue,0);
+            return Response_200_read.GetResult(res);
         }
 
         /// <summary>
