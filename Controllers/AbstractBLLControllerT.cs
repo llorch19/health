@@ -39,21 +39,30 @@ namespace health.Controllers
         public virtual JObject Get(int id)
         {
             JObject res = _repo.GetOneRawImp(id);
-            return Response_200_read.GetResult(res);
+            if (res.ToInt("id") == id)
+                return Response_200_read.GetResult(res);
+            else
+                return Response_201_read.GetResult();
         }
 
         public virtual JObject Set(JObject req)
         {
             JObject res = new JObject();
             res["id"] = _repo.AddOrUpdateRaw(req, StampUtil.Stamp(HttpContext));
-            return Response_200_write.GetResult(res);
+            if (res.ToInt("id") == 0)
+                return Response_201_write.GetResult(null,"操作失败");
+            else
+                return Response_200_write.GetResult(res);
         }
 
         public virtual JObject Del(JObject req)
         {
             JObject res = new JObject();
             res["id"] = _repo.DelRaw(req, StampUtil.Stamp(HttpContext));
-            return Response_200_write.GetResult(res);
+            if (res.ToInt("id") == 0)
+                return Response_201_write.GetResult(null, "操作失败");
+            else
+                return Response_200_write.GetResult(res);
         }
 
         [NonAction]
