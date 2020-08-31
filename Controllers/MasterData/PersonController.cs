@@ -37,7 +37,7 @@ namespace health.Controllers
         Lazy<CheckController> _check;
         Lazy<AppointController> _appoint;
         Lazy<AttandentController> _attandent;
-        Lazy<FollowupRepository> _followup;
+        FollowupRepository _followup;
         Lazy<TreatController> _treat;
         Lazy<TreatItemController> _treatitem;
         Lazy<VaccRepository> _vacc;
@@ -57,7 +57,7 @@ namespace health.Controllers
             _check = serviceProvider.GetService(typeof(Lazy<CheckController>)) as Lazy<CheckController>;
             _appoint = serviceProvider.GetService(typeof(Lazy<AppointController>)) as Lazy<AppointController>;
             _attandent = serviceProvider.GetService(typeof(Lazy<AttandentController>)) as Lazy<AttandentController>;
-            _followup = serviceProvider.GetService(typeof(Lazy<FollowupRepository>)) as Lazy<FollowupRepository>;
+            _followup = serviceProvider.GetService(typeof(FollowupRepository)) as FollowupRepository;
             _treat = serviceProvider.GetService(typeof(Lazy<TreatController>)) as Lazy<TreatController>;
             _treatitem = serviceProvider.GetService(typeof(Lazy<TreatItemController>)) as Lazy<TreatItemController>;
             _vacc = serviceProvider.GetService(typeof(Lazy<VaccRepository>)) as Lazy<VaccRepository>;
@@ -142,8 +142,8 @@ namespace health.Controllers
             res["checkinfo"] = _check.Value.GetListPImp(id);
             res["treatinfo"] = _treat.Value.GetListPImp(id);
 
-            res["followupinfo"] = _followup.Value.GetListByPersonJointImp(id,int.MaxValue,0);
-            res["vaccinfo"] = _vacc.Value.GetListByPersonJointImp(id);
+            res["followupinfo"] = _followup.GetListByPersonJointImp(id,int.MaxValue,0);
+            res["vaccinfo"] = _vacc.Value.GetListByPersonJointImp(id,int.MaxValue,0);
 
             return Response_200_read.GetResult(res);
         }
