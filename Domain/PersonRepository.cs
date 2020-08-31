@@ -69,6 +69,7 @@ and t_user.IsDeleted=0
             JArray array = _db.GetArray(@"
 SELECT 
 IFNULL(t_patient.ID,'') as ID
+,IFNULL(t_attandent.IsReferral,'') as IsReferral
 ,IFNULL(t_patient.OrgnizationID,'') as OrgnizationID
 ,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
 ,IFNULL(OrgName,'') as OrgName
@@ -119,6 +120,8 @@ LEFT JOIN data_area County
 ON t_patient.CountyID=County.ID
 LEFT JOIN t_transfer
 ON t_patient.ID = t_transfer.PatientID
+LEFT JOIN t_attandent
+ON t_attandent.PatientID=t_patient.ID
 WHERE t_patient.OrgnizationID=?p1
 AND t_patient.IsDeleted=0
 LIMIT ?p2,?p3
