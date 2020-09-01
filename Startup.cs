@@ -25,6 +25,7 @@ using IdGen;
 using health.web.common;
 using health.web.Domain;
 using util.mysql;
+using health.Controllers;
 
 namespace health
 {
@@ -127,7 +128,7 @@ namespace health
 
             services.AddMemoryCache();
 
-            services.AddLazyResolution();
+           
 
 
             services.AddTransient(typeof(dbfactory));
@@ -154,6 +155,11 @@ namespace health
             services.AddTransient(typeof(AppointRepository));
             services.AddTransient(typeof(VaccRepository));
             services.AddTransient(typeof(FollowupRepository));
+            services.AddTransient(typeof(CheckRepository));
+            services.AddTransient(typeof(TreatRepository));
+            services.AddTransient(typeof(TreatItemRepository));
+
+            services.AddLazyResolution();
 
         }
 

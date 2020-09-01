@@ -18,9 +18,9 @@ namespace health.Middleware
         {
             if (!context.HttpContext.Response.HasStarted)
             {
-                var _logger = context.HttpContext.RequestServices.GetService<LoggerFactory>()?.CreateLogger("Middleware");
-                _logger.LogError(context.ActionDescriptor.AttributeRouteInfo.Template);
-                _logger.LogError(context.Exception.Message);
+                var _logger = context.HttpContext.RequestServices.GetService<ILogger<ZFExceptionFilter>>();
+                _logger?.LogError(context.ActionDescriptor.AttributeRouteInfo.Template);
+                _logger?.LogError(context.Exception.Message);
                 context.ExceptionHandled = true;
                 JObject resException = new JObject();
                 resException["status"] = 201;

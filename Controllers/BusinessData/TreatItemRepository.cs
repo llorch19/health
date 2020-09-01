@@ -5,6 +5,7 @@
  * Description: 对“用药记录明细”信息的增删查改
  * Comments
  */
+using health.web.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -16,15 +17,15 @@ using util.mysql;
 
 namespace health.Controllers
 {
-    public class TreatItemController
+    public class TreatItemRepository
     {
-        private readonly ILogger<TreatItemController> _logger;
+        private readonly ILogger<TreatItemRepository> _logger;
         MedicationController _medication;
         MedicationDosageFormController _dosage;
         MedicationFreqCategoryController _freq;
         MedicationPathwayController _pathway;
         dbfactory db = new dbfactory();
-        public TreatItemController(ILogger<TreatItemController> logger
+        public TreatItemRepository(ILogger<TreatItemRepository> logger
             ,MedicationController medication
             ,MedicationDosageFormController dosage
             ,MedicationFreqCategoryController freq

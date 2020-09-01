@@ -31,17 +31,17 @@ namespace health.Controllers
     public class PersonController : AbstractBLLControllerT
     {
         private readonly ILogger<PersonController> _logger;
-        Lazy<OrganizationController> _org;
-        Lazy<GenderController> _gender;
-        Lazy<OccupationController> _occupation;
-        Lazy<AddressCategoryController> _addrcategory;
-        CheckProductRepository _check;
-        Lazy<AppointController> _appoint;
-        Lazy<AttandentController> _attandent;
+        OrgnizationRepository _org;
+        GenderRepository _gender;
+        OccupationRepository _occupation;
+        AddressCategoryRepository _addrcategory;
+        CheckRepository _check;
+        AppointRepository _appoint;
+        AttandentRepository _attandent;
         FollowupRepository _followup;
-        Lazy<TreatController> _treat;
-        Lazy<TreatItemController> _treatitem;
-        Lazy<VaccRepository> _vacc;
+        TreatRepository _treat;
+        TreatItemRepository _treatitem;
+        VaccRepository _vacc;
         IdGenerator _idGenerator;
         PersonRepository _repository;
 
@@ -51,17 +51,17 @@ namespace health.Controllers
         {
             _logger = serviceProvider.GetService(typeof(ILogger<PersonController>)) as ILogger<PersonController>;
             _idGenerator = serviceProvider.GetService(typeof(IdGenerator)) as IdGenerator;
-            _org = serviceProvider.GetService(typeof(Lazy<OrganizationController>)) as Lazy<OrganizationController>;
-            _gender = serviceProvider.GetService(typeof(Lazy<GenderController>)) as Lazy<GenderController>;
-            _occupation = serviceProvider.GetService(typeof(Lazy<OccupationController>)) as Lazy<OccupationController>;
-            _addrcategory = serviceProvider.GetService(typeof(Lazy<AddressCategoryController>)) as Lazy<AddressCategoryController>;
-            _check = serviceProvider.GetService<CheckProductRepository>(); 
-            _appoint = serviceProvider.GetService(typeof(Lazy<AppointController>)) as Lazy<AppointController>;
-            _attandent = serviceProvider.GetService(typeof(Lazy<AttandentController>)) as Lazy<AttandentController>;
-            _followup = serviceProvider.GetService(typeof(FollowupRepository)) as FollowupRepository;
-            _treat = serviceProvider.GetService(typeof(Lazy<TreatController>)) as Lazy<TreatController>;
-            _treatitem = serviceProvider.GetService(typeof(Lazy<TreatItemController>)) as Lazy<TreatItemController>;
-            _vacc = serviceProvider.GetService(typeof(Lazy<VaccRepository>)) as Lazy<VaccRepository>;
+            _org = serviceProvider.GetService<OrgnizationRepository>(); 
+            _gender = serviceProvider.GetService<GenderRepository>(); 
+            _occupation = serviceProvider.GetService<OccupationRepository>(); 
+            _addrcategory = serviceProvider.GetService<AddressCategoryRepository>(); 
+            _check = serviceProvider.GetService<CheckRepository>();
+            _appoint = serviceProvider.GetService<AppointRepository>(); 
+            _attandent = serviceProvider.GetService<AttandentRepository>(); 
+            _followup = serviceProvider.GetService<FollowupRepository>();
+            _treat = serviceProvider.GetService<TreatRepository>();
+            _treatitem = serviceProvider.GetService<TreatItemRepository>();
+            _vacc = serviceProvider.GetService<VaccRepository>(); 
             _repository = repository;
         }
 
@@ -111,12 +111,12 @@ namespace health.Controllers
             if (!res.HasValues)
                 return res;
 
-            res["primaryorg"] = _org.Value.GetOrgInfo(res["primaryorgnizationid"].ToObject<int>());
-            res["orgnization"] = _org.Value.GetOrgInfo(res["orgnizationid"].ToObject<int>());
+            res["primaryorg"] = _org.GetAltInfo(res["primaryorgnizationid"].ToObject<int>());
+            res["orgnization"] = _org.GetAltInfo(res["orgnizationid"].ToObject<int>());
 
-            res["gender"] = _gender.Value.GetGenderInfo(res["genderid"].ToObject<int>());
-            res["occupation"] = _occupation.Value.GetOccupationInfo(res["occupationcategoryid"].ToObject<int>());
-            res["addresscategory"] = _addrcategory.Value.GetAddressCategoryInfo(res["addresscategoryid"].ToObject<int>());
+            res["gender"] = _gender.GetAltInfo(res["genderid"].ToObject<int>());
+            res["occupation"] = _occupation.GetAltInfo(res["occupationcategoryid"].ToObject<int>());
+            res["addresscategory"] = _addrcategory.GetAltInfo(res["addresscategoryid"].ToObject<int>());
 
             res["province"] = conf.GetAreaInfo(res["provinceid"].ToObject<int>());
             res["city"] = conf.GetAreaInfo(res["cityid"].ToObject<int>());
@@ -141,10 +141,10 @@ namespace health.Controllers
                 return Response_201_read.GetResult();
 
             res["checkinfo"] = _check.GetListByPersonJointImp(id, int.MaxValue, 0);
-            res["treatinfo"] = _treat.Value.GetListPImp(id);
+            res["treatinfo"] = _treat.GetListByPersonJointImp(id, int.MaxValue, 0);
 
-            res["followupinfo"] = _followup.GetListByPersonJointImp(id,int.MaxValue,0);
-            res["vaccinfo"] = _vacc.Value.GetListByPersonJointImp(id,int.MaxValue,0);
+            res["followupinfo"] = _followup.GetListByPersonJointImp(id, int.MaxValue, 0);
+            res["vaccinfo"] = _vacc.GetListByPersonJointImp(id, int.MaxValue, 0);
 
             return Response_200_read.GetResult(res);
         }

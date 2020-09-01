@@ -103,7 +103,7 @@ LEFT JOIN data_medicationpathway
 ON t_vacc.MedicationPathwayID=data_medicationpathway.ID
 WHERE t_vacc.PatientID=?p1
 AND t_vacc.IsDeleted=0
-ORDER BY Time DESC
+ORDER BY OperationTime DESC
 LIMIT ?p2,?p3", personid, offset, pageSize);
         }
 
