@@ -62,7 +62,7 @@ namespace health.Controllers
         /// </summary>
         /// <returns>JSON对象，包含相应的“接种记录”数组</returns>
         [HttpGet]
-        [Route("Get[controller]ListP")]
+        [Route("GetPerson[controller]List")]
         public JObject GetListP(int personid)
         {
             JObject res = new JObject();
