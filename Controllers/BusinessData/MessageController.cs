@@ -67,9 +67,9 @@ IFNULL(t_messagesent.ID,'') as ID
 ,IFNULL(t_messagesent.PublishTime,'') as PublishTime
 ,IFNULL(t_messagesent.Title,'') as Title
 ,IFNULL(t_messagesent.Abstract,'') as Abstract
-,CONCAT(IFNULL(t_option.`value`,''),IFNULL(t_messagesent.Thumbnail,'')) as Thumbnail
+,IF(t_messagesent.Thumbnail IS NOT NULL, CONCAT(IFNULL(t_option.`value`,''),IFNULL(t_messagesent.Thumbnail,'')) ,'') as Thumbnail
 ,IFNULL(Content,'') as Content
-,IFNULL(Attachment,'') as Attachment
+,IF(t_messagesent.Attachment IS NOT NULL ,CONCAT(IFNULL(t_option.`value`,''),IFNULL(t_messagesent.Attachment,'')),'') as Attachment
 ,IFNULL(IsPublic,'') as IsPublic
 ,IFNULL(t_messagesent.IsActive,'') AS IsActive
 FROM t_messagesent 
@@ -140,6 +140,8 @@ AND IsPublic=1
             var fileserver = db.GetOne(@"SELECT Value FROM t_option WHERE name='fileserver'");
             res["thumbnail"] = fileserver["value"]?.ToObject<string>()
                 + res["thumbnail"]?.ToObject<string>();
+            res["attachment"] = fileserver["value"]?.ToObject<string>()
+                + res["attachment"]?.ToObject<string>();
 
             res["orgnization"] = _org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
             res["publish"] = _person.GetUserInfo(res["publishuserid"]?.ToObject<int>() ?? 0);
