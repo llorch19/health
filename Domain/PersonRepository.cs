@@ -69,7 +69,7 @@ and t_user.IsDeleted=0
             JArray array = _db.GetArray(@"
 SELECT 
 IFNULL(t_patient.ID,'') as ID
-,IFNULL(t_attandent.IsReferral,'') as IsReferral
+,IFNULL(t_patient.IsOnReferral,'') as IsReferral
 ,IFNULL(t_patient.OrgnizationID,'') as OrgnizationID
 ,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
 ,IFNULL(OrgName,'') as OrgName
@@ -101,8 +101,6 @@ IFNULL(t_patient.ID,'') as ID
 ,IFNULL(t_patient.CountyID,'') as CountyID
 ,IFNULL(County.AreaName,'') as County
 ,IFNULL(t_patient.IsActive,'') as IsActive
-,IFNULL(t_transfer.IsCancel,'') as TransferCancel
-,IFNULL(t_transfer.IsFinish,'') as TransferFinish
 FROM t_patient 
 LEFT JOIN t_orgnization
 ON t_patient.PrimaryOrgnizationID=t_orgnization.ID
@@ -118,17 +116,13 @@ LEFT JOIN data_area City
 ON t_patient.CityID=City.ID
 LEFT JOIN data_area County
 ON t_patient.CountyID=County.ID
-LEFT JOIN t_transfer
-ON t_patient.ID = t_transfer.PatientID
-LEFT JOIN t_attandent
-ON t_attandent.PatientID=t_patient.ID
 WHERE t_patient.OrgnizationID=?p1
 AND t_patient.IsDeleted=0
 LIMIT ?p2,?p3
 "
 , orgid
-,offset
-,pageSize);
+, offset
+, pageSize);
             return array;
         }
 
@@ -145,9 +139,10 @@ LIMIT ?p2,?p3
         public override JObject GetOneRawImp(int id)
         {
             var res = _db.GetOne(
-                @"SELECT 
+                @"
+SELECT 
 IFNULL(t_patient.ID,'') as ID
-,IFNULL(t_attandent.IsReferral,'') as IsReferral
+,IFNULL(t_patient.IsOnReferral,'') as IsReferral
 ,IFNULL(t_patient.OrgnizationID,'') as OrgnizationID
 ,IFNULL(PrimaryOrgnizationID,'') as PrimaryOrgnizationID
 ,IFNULL(RegisterNO,'') as RegisterNO
@@ -172,10 +167,9 @@ IFNULL(t_patient.ID,'') as ID
 ,IFNULL(t_patient.CountyID,'') as CountyID
 ,IFNULL(t_patient.IsActive,'') as IsActive
 FROM t_patient 
-LEFT JOIN t_attandent
-ON t_patient.ID=t_attandent.PatientID
-where t_patient.ID=?p1
-and t_patient.IsDeleted=0"
+where t_patient.ID=1
+and t_patient.IsDeleted=0
+"
                 , id);
             return res;
         }
