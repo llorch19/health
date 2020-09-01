@@ -67,7 +67,7 @@ IFNULL(t_messagesent.ID,'') as ID
 ,IFNULL(t_messagesent.PublishTime,'') as PublishTime
 ,IFNULL(t_messagesent.Title,'') as Title
 ,IFNULL(t_messagesent.Abstract,'') as Abstract
-,IFNULL(t_messagesent.Thumbnail,'') as Thumbnail
+,CONCAT(IFNULL(t_option.`value`,''),IFNULL(t_messagesent.Thumbnail,'')) as Thumbnail
 ,IFNULL(Content,'') as Content
 ,IFNULL(Attachment,'') as Attachment
 ,IFNULL(IsPublic,'') as IsPublic
@@ -77,6 +77,8 @@ LEFT JOIN t_user
 ON t_user.ID=t_messagesent.PublishUserID
 LEFT JOIN t_orgnization
 ON t_messagesent.OrgnizationID=t_orgnization.ID
+LEFT JOIN t_option
+ON t_option.`name`='fileserver'
 WHERE t_messagesent.IsDeleted=0
 ";
             if (!IsOrgUser())
@@ -134,6 +136,10 @@ AND IsPublic=1
             JObject res = db.GetOne(sql, id);
             if (res["id"] == null)
                 return Response_201_read.GetResult();
+
+            var fileserver = db.GetOne(@"SELECT Value FROM t_option WHERE name='fileserver'");
+            res["thumbnail"] = fileserver["value"]?.ToObject<string>()
+                + res["thumbnail"]?.ToObject<string>();
 
             res["orgnization"] = _org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
             res["publish"] = _person.GetUserInfo(res["publishuserid"]?.ToObject<int>() ?? 0);
