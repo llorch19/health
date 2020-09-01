@@ -47,21 +47,21 @@ namespace health.Controllers
 
         public PersonController(PersonRepository repository,
                                 IServiceProvider serviceProvider)
-            :base(repository,serviceProvider)
+            : base(repository, serviceProvider)
         {
             _logger = serviceProvider.GetService(typeof(ILogger<PersonController>)) as ILogger<PersonController>;
             _idGenerator = serviceProvider.GetService(typeof(IdGenerator)) as IdGenerator;
-            _org = serviceProvider.GetService<OrgnizationRepository>(); 
-            _gender = serviceProvider.GetService<GenderRepository>(); 
-            _occupation = serviceProvider.GetService<OccupationRepository>(); 
-            _addrcategory = serviceProvider.GetService<AddressCategoryRepository>(); 
+            _org = serviceProvider.GetService<OrgnizationRepository>();
+            _gender = serviceProvider.GetService<GenderRepository>();
+            _occupation = serviceProvider.GetService<OccupationRepository>();
+            _addrcategory = serviceProvider.GetService<AddressCategoryRepository>();
             _check = serviceProvider.GetService<CheckRepository>();
-            _appoint = serviceProvider.GetService<AppointRepository>(); 
-            _attandent = serviceProvider.GetService<AttandentRepository>(); 
+            _appoint = serviceProvider.GetService<AppointRepository>();
+            _attandent = serviceProvider.GetService<AttandentRepository>();
             _followup = serviceProvider.GetService<FollowupRepository>();
             _treat = serviceProvider.GetService<TreatRepository>();
             _treatitem = serviceProvider.GetService<TreatItemRepository>();
-            _vacc = serviceProvider.GetService<VaccRepository>(); 
+            _vacc = serviceProvider.GetService<VaccRepository>();
             _repository = repository;
         }
 
@@ -85,7 +85,7 @@ namespace health.Controllers
         [Route("GetPersonList")]
         public JObject GetPersonList(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
-            JObject res = GetPersonListImp(pageSize,pageIndex);
+            JObject res = GetPersonListImp(int.MaxValue, 0);
             return Response_200_read.GetResult(res);
         }
 
@@ -98,7 +98,7 @@ namespace health.Controllers
                 offset = pageSize * (pageIndex - 1);
 
             JObject res = new JObject();
-            JArray list = _repo.GetListByOrgJointImp(orgid ?? 0,pageSize,pageIndex);
+            JArray list = _repo.GetListByOrgJointImp(orgid ?? 0, pageSize, pageIndex);
             res["list"] = list;
             return res;
         }
@@ -137,7 +137,7 @@ namespace health.Controllers
         {
             JObject res = new JObject();
             res["personinfo"] = GetPersonRawImp(id);
-            if (res["personinfo"]?.HasValues==false)
+            if (res["personinfo"]?.HasValues == false)
                 return Response_201_read.GetResult();
 
             res["checkinfo"] = _check.GetListByPersonJointImp(id, int.MaxValue, 0);
