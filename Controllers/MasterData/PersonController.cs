@@ -198,6 +198,14 @@ namespace health.Controllers
         [Route("DelPerson")]
         public override JObject Del([FromBody] JObject req)
         {
+            var id = req.ToInt("id");
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var orgaltinfo = _org.GetAltInfo(base.Get(id ?? 0).ToInt("primaryorgnizationid"));
+            var candel = req.Challenge(r => orgaltinfo.ToInt("id") == orgid); // 只有从首管机构登陆才可以删除病人
+            if (!candel)
+                return Response_201_write.GetResult();
+
+
             req["orgnization"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             req["idcardno"] = null; // 身份证上有Uniq唯一索引
             return base.Del(req);
