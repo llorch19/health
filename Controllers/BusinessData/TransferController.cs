@@ -2,6 +2,7 @@
 using health.Controllers;
 using health.web.Domain;
 using health.web.StdResponse;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System;
@@ -15,11 +16,13 @@ namespace health.web.Controllers.BusinessData
     public class TransferController : AbstractBLLControllerT
     {
         TransferRepository _repository;
+        OrgnizationRepository _org;
         public TransferController(TransferRepository repository
             , IServiceProvider serviceProvider)
             : base(repository, serviceProvider)
         {
             _repository = repository;
+            _org = serviceProvider.GetService<OrgnizationRepository>();
         }
 
         [HttpGet("GetTransferList")]
@@ -83,12 +86,30 @@ namespace health.web.Controllers.BusinessData
         [NonAction]
         public override JObject Set(JObject req)
         {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var id = req.ToInt("id");
+            if (id == 0) // 新增
+                req["orgnizationid"] = orgid;
+            else
+            {
+                var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+                if (!canwrite)
+                    return Response_201_write.GetResult();
+            }
+
             return base.Set(req);
         }
 
         [NonAction]
         public override JObject Del(JObject req)
         {
+            var id = req.ToInt("id");
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var orgaltinfo = _org.GetAltInfo(base.Get(id ?? 0).ToInt("orgnizationid"));
+            var canwrite = req.Challenge(r => orgaltinfo.ToInt("id") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
+
             return base.Del(req);
         }
 

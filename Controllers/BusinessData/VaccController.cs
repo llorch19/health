@@ -24,7 +24,7 @@ namespace health.Controllers
     {
         private readonly ILogger<VaccController> _logger;
         PersonController _person;
-        OrganizationController _org;
+        OrgnizationRepository _org;
         MedicationController _med;
         MedicationDosageFormController _dosage;
         MedicationPathwayController _pathway;
@@ -36,7 +36,7 @@ namespace health.Controllers
         {
             _logger = serviceProvider.GetService<ILogger<VaccController>>();
             _person = serviceProvider.GetService<PersonController>();
-            _org = serviceProvider.GetService<OrganizationController>();
+            _org = serviceProvider.GetService<OrgnizationRepository>();
             _med = serviceProvider.GetService<MedicationController>();
             _dosage = serviceProvider.GetService<MedicationDosageFormController>();
             _pathway = serviceProvider.GetService<MedicationPathwayController>();
@@ -83,7 +83,7 @@ namespace health.Controllers
             JObject res = base.Get(id);
 
             res["person"] = _person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
-            res["org"] = _org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
+            res["org"] = _org.GetAltInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
             res["medication"] = _med.GetMedicationInfo(res["medicationid"]?.ToObject<int>() ?? 0);
             res["dosage"] = _dosage.GetDosageInfo(res["medicationdosageformid"]?.ToObject<int>() ?? 0);
             res["pathway"] = _pathway.GetPathwayInfo(res["medicationpathwayid"]?.ToObject<int>() ?? 0);
@@ -129,7 +129,7 @@ namespace health.Controllers
         {
             var id = req.ToInt("id");
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            var orgaltinfo = _org.GetOrgInfo(base.Get(id??0).ToInt("orgnizationid"));
+            var orgaltinfo = _org.GetAltInfo(base.Get(id??0).ToInt("orgnizationid"));
             var canwrite = req.Challenge(r => orgaltinfo.ToInt("id") == orgid);
             if (!canwrite)
                 return Response_201_write.GetResult();

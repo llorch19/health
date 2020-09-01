@@ -127,6 +127,14 @@ namespace health.Controllers
         [Route("DelAttandent")]
         public override JObject Del([FromBody] JObject req)
         {
+            var id = req.ToInt("id");
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            var orgaltinfo = _org.GetAltInfo(base.Get(id ?? 0).ToInt("orgnizationid"));
+            var canwrite = req.Challenge(r => orgaltinfo.ToInt("id") == orgid);
+            if (!canwrite)
+                return Response_201_write.GetResult();
+
+
             return base.Del(req);
         }
 
