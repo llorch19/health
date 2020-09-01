@@ -57,9 +57,9 @@ where id=?p1 and IsDeleted=0
         public override Dictionary<string, object> GetValue(JObject data)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Code"] = data["code"]?.ToObject<string>();
-            dict["OccupationName"] = data["occupationname"]?.ToObject<string>();
-            dict["OccupationRemarks"] = data["occupationremarks"]?.ToObject<string>();
+            dict["ResultTypeID"] = data["resulttypeid"]?.ToObject<string>();
+            dict["Name"] = data["name"]?.ToObject<string>();
+            dict["Introduction"] = data["introduction"]?.ToObject<string>();
             return dict;
         }
 
