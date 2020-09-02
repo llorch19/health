@@ -63,10 +63,28 @@ namespace health.web.Controllers
         }
 
         [NonAction]
+        public JObject GetList(int pageSize, int pageIndex)
+        {
+            JObject res = new JObject();
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            res["list"] = _repo.GetListByOrgJointImp(orgid ?? 0, pageSize, pageIndex);
+            return Response_200_read.GetResult(res);
+        }
+
+
+        [NonAction]
         public JObject GetListByPerson(int personid)
         {
             JObject res = new JObject();
             res["list"] = _repo.GetListByPersonJointImp(personid, int.MaxValue, 0);
+            return Response_200_read.GetResult(res);
+        }
+
+        [NonAction]
+        public JObject GetListByPerson(int personid, int pageSize, int pageIndex)
+        {
+            JObject res = new JObject();
+            res["list"] = _repo.GetListByPersonJointImp(personid, pageSize, pageIndex);
             return Response_200_read.GetResult(res);
         }
 

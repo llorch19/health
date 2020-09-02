@@ -1,3 +1,4 @@
+using health.web.Controllers;
 using health.web.Domain;
 using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +12,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class IdCategoryController : BaseController
+    public class IdCategoryController : BaseNonPagedController
     {
 
         private readonly ILogger<IdCategoryController> _logger;

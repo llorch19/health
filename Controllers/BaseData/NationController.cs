@@ -7,6 +7,7 @@
  * - 需要民族控制器，支持增删查改。    @xuedi  2020-07-20 16:55
  */
 
+using health.web.Controllers;
 using health.web.Domain;
 using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class NationController : BaseController
+    public class NationController : BaseNonPagedController
     {
 
         private readonly ILogger<NationController> _logger;

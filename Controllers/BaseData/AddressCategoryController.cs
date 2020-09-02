@@ -1,4 +1,5 @@
 using health.Controllers;
+using health.web.Controllers;
 using health.web.Domain;
 using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,7 @@ using util.mysql;
 namespace health.BaseData
 {
     [Route("api")]
-    public class AddressCategoryController : BaseController
+    public class AddressCategoryController : BaseNonPagedController
     {
         public AddressCategoryController(AddressCategoryRepository addressCategoryRepository,IServiceProvider serviceProvider) 
             : base(addressCategoryRepository,serviceProvider) 

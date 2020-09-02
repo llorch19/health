@@ -8,6 +8,7 @@
  * - 新增AreaList接口返回地域的树形结构。     @xuedi  2020-07-20  10:25
  * */
 
+using health.web.Controllers;
 using health.web.Domain;
 using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class AreaController : BaseController
+    public class AreaController : BaseNonPagedController
     {
         ILogger<AreaController> _logger;
         AreaRepository _repository;

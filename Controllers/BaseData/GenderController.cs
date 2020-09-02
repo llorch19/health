@@ -1,3 +1,4 @@
+using health.web.Controllers;
 using health.web.Domain;
 using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class GenderController : BaseController
+    public class GenderController : BaseNonPagedController
     {
         private readonly ILogger<GenderController> _logger;
 
