@@ -24,11 +24,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using util.mysql;
+using health.web.Controllers;
 
 namespace health.Controllers
 {
     [Route("api")]
-    public class PersonController : BaseController
+    public class PersonController : BasePagedController
     {
         private readonly ILogger<PersonController> _logger;
         OrgnizationRepository _org;
@@ -73,7 +74,7 @@ namespace health.Controllers
         [Route("GetPersonListD")]
         public override JObject GetList()
         {
-            return GetPersonList(Const.defaultPageSize, Const.defaultPageIndex);
+            return base.GetList();
         }
 
 
@@ -85,29 +86,14 @@ namespace health.Controllers
         [Route("GetPersonList")]
         public JObject GetPersonList(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
-            JObject res = GetPersonListImp(int.MaxValue, 0);
-            return Response_200_read.GetResult(res);
-        }
-
-        [NonAction]
-        public JObject GetPersonListImp(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
-        {
-            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            int offset = 0;
-            if (pageIndex > 0)
-                offset = pageSize * (pageIndex - 1);
-
-            JObject res = new JObject();
-            JArray list = _repo.GetListByOrgJointImp(orgid ?? 0, pageSize, pageIndex);
-            res["list"] = list;
-            return res;
+            return base.GetList(pageSize, pageIndex);
         }
 
         [NonAction]
         public JObject GetPersonRawImp(int id)
         {
             common.BaseConfig conf = new common.BaseConfig();
-            var res = _repo.GetOneRawImp(id);
+            var res = base.Get(id);
             if (!res.HasValues)
                 return res;
 
@@ -136,13 +122,15 @@ namespace health.Controllers
         public override JObject Get(int id)
         {
             JObject res = new JObject();
-            res["personinfo"] = GetPersonRawImp(id);
-            if (res["personinfo"]?.HasValues == false)
+
+            var pinfo = GetPersonRawImp(id);
+            if (pinfo.HasValues == false)
                 return Response_201_read.GetResult();
 
+
+            res["personinfo"] = pinfo;
             res["checkinfo"] = _check.GetListByPersonJointImp(id, int.MaxValue, 0);
             res["treatinfo"] = _treat.GetListByPersonJointImp(id, int.MaxValue, 0);
-
             res["followupinfo"] = _followup.GetListByPersonJointImp(id, int.MaxValue, 0);
             res["vaccinfo"] = _vacc.GetListByPersonJointImp(id, int.MaxValue, 0);
 
@@ -203,27 +191,12 @@ namespace health.Controllers
             var orgaltinfo = _org.GetAltInfo(base.Get(id ?? 0).ToInt("primaryorgnizationid"));
             var candel = req.Challenge(r => orgaltinfo.ToInt("id") == orgid); // 只有从首管机构登陆才可以删除病人
             if (!candel)
-                return Response_201_write.GetResult();
+                return Response_201_write.GetResult(null,"只有首管机构可以删除用户");
 
 
             req["orgnization"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             req["idcardno"] = null; // 身份证上有Uniq唯一索引
             return base.Del(req);
-        }
-
-        /// <summary>
-        /// TODO: 转诊
-        /// </summary>
-        /// <param name="req">在请求body中JSON形式的转诊信息</param>
-        /// <returns>JSON形式的响应状态信息</returns>
-        [HttpPost]
-        [Route("Transfer")]
-        public JObject Transfer([FromBody] JObject req)
-        {
-            JObject res = new JObject();
-            res["status"] = 201;
-            res["msg"] = "功能正在开发中";
-            return res;
         }
 
 
