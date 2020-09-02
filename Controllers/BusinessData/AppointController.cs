@@ -21,7 +21,7 @@ using health.web.Controllers;
 namespace health.Controllers
 {
     [Route("api")]
-    public class AppointController : AbsTransactionBLLController
+    public class AppointController : BaseTransactionController
     {
         private readonly ILogger<AppointController> _logger;
 
