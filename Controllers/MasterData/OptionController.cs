@@ -16,11 +16,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using util.mysql;
 using health.web.StdResponse;
+using health.web.Controllers;
 
 namespace health.Controllers
 {
     [Route("api")]
-    public class OptionController : BaseController
+    public class OptionController : BaseNonPagedController
     {
         OptionRepository optionRepository;
         private readonly ILogger<OptionController> _logger;
@@ -61,9 +62,7 @@ namespace health.Controllers
         [HttpGet("GetOptionList")]
         public JObject GetOptionList()
         {
-            JObject res = new JObject();
-            res["list"] = optionRepository.GetListJointImp(int.MaxValue, 0);
-            return Response_200_read.GetResult(res);
+            return base.GetList();
         }
 
         /// <summary>

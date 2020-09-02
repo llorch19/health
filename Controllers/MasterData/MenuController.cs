@@ -151,11 +151,12 @@ using System.Runtime.Serialization;
 using Ubiety.Dns.Core.Records.NotUsed;
 using health.web.StdResponse;
 using System.Security.Claims;
+using health.web.Controllers;
 
 namespace health.Controllers
 {
     [Route("api")]
-    public class MenuController : BaseController
+    public class MenuController : BaseNonPagedController
     {
         private readonly ILogger<MenuController> _logger;
         MenuRepository menuRepository;

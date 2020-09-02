@@ -16,11 +16,12 @@ using System;
 using System.Collections.Generic;
 using util.mysql;
 using health.web.StdResponse;
+using health.web.Controllers;
 
 namespace health.Controllers
 {
     [Route("api")]
-    public class MedicationController : BaseController
+    public class MedicationController : BasePagedController
     {
         private readonly ILogger<MedicationController> _logger;
 
@@ -36,16 +37,6 @@ namespace health.Controllers
         /// <summary>
         /// 获取机构的“药品”列表
         /// </summary>
-        /// <returns>JSON对象，包含相应的“药品”数组</returns>
-        [NonAction]
-        public override JObject GetList()
-        {
-            return GetMedicationList(10,0);
-        }
-
-        /// <summary>
-        /// 获取机构的“药品”列表
-        /// </summary>
         /// <param name="pageSize"></param>
         /// <param name="pageIndex"></param>
         /// <returns>JSON对象，包含相应的“药品”数组</returns>
@@ -53,9 +44,7 @@ namespace health.Controllers
         [Route("GetMedicationList")]
         public JObject GetMedicationList(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
-            JObject res = new JObject();
-            res["list"] = _repo.GetListJointImp(pageSize, pageIndex);
-            return Response_200_read.GetResult(res);
+            return base.GetList(pageSize,pageIndex);
         }
 
 

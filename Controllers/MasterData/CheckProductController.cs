@@ -5,6 +5,7 @@
  * Description: 对“检测产品”信息的增删查改
  * Comments
  */
+using health.web.Controllers;
 using health.web.Domain;
 using health.web.StdResponse;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class CheckProductController : BaseController
+    public class CheckProductController : BasePagedController
     {
         private readonly ILogger<CheckProductController> _logger;
 
@@ -47,9 +48,7 @@ namespace health.Controllers
         [Route("Get[controller]List")]
         public JObject GetCheckProductList(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
-            JObject res = new JObject();
-            res["list"] = _repo.GetListJointImp(pageSize, pageIndex);
-            return Response_200_read.GetResult(res);
+            return base.GetList(pageSize,pageIndex);
         }
 
 
