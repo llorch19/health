@@ -71,22 +71,13 @@ namespace health.Controllers
         /// </summary>
         /// <returns>JSON数组形式的个人信息</returns>
         [HttpGet]
-        [Route("GetPersonListD")]
-        public override JObject GetList()
-        {
-            return base.GetList();
-        }
-
-
-        /// <summary>
-        /// 获取个人列表，[人员转诊]菜单
-        /// </summary>
-        /// <returns>JSON数组形式的个人信息</returns>
-        [HttpGet]
         [Route("GetPersonList")]
-        public JObject GetPersonList(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
+        public override JObject GetList(int pageSize = int.MaxValue, int pageIndex = 0)
         {
-            return base.GetList(pageSize, pageIndex);
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            JObject res = new JObject();
+            res["list"] = _repo.GetListByOrgJointImp(orgid ?? 0, pageSize, pageIndex);
+            return Response_200_read.GetResult(res);
         }
 
         [NonAction]

@@ -42,7 +42,7 @@ namespace health.Controllers
         /// <returns>JSON对象，包含相应的“药品”数组</returns>
         [HttpGet]
         [Route("GetMedicationList")]
-        public JObject GetMedicationList(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
+        public override JObject GetList(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
             return base.GetList(pageSize,pageIndex);
         }

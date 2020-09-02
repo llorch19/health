@@ -24,15 +24,14 @@ using System.Text;
 using System.Threading;
 using util;
 using util.mysql;
+using health.web.Controllers;
 
 namespace health.Controllers
 {
     [Route("api")]
-    public class CheckController : BaseController
+    public class CheckController : BaseTransactionController
     {
         private readonly ILogger<CheckController> _logger;
-        PersonRepository _person;
-        OrgnizationRepository _org;
         DetectionResultTypeRepository _rtype;
         TreatmentOptionRepository _toption;
 
@@ -45,8 +44,6 @@ namespace health.Controllers
             :base(repository,serviceProvider)
         {
             _logger = serviceProvider.GetService<ILogger<CheckController>>();
-            _person = serviceProvider.GetService<PersonRepository>();
-            _org = serviceProvider.GetService<OrgnizationRepository>();
             _rtype = serviceProvider.GetService<DetectionResultTypeRepository>();
             _toption = serviceProvider.GetService<TreatmentOptionRepository>();
         }
@@ -122,6 +119,11 @@ namespace health.Controllers
             return Response_200_read.GetResult(res);
         }
 
+        [NonAction]
+        public override JObject Set(JObject req)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// 更改“检测”信息。如果id=0新增，如果id>0修改。
@@ -130,7 +132,7 @@ namespace health.Controllers
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("SetCheck")]
-        public JObject SetCheck([FromBody] dynamic request)
+        public JObject Set([FromBody] dynamic request)
         {
             JObject req = (JObject)request;
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
@@ -171,16 +173,8 @@ namespace health.Controllers
         /// <returns>响应状态信息</returns>
         [HttpPost]
         [Route("DelCheck")]
-        public JObject DelCheck([FromBody] JObject req)
+        public override JObject Del([FromBody] JObject req)
         {
-            var id = req.ToInt("id");
-            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            var orgaltinfo = _org.GetAltInfo(base.Get(id ?? 0).ToInt("orgnizationid"));
-            var canwrite = req.Challenge(r => orgaltinfo.ToInt("id") == orgid);
-            if (!canwrite)
-                return Response_201_write.GetResult();
-
-
             return base.Del(req);
         }
 

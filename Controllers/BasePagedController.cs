@@ -36,7 +36,7 @@ namespace health.web.Controllers
             return base.GetList();
         }
 
-        public JObject GetList(int pageSize,int pageIndex)
+        public virtual JObject GetList(int pageSize,int pageIndex)
         {
             JObject res = new JObject();
             res["list"] = _repo.GetListJointImp(pageSize, pageIndex);

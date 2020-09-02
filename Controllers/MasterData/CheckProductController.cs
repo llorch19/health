@@ -46,7 +46,7 @@ namespace health.Controllers
         /// <returns>JSON对象，包含相应的“检测产品”数组</returns>
         [HttpGet]
         [Route("Get[controller]List")]
-        public JObject GetCheckProductList(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
+        public override JObject GetList(int pageSize = Const.defaultPageSize, int pageIndex = Const.defaultPageIndex)
         {
             return base.GetList(pageSize,pageIndex);
         }
