@@ -40,9 +40,7 @@ namespace health.Controllers
         [Route("GetNationList")]
         public override JObject GetList()
         {
-            JObject res = new JObject();
-            res["list"] = _repo.GetListJointImp(int.MaxValue, 0);
-            return Response_200_read.GetResult(res);
+            return base.GetList();
         }
 
         /// <summary>
@@ -54,11 +52,7 @@ namespace health.Controllers
         [Route("GetNation")]
         public override JObject Get(int id)
         {
-            JObject res = base.Get(id);
-            if (res["id"] != null)
-                return Response_200_read.GetResult(res);
-            else
-                return Response_201_read.GetResult();
+            return base.Get(id);
         }
 
 

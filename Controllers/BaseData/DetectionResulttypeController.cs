@@ -30,9 +30,7 @@ namespace health.Controllers
         [Route("Get[controller]List")]
         public override JObject GetList()
         {
-            JObject res = new JObject();
-            res["list"] = _repo.GetListJointImp(int.MaxValue, 0);
-            return Response_200_read.GetResult(res);
+            return base.GetList();
         }
 
         /// <summary>

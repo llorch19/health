@@ -30,9 +30,7 @@ namespace health.Controllers
         [Route("GetGenderList")]
         public override JObject GetList()
         {
-            JObject res = new JObject();
-            res["list"] = _repo.GetListJointImp(int.MaxValue, 0);
-            return Response_200_read.GetResult(res);
+            return base.GetList();
         }
 
         /// <summary>
@@ -44,11 +42,7 @@ namespace health.Controllers
         [Route("GetGender")]
         public override JObject Get(int id)
         {
-            var res = base.Get(id);
-            if (res["id"] != null)
-                return Response_200_read.GetResult(res);
-            else
-                return Response_201_read.GetResult(res);
+            return base.Get(id);
         }
 
         /// <summary>
@@ -62,6 +56,7 @@ namespace health.Controllers
         {
             if (req["code"]?.ToObject<string>()?.Length > 1)
                 return Response_201_write.GetResult(null, "编码长度不大于1");
+
             return base.Set(req);
         }
 

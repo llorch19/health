@@ -42,7 +42,7 @@ namespace health.Controllers
         public JObject GetAreaList(int parentId)
         {
             JObject res = new JObject();
-            res["list"] = _repository.GetListJointImp(parentId, Const.defaultPageSize, Const.defaultPageIndex);
+            res["list"] = _repository.GetListJointImp(parentId, int.MaxValue, 0);
             return Response_200_read.GetResult(res);
         }
 
@@ -97,7 +97,7 @@ namespace health.Controllers
         [NonAction]
         public override JObject Set([FromBody] JObject req)
         {
-            return base.Set(req);
+            return Response_201_write.GetResult();
         }
 
 
@@ -118,9 +118,7 @@ namespace health.Controllers
         [NonAction]
         public JObject GetAreaInfo(int? id)
         {
-            dbfactory db = new dbfactory();
-            JObject res = db.GetOne("select id,AreaName text from data_area where id=?p1", id);
-            return res;
+            return base.GetAltInfo(id);
         }
     }
 }

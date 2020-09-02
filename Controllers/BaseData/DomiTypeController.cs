@@ -56,9 +56,7 @@ namespace health.Controllers
         [Route("GetDomiTypeList")]
         public override JObject GetList()
         {
-            JObject res = new JObject();
-            res["list"] = _repo.GetListJointImp(Const.defaultPageSize, Const.defaultPageIndex);
-            return Response_200_read.GetResult(res);
+            return base.GetList();
         }
         /// <summary>
         /// 获取“户籍类型”信息
@@ -69,11 +67,7 @@ namespace health.Controllers
         [Route("GetDomiType")]
         public override JObject Get(int id)
         {
-            JObject res = base.Get(id);
-            if (res["id"] != null)
-                return Response_200_read.GetResult(res);
-            else
-                return Response_201_read.GetResult(res);
+            return base.Get(id);
         }
 
 
