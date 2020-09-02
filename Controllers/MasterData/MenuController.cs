@@ -155,7 +155,7 @@ using System.Security.Claims;
 namespace health.Controllers
 {
     [Route("api")]
-    public class MenuController : AbstractBLLControllerT
+    public class MenuController : BaseController
     {
         private readonly ILogger<MenuController> _logger;
         MenuRepository menuRepository;

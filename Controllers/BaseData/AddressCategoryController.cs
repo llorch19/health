@@ -12,7 +12,7 @@ using util.mysql;
 namespace health.BaseData
 {
     [Route("api")]
-    public class AddressCategoryController : AbstractBLLControllerT
+    public class AddressCategoryController : BaseController
     {
         public AddressCategoryController(AddressCategoryRepository addressCategoryRepository,IServiceProvider serviceProvider) 
             : base(addressCategoryRepository,serviceProvider) 

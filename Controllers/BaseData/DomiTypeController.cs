@@ -19,7 +19,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class DomiTypeController : AbstractBLLControllerT
+    public class DomiTypeController : BaseController
     {
 
         private readonly ILogger<DomiTypeController> _logger;

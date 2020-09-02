@@ -28,7 +28,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class PersonController : AbstractBLLControllerT
+    public class PersonController : BaseController
     {
         private readonly ILogger<PersonController> _logger;
         OrgnizationRepository _org;

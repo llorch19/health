@@ -10,7 +10,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class MedicationFreqCategoryController : AbstractBLLControllerT
+    public class MedicationFreqCategoryController : BaseController
     {
 
         private readonly ILogger<MedicationFreqCategoryController> _logger;

@@ -21,10 +21,10 @@ using util.mysql;
 
 namespace health.Controllers
 {
-    public abstract class AbstractBLLControllerT : ControllerBase
+    public abstract class BaseController : ControllerBase
     {
         protected IRepository _repo;
-        public AbstractBLLControllerT(IRepository repository,IServiceProvider serviceProvider)
+        public BaseController(IRepository repository,IServiceProvider serviceProvider)
         {
             _repo = repository;
         }

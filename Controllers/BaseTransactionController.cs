@@ -15,11 +15,11 @@ namespace health.web.Controllers
     /// <summary>
     /// 事务控制器总是包含两个外键： PersonID 及 OrgnizationID
     /// </summary>
-    public abstract class AbsTransactionBLLController : AbstractBLLControllerT
+    public abstract class BaseTransactionController : BaseController
     {
         protected OrgnizationRepository _org;
         protected PersonRepository _person;
-        protected AbsTransactionBLLController(IRepository repository, IServiceProvider serviceProvider) : base(repository, serviceProvider)
+        protected BaseTransactionController(IRepository repository, IServiceProvider serviceProvider) : base(repository, serviceProvider)
         {
             _org = serviceProvider.GetService<OrgnizationRepository>();
             _person = serviceProvider.GetService<PersonRepository>();

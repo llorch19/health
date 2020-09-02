@@ -23,7 +23,7 @@ using health.web.StdResponse;
 namespace health.Controllers
 {
     [Route("api")]
-    public class OrganizationController : AbstractBLLControllerT
+    public class OrganizationController : BaseController
     {
         private readonly ILogger<OrganizationController> _logger;
         AreaController _area;

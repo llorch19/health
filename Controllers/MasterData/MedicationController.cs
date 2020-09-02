@@ -20,7 +20,7 @@ using health.web.StdResponse;
 namespace health.Controllers
 {
     [Route("api")]
-    public class MedicationController : AbstractBLLControllerT
+    public class MedicationController : BaseController
     {
         private readonly ILogger<MedicationController> _logger;
 

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace health.web.Controllers.BusinessData
 {
     [Route("api")]
-    public class TransferController : AbstractBLLControllerT
+    public class TransferController : BaseController
     {
         TransferRepository _repository;
         OrgnizationRepository _org;

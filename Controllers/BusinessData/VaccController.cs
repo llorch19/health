@@ -20,7 +20,7 @@ using System.Runtime.Serialization;
 namespace health.Controllers
 {
     [Route("api")]
-    public class VaccController : AbstractBLLControllerT
+    public class VaccController : BaseController
     {
         private readonly ILogger<VaccController> _logger;
         PersonController _person;

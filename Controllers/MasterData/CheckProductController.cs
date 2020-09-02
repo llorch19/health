@@ -20,7 +20,7 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class CheckProductController : AbstractBLLControllerT
+    public class CheckProductController : BaseController
     {
         private readonly ILogger<CheckProductController> _logger;
 
