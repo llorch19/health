@@ -26,6 +26,7 @@ using health.web.common;
 using health.web.Domain;
 using util.mysql;
 using health.Controllers;
+using health.web.Service;
 
 namespace health
 {
@@ -158,6 +159,8 @@ namespace health
             services.AddTransient(typeof(CheckRepository));
             services.AddTransient(typeof(TreatRepository));
             services.AddTransient(typeof(TreatItemRepository));
+
+            services.AddTransient(typeof(FileUploadCommand));
 
             services.AddLazyResolution();
 

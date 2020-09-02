@@ -25,6 +25,7 @@ using System.Threading;
 using util;
 using util.mysql;
 using health.web.Controllers;
+using health.web.Service;
 
 namespace health.Controllers
 {
@@ -32,11 +33,13 @@ namespace health.Controllers
     public class CheckController : BaseTransactionController
     {
         private readonly ILogger<CheckController> _logger;
+        CheckRepository _repository;
         DetectionResultTypeRepository _rtype;
         TreatmentOptionRepository _toption;
+        FileUploadCommand _fuploadcmd;
 
         dbfactory db = new dbfactory();
-        string[] _permittedPictureExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
+        static readonly string[] _permittedPictureExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
 
         public CheckController(
             CheckRepository repository
@@ -46,6 +49,8 @@ namespace health.Controllers
             _logger = serviceProvider.GetService<ILogger<CheckController>>();
             _rtype = serviceProvider.GetService<DetectionResultTypeRepository>();
             _toption = serviceProvider.GetService<TreatmentOptionRepository>();
+            _fuploadcmd = serviceProvider.GetService<FileUploadCommand>();
+            _repository = repository;
         }
 
         /// <summary>
