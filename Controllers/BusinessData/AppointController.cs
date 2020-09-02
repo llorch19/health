@@ -16,15 +16,14 @@ using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
 using util.mysql;
+using health.web.Controllers;
 
 namespace health.Controllers
 {
     [Route("api")]
-    public class AppointController : AbstractBLLControllerT
+    public class AppointController : AbsTransactionBLLController
     {
         private readonly ILogger<AppointController> _logger;
-        OrganizationController _org;
-        PersonController _person;
 
         public AppointController(
             AppointRepository repository
@@ -32,8 +31,6 @@ namespace health.Controllers
             :base(repository,serviceProvider)
         {
             _logger = serviceProvider.GetService<ILogger<AppointController>>();
-            _org = serviceProvider.GetService<OrganizationController>();
-            _person = serviceProvider.GetService<PersonController>(); ;
         }
 
         /// <summary>
@@ -44,10 +41,7 @@ namespace health.Controllers
         [Route("GetAppointList")]
         public override JObject GetList()
         {
-            JObject res = new JObject();
-            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            res["list"] = _repo.GetListByOrgJointImp(orgid ?? 0, int.MaxValue, 0);
-            return Response_200_read.GetResult(res);
+            return base.GetList();
         }
 
         /// <summary>
@@ -59,9 +53,7 @@ namespace health.Controllers
         [Route("GetAppointListP")]
         public JObject GetAppointListP(int personid)
         {
-            JObject res = new JObject();
-            res["list"] = _repo.GetListByPersonJointImp(personid, int.MaxValue, 0);
-            return Response_200_read.GetResult(res);
+            return base.GetListByPerson(personid);
         }
 
         /// <summary>
@@ -73,14 +65,7 @@ namespace health.Controllers
         [Route("GetAppoint")]
         public override JObject Get(int id)
         {
-            JObject res = base.Get(id);
-            var canread = res.Challenge(r=>r["id"]!=null);
-            if (!canread)
-                return Response_201_read.GetResult(res);
-
-            res["orgnization"] = _org.GetOrgInfo(res.ToInt("orgnizationid"));
-            res["person"] = _person.GetPersonInfo(res.ToInt("patientid"));
-            return Response_200_read.GetResult(res);
+            return base.Get(id);
         }
 
 
@@ -93,17 +78,6 @@ namespace health.Controllers
         [Route("SetAppoint")]
         public override JObject Set([FromBody] JObject req)
         {
-            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            var id = req.ToInt("id");
-            if (id == 0) // 新增
-                req["orgnizationid"] = orgid;
-            else
-            {
-                var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
-                if (!canwrite)
-                    return Response_201_write.GetResult();
-            }
-
             return base.Set(req);
         }
 
@@ -119,13 +93,6 @@ namespace health.Controllers
         [Route("DelAppoint")]
         public override JObject Del([FromBody] JObject req)
         {
-            var id = req.ToInt("id");
-            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            var orgaltinfo = _org.GetAltInfo(base.Get(id ?? 0).ToInt("orgnizationid"));
-            var canwrite = req.Challenge(r => orgaltinfo.ToInt("id") == orgid);
-            if (!canwrite)
-                return Response_201_write.GetResult();
-
             return base.Del(req);
         }
        

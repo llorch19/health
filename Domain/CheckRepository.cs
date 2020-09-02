@@ -142,6 +142,8 @@ AND t_check.IsDeleted=0
             dict["Result"] = data["result"]?.ToObject<string>();
             dict["OperTime"] = data["operationtime"]?.ToObject<DateTime?>();
             dict["ReportTime"] = data["reporttime"]?.ToObject<DateTime?>();
+            dict["Recommend"] = data["recommend"]?.ToObject<string>();
+            dict["Chosen"] = data["chosen"]?.ToObject<string>();
             return dict;
         }
 

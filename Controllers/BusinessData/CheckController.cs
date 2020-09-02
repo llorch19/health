@@ -7,10 +7,12 @@
  * -GetUserCheckList 应该和GetPeron["check"]字段一致     @xuedi      2020-07-22      15:48
  */
 using health.common;
+using health.web.Domain;
 using health.web.StdResponse;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Asn1.X509.SigI;
@@ -26,28 +28,27 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class CheckController : ControllerBase
+    public class CheckController : AbstractBLLControllerT
     {
         private readonly ILogger<CheckController> _logger;
-        PersonController _person;
-        OrganizationController _org;
-        DetectionResultTypeController _rtype;
-        TreatmentOptionController _toption;
+        PersonRepository _person;
+        OrgnizationRepository _org;
+        DetectionResultTypeRepository _rtype;
+        TreatmentOptionRepository _toption;
 
         dbfactory db = new dbfactory();
         string[] _permittedPictureExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
 
-        public CheckController(ILogger<CheckController> logger
-            ,PersonController person
-            ,OrganizationController org
-            ,DetectionResultTypeController rtype
-            ,TreatmentOptionController toption)
+        public CheckController(
+            CheckRepository repository
+            ,IServiceProvider serviceProvider)
+            :base(repository,serviceProvider)
         {
-            _logger = logger;
-            _person = person;
-            _org = org;
-            _rtype = rtype;
-            _toption = toption;
+            _logger = serviceProvider.GetService<ILogger<CheckController>>();
+            _person = serviceProvider.GetService<PersonRepository>();
+            _org = serviceProvider.GetService<OrgnizationRepository>();
+            _rtype = serviceProvider.GetService<DetectionResultTypeRepository>();
+            _toption = serviceProvider.GetService<TreatmentOptionRepository>();
         }
 
         /// <summary>
@@ -56,51 +57,13 @@ namespace health.Controllers
         /// <returns>JSON对象，包含相应的“检测”数组</returns>
         [HttpGet]
         [Route("GetCheckList")]
-        public JObject GetList()
-        {
-            JObject res = new JObject();
-            res["list"] = GetListImp();
-            return Response_200_read.GetResult(res);
-        }
-        [NonAction]
-        public JArray GetListImp()
+        public override JObject GetList()
         {
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            return db.GetArray(@"
-SELECT 
-t_check.ID
-,IFNULL(CType,'') AS CheckType
-,t_check.OperTime AS OperationTime
-,t_check.ReportTime AS ReportTime
-,PatientID AS PersonID
-,t_patient.FamilyName AS PersonName
-,t_check.OrgnizationID
-,t_orgnization.OrgName AS OrgName
-,t_check.Result AS Result
-,IFNULL(t_check.Recommend,'') AS Recommend
-,IFNULL(t_check.Chosen,'') AS Chosen 
-,t_patient.Tel AS PersonTel
-,IFNULL(t_check.IsRexam,'') AS IsReexam
-,t_orgnization.OrgCode
-,IFNULL(CheckNO,'') AS DetectionNO
-,IFNULL(t_check.ResultTypeID,'') AS ResultTypeID
-,data_detectionresulttype.ResultName
-, IFNULL(data_detectionresulttype.control1,'') AS CType
-, IFNULL(data_detectionresulttype.control2,'') AS CValue
-, IFNULL(t_check.IsActive,'') AS IsActive
-FROM 
-t_check
-LEFT JOIN t_patient
-ON t_check.PatientID=t_patient.ID
-LEFT JOIN t_orgnization
-ON t_check.OrgnizationID=t_orgnization.ID
-LEFT JOIN data_detectionresulttype
-ON t_check.ResultTypeID=data_detectionresulttype.ID
-WHERE t_check.OrgnizationID =?p1
-AND t_check.IsDeleted=0
-", orgid);
+            JObject res = new JObject();
+            res["list"] = _repo.GetListByOrgJointImp(orgid ?? 0, int.MaxValue, 0);
+            return Response_200_read.GetResult(res);
         }
-
 
         /// <summary>
         /// 获取个人的“检测”列表
@@ -112,47 +75,8 @@ AND t_check.IsDeleted=0
         public JObject GetListP(int personid)
         {
             JObject res = new JObject();
-            res["list"] = GetListPImp(personid);
+            res["list"] = _repo.GetListByPersonJointImp(personid, int.MaxValue, 0);
             return Response_200_read.GetResult(res);
-        }
-
-        [NonAction]
-        public JArray GetListPImp(int personid)
-        {
-            return db.GetArray(@"
-SELECT 
-t_check.ID
-,IFNULL(CType,'') AS CheckType
-,t_check.OperTime AS OperationTime
-,t_check.ReportTime AS ReportTime
-,PatientID AS PersonID
-,t_patient.FamilyName AS PersonName
-,t_check.OrgnizationID
-,t_orgnization.OrgName AS OrgName
-,t_check.Result AS Result
-,IFNULL(t_check.Recommend,'') AS Recommend
-,IFNULL(t_check.Chosen,'') AS Chosen 
-,t_patient.Tel AS PersonTel
-,IFNULL(t_check.IsRexam,'') AS IsReexam
-,t_orgnization.OrgCode
-,IFNULL(CheckNO,'') AS DetectionNO
-,IFNULL(t_check.ResultTypeID,'') AS ResultTypeID
-,data_detectionresulttype.ResultName
-, IFNULL(data_detectionresulttype.control1,'') AS CType
-, IFNULL(data_detectionresulttype.control2,'') AS CValue
-, IFNULL(t_check.IsActive,'') AS IsActive
-FROM 
-t_check
-LEFT JOIN t_patient
-ON t_check.PatientID=t_patient.ID
-LEFT JOIN t_orgnization
-ON t_check.OrgnizationID=t_orgnization.ID
-LEFT JOIN data_detectionresulttype
-ON t_check.ResultTypeID=data_detectionresulttype.ID
-WHERE t_check.PatientID =?p1
-AND t_check.IsDeleted=0
-ORDER BY ReportTime,ID DESC
-", personid);
         }
 
         /// <summary>
@@ -162,35 +86,14 @@ ORDER BY ReportTime,ID DESC
         /// <returns>JSON对象，包含相应的“检测”信息</returns>
         [HttpGet]
         [Route("GetCheck")]
-        public JObject GetCheck(int id)
+        public override JObject Get(int id)
         {
-            JObject res = db.GetOne(@"
-SELECT
-ID
-,IFNULL(CType,'') AS CheckType
-,IFNULL(PatientID,'') AS PatientID
-,IFNULL(OrgnizationID,'') AS OrgnizationID
-,t_check.Result AS Result
-,IFNULL(t_check.IsRexam,'') AS IsReexam
-,Recommend
-,Chosen
-,IFNULL(CheckNO,'') AS DetectionNO
-,IFNULL(Pics,'') AS Pics
-,IFNULL(Pdf,'') AS Pdf
-,IFNULL(ResultTypeID,'') AS ResultTypeID
-,IFNULL(PName,'') AS ProductName
-,IFNULL(Spec,'') AS Specification
-,IFNULL(Batch,'') AS BatchNumber
-,IFNULL(OperTime,'') AS OperationTime
-,IFNULL(ReportTime,'') AS ReportTime
-FROM t_check
-WHERE ID=?p1
-AND t_check.IsDeleted=0", id);
+            JObject res = base.Get(id);
 
 
-            res["person"] = _person.GetPersonInfo(res["patientid"]?.ToObject<int>() ?? 0);
-            res["resulttype"] = _rtype.GetResultTypeInfo(res["resulttypeid"]?.ToObject<int>() ?? 0);
-            res["orgnization"] = _org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
+            res["person"] = _person.GetAltInfo(res["patientid"]?.ToObject<int>() ?? 0);
+            res["resulttype"] = _rtype.GetAltInfo(res["resulttypeid"]?.ToObject<int>() ?? 0);
+            res["orgnization"] = _org.GetAltInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
             
             res["recommend"] = JsonConvert.DeserializeObject<JArray>(res["recommend"]?.ToObject<string>() ?? "");
             res["chosen"] = JsonConvert.DeserializeObject<JObject>(res["chosen"]?.ToObject<string>() ?? "");
@@ -238,71 +141,28 @@ AND t_check.IsDeleted=0", id);
             {
                 var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
                 if (!canwrite)
-                    return Response_201_write.GetResult(null,"无法跨域操作");
+                    return Response_201_write.GetResult();
             }
 
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            if (req.ContainsKey("isactive"))
-            {
-                dict["IsActive"] = req["isactive"]?.ToObject<bool?>();
-            }
-            else
-            {
-                JArray recommend = JArray.FromObject(req["recommend"]);
-                bool bNonResultRecommend = req.Challenge(r =>
-                    string.IsNullOrEmpty(r["result"]?.ToObject<string>())
-                    && recommend.HasValues
-                );
-                if (bNonResultRecommend)
-                    return Response_201_write.GetResult(null, "未保存检测结果，不可以推荐方案");
-                dict["Recommend"] = JsonConvert.SerializeObject(recommend);
-                JObject chosen = JObject.FromObject(req["chosen"]);
-                dict["Chosen"] = JsonConvert.SerializeObject(chosen);
-                var bChoiceInRecommend =
-                    dict["Recommend"].ToString().Contains(dict["Chosen"].ToString())
-                    || (!recommend.HasValues && !chosen.HasValues
-                    || (recommend.HasValues && !chosen.HasValues));
-                if (!bChoiceInRecommend)
-                    return Response_201_write.GetResult(null, "选择方案与提供方案不符");
-                dict["PatientID"] = req.ToInt("patientid");
-                dict["OrgnizationID"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-                dict["ResultTypeID"] = req.ToInt("resulttypeid");
-                // POST过来只有ID数组
-                // [1,2,3]
 
-                dict["IsRexam"] = req["isreexam"]?.ToObject<int?>();
-                dict["CType"] = req["checktype"]?.ToObject<string>();
-                dict["CheckNO"] = req["detectionno"]?.ToObject<string>();
-                dict["PName"] = req["productname"]?.ToObject<string>();
-                dict["Spec"] = req["specification"]?.ToObject<string>();
-                dict["Batch"] = req["batchnumber"]?.ToObject<string>();
-                dict["Result"] = req["result"]?.ToObject<string>();
-                dict["OperTime"] = req["operationtime"]?.ToObject<DateTime?>();
-                dict["ReportTime"] = req["reporttime"]?.ToObject<DateTime?>();
-            }
+            JArray recommend = JArray.FromObject(req["recommend"]);
+            bool bNonResultRecommend = req.Challenge(r =>
+                string.IsNullOrEmpty(r["result"]?.ToObject<string>())
+                && recommend.HasValues
+            );
+            if (bNonResultRecommend)
+                return Response_201_write.GetResult(null, "未保存检测结果，不可以推荐方案");
+            req["recommend"] = JsonConvert.SerializeObject(recommend);
+            JObject chosen = JObject.FromObject(req["chosen"]);
+            req["chosen"] = JsonConvert.SerializeObject(chosen);
+            var bChoiceInRecommend =
+                req["recommend"].ToString().Contains(req["chosen"].ToString())
+                || (!recommend.HasValues && !chosen.HasValues
+                || (recommend.HasValues && !chosen.HasValues));
+            if (!bChoiceInRecommend)
+                return Response_201_write.GetResult(null, "选择方案与提供方案不符");
 
-            
-
-            JObject res = new JObject();
-            if (req["id"]?.ToObject<int>() > 0)
-            {
-                Dictionary<string, object> condi = new Dictionary<string, object>();
-                condi["id"] = req["id"];
-                dict["LastUpdatedBy"] = StampUtil.Stamp(HttpContext);
-                dict["LastUpdatedTime"] = DateTime.Now;
-                var tmp = this.db.Update("t_check", dict, condi);
-                res["id"] = req["id"];
-            }
-            else
-            {
-                dict["CreatedBy"] = StampUtil.Stamp(HttpContext);
-                dict["CreatedTime"] = DateTime.Now;
-                dict["IsActive"] = 1;
-                dict["IsDeleted"] = 0;
-                res["id"] = this.db.Insert("t_check", dict);
-            }
-
-            return Response_200_write.GetResult(res);
+            return base.Set(req);
         }
         /// <summary>
         /// 删除“检测”。
@@ -315,20 +175,13 @@ AND t_check.IsDeleted=0", id);
         {
             var id = req.ToInt("id");
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            var objDatabase = db.GetOne("SELECT OrgnizationID FROM t_check WHERE ID=?p1 AND IsDeleted=0", id);
-            var canwrite = req.Challenge(r => objDatabase.ToInt("orgnizationid") == orgid);
+            var orgaltinfo = _org.GetAltInfo(base.Get(id ?? 0).ToInt("orgnizationid"));
+            var canwrite = req.Challenge(r => orgaltinfo.ToInt("id") == orgid);
             if (!canwrite)
                 return Response_201_write.GetResult();
 
-            var dict = new Dictionary<string, object>();
-            dict["IsDeleted"] = 1;
-            var keys = new Dictionary<string, object>();
-            keys["id"] = req.ToInt("id");
-            var count = db.Update("t_check", dict, keys);
-            if (count > 0)
-                return Response_200_write.GetResult();
-            else
-                return Response_201_write.GetResult();
+
+            return base.Del(req);
         }
 
 
