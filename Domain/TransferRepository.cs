@@ -242,7 +242,7 @@ AND t.ID=1
         }
 
 
-        public int AcceptTransfer(PersonRepository personRepository, HttpContext ctx, int transferId, string remarks)
+        public int AcceptTransfer(HttpContext ctx, int transferId, string remarks)
         {
             // 本质上是更新
             JObject data = GetOneRawImp(transferId);
@@ -252,17 +252,7 @@ AND t.ID=1
             data["isfinish"] = 1;
             data["isactive"] = 0; // 接收转诊后，该条转诊记录不再可写更新
             data["endtime"] = DateTime.Now;
-            var rc = this.AddOrUpdateRaw(data, StampUtil.Stamp(ctx));
-            if (rc > 0)
-            {
-                var transfer = GetOneRawImp(transferId);
-                var person = personRepository.GetOneRawImp(transfer.ToInt("patientid")??0);
-                person["orgnizationid"] = ctx.GetIdentityInfo<int?>("orgnizationid");
-                var isPersonUpdated = personRepository.AddOrUpdateRaw(person,"Function::TransferRepository::AcceptTransfer");
-                return isPersonUpdated > 0 ? transferId : 0;
-            }
-
-            return 0;
+            return this.AddOrUpdateRaw(data, StampUtil.Stamp(ctx));
         }
 
 

@@ -103,13 +103,19 @@ namespace health.web.Controllers.BusinessData
                 return Response_201_write.GetResult(null, "转诊已取消或已完成");
 
             JObject res = new JObject();
-            if (_repository.AcceptTransfer(personRepository, HttpContext, transferId, remarks) > 0)
+            if (_repository.AcceptTransfer(HttpContext, transferId, remarks) > 0)
             {
-                res["id"] = transferId;
-                return Response_200_write.GetResult(res);
+                // 接收后回写Patient.OrgnizationID
+                var transfer = _repo.GetOneRawImp(transferId);
+                var person = personRepository.GetOneRawImp(transfer.ToInt("patientid") ?? 0);
+                person["orgnizationid"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+                var isPersonUpdated = personRepository.AddOrUpdateRaw(person, StampUtil.Stamp(HttpContext));
+                res["id"] = isPersonUpdated > 0 ? transferId : 0;
+                if (isPersonUpdated>0)
+                    return Response_200_write.GetResult(res);
             }
-            else
-                return Response_201_write.GetResult();
+
+            return Response_201_write.GetResult();
         }
 
         [NonAction]
