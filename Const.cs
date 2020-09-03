@@ -24,5 +24,6 @@ namespace health
 
         public const int defaultPageSize = 10;
         public const int defaultPageIndex = 0;
+        public const int SuperUserGroupId = 1;  // 超级管理员分组，用来设置菜单权限
     }
 }

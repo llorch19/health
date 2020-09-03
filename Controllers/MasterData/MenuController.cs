@@ -267,6 +267,10 @@ namespace health.Controllers
         [Route("SetMenu")]
         public override JObject Set([FromBody] JObject req)
         {
+            var groupid = HttpContext.GetClaimInfo<int?>(ClaimTypes.GroupSid);
+            if (groupid != Const.SuperUserGroupId)
+                return Response_201_write.GetResult(null,"对不起，您没有权限修改菜单");
+
             return base.Set(req);
         }
 
@@ -279,6 +283,10 @@ namespace health.Controllers
         [Route("DelMenu")]
         public override JObject Del([FromBody] JObject req)
         {
+            var groupid = HttpContext.GetClaimInfo<int?>(ClaimTypes.GroupSid);
+            if (groupid != Const.SuperUserGroupId)
+                return Response_201_write.GetResult(null, "对不起，您没有权限修改菜单");
+
             return base.Del(req);
         }
     }
