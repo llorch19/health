@@ -87,8 +87,10 @@ namespace health.web.Controllers.BusinessData
             // 开始转诊
             JObject res = new JObject();
             res["id"] = _srvTransfer.BeginTransfer(HttpContext,patientid,desorgid,remarks);
-            objPerson["IsOnReferral"] = 1;
+            objPerson["isreferral"] = 1;  // 设置开始转诊标志位
             srvPerson.AddOrUpdateRaw(objPerson, StampUtil.Stamp(HttpContext));
+            objPerson["isactive"] = 0;   
+            srvPerson.SetLock(objPerson, StampUtil.Stamp(HttpContext));  // 锁定用户信息
             return Response_200_write.GetResult(res);
         }
 
@@ -110,7 +112,7 @@ namespace health.web.Controllers.BusinessData
             {
                 res["id"] = transferId;
                 JObject objPerson = srvPerson.GetOneRawImp(active.ToInt("patientid") ?? 0);
-                objPerson["IsOnReferral"] = 0;
+                objPerson["isreferral"] = 0;
                 srvPerson.AddOrUpdateRaw(objPerson, StampUtil.Stamp(HttpContext)); // 修改转诊标志
                 objPerson["isactive"] = 1;
                 srvPerson.SetLock(objPerson,StampUtil.Stamp(HttpContext)); // 解锁个人信息

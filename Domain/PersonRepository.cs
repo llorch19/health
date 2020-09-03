@@ -221,6 +221,7 @@ and t_patient.IsDeleted=0
             dict["GuardianName"] = data["guardianname"]?.ToObject<string>();
             dict["GuardianEmail"] = data["guardianemail"]?.ToObject<string>();
             dict["Birthday"] = data.ToDateTime("birthday");
+            dict["IsOnReferral"] = data.ToDateTime("isreferral");
             return dict;
         }
 
