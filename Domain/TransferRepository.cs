@@ -88,6 +88,78 @@ LIMIT ?p2,?p3
             return array;
         }
 
+        public JArray GetListByDenyOrgJointImp(int orgid, int pageSize, int pageIndex)
+        {
+            int offset = 0;
+            if (pageIndex > 0)
+                offset = pageSize * (pageIndex - 1);
+            var array = _db.GetArray(@"
+SELECT 
+t.ID
+,src.OrgName AS FromOrg
+,des.OrgName AS ToOrg
+,person.FamilyName AS PName
+,t.OrgnizationID
+,t.PatientID
+,t.DestOrgID
+,t.StartTime
+,t.IsCancel
+,t.IsFinish
+,t.EndTime
+,t.IsActive
+,t.Remarks
+FROM t_transfer t
+LEFT JOIN t_orgnization src
+ON t.OrgnizationID = src.ID
+LEFT JOIN t_orgnization des
+ON t.DestOrgID = des.ID
+LEFT JOIN t_patient person
+ON t.PatientID=person.ID
+WHERE t.IsDeleted=0
+AND t.OrgnizationID=?p1
+AND t.IsCancel=1
+AND t.IsFinish=0
+LIMIT ?p2,?p3
+", orgid, offset, pageSize);
+            return array;
+        }
+
+        public JArray GetListByFinishOrgJointImp(int orgid, int pageSize, int pageIndex)
+        {
+            int offset = 0;
+            if (pageIndex > 0)
+                offset = pageSize * (pageIndex - 1);
+            var array = _db.GetArray(@"
+SELECT 
+t.ID
+,src.OrgName AS FromOrg
+,des.OrgName AS ToOrg
+,person.FamilyName AS PName
+,t.OrgnizationID
+,t.PatientID
+,t.DestOrgID
+,t.StartTime
+,t.IsCancel
+,t.IsFinish
+,t.EndTime
+,t.IsActive
+,t.Remarks
+FROM t_transfer t
+LEFT JOIN t_orgnization src
+ON t.OrgnizationID = src.ID
+LEFT JOIN t_orgnization des
+ON t.DestOrgID = des.ID
+LEFT JOIN t_patient person
+ON t.PatientID=person.ID
+WHERE t.IsDeleted=0
+AND t.OrgnizationID=?p1
+AND t.IsCancel=0
+AND t.IsFinish=1
+LIMIT ?p2,?p3
+", orgid, offset, pageSize);
+            return array;
+        }
+
         public override JArray GetListByPersonJointImp(int personid, int pageSize, int pageIndex)
         {
             int offset = 0;

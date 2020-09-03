@@ -39,6 +39,24 @@ namespace health.web.Controllers.BusinessData
             return Response_200_read.GetResult(res);
         }
 
+        [HttpGet("GetTransferDeniedList")]
+        public JObject GetTransferDeniedList()
+        {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            JObject res = new JObject();
+            res["list"] = _srvTransfer.GetListByDenyOrgJointImp(orgid ?? 0, Const.defaultPageSize, Const.defaultPageIndex);
+            return Response_200_read.GetResult(res);
+        }
+
+        [HttpGet("GetTransferFinishList")]
+        public JObject GetTransferFinishList()
+        {
+            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+            JObject res = new JObject();
+            res["list"] = _srvTransfer.GetListByFinishOrgJointImp(orgid ?? 0, Const.defaultPageSize, Const.defaultPageIndex);
+            return Response_200_read.GetResult(res);
+        }
+
         [HttpGet("GetTransferListForPerson")]
         public JObject GetTransferListForPerson(int personid)
         {
