@@ -104,5 +104,12 @@ AND t_option.IsDeleted = 0
         {
             throw new NotImplementedException();
         }
+
+
+        public JObject GetOptionByName(string name)
+        {
+            var foo = _db.GetOne(@"SELECT Value FROM t_option WHERE name=?p1 AND IsDeleted=0",name);
+            return foo;
+        }
     }
 }

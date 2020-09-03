@@ -8,11 +8,14 @@
  */
 using health.common;
 using health.Controllers.BaseData;
+using health.web.Controllers;
+using health.web.Domain;
 using health.web.StdResponse;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -26,26 +29,26 @@ using util.mysql;
 namespace health.Controllers
 {
     [Route("api")]
-    public class MessageController : AbstractBLLController
+    public class MessageController : BaseNonPagedController
     {
         private readonly ILogger<MessageController> _logger;
-        OrganizationController _org;
-        PersonController _person;
+        OrgnizationRepository _org;
+        PersonRepository _person;
         IWebHostEnvironment _env;
         config conf = new config();
         const string spliter = "$$";
         string[] permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
-        public override string TableName => "t_messagesent";
 
-        public MessageController(ILogger<MessageController> logger
-            , IWebHostEnvironment env
-            , OrganizationController org
-            , PersonController person)
+        public MessageController(
+            MessageInOrgRepository messageInOrgRepository
+            ,IServiceProvider serviceProvider
+            )
+            :base(messageInOrgRepository,serviceProvider)
         {
-            _logger = logger;
-            _env = env;
-            _org = org;
-            _person = person;
+            _logger = serviceProvider.GetService<ILogger<MessageController>>();
+            _env = serviceProvider.GetService<IWebHostEnvironment>(); ;
+            _org = serviceProvider.GetService<OrgnizationRepository>();
+            _person = serviceProvider.GetService<PersonRepository>();
         }
 
         /// <summary>
@@ -57,49 +60,8 @@ namespace health.Controllers
         public override JObject GetList()
         {
             JObject res = new JObject();
-            string sql = @"
-SELECT
-IFNULL(t_messagesent.ID,'') as ID
-,IFNULL(t_messagesent.OrgnizationID,'') as OrgnizationID
-,IFNULL(t_orgnization.OrgName,'') AS OrgName 
-,IFNULL(t_user.ID,'') as PublishUserID
-,IFNULL(t_user.FamilyName,'') as Publish 
-,IFNULL(t_messagesent.PublishTime,'') as PublishTime
-,IFNULL(t_messagesent.Title,'') as Title
-,IFNULL(t_messagesent.Abstract,'') as Abstract
-,IF(t_messagesent.Thumbnail IS NOT NULL, CONCAT(IFNULL(t_option.`value`,''),IFNULL(t_messagesent.Thumbnail,'')) ,'') as Thumbnail
-,IFNULL(Content,'') as Content
-,IF(t_messagesent.Attachment IS NOT NULL ,CONCAT(IFNULL(t_option.`value`,''),IFNULL(t_messagesent.Attachment,'')),'') as Attachment
-,IFNULL(IsPublic,'') as IsPublic
-,IFNULL(t_messagesent.IsActive,'') AS IsActive
-FROM t_messagesent 
-LEFT JOIN t_user
-ON t_user.ID=t_messagesent.PublishUserID
-LEFT JOIN t_orgnization
-ON t_messagesent.OrgnizationID=t_orgnization.ID
-LEFT JOIN t_option
-ON t_option.`name`='fileserver'
-WHERE t_messagesent.IsDeleted=0
-";
-            if (!IsOrgUser())
-            {
-                sql += @"
-AND t_messagesent.IsPublic = 1
-";
-            }
-            JArray list = db.GetArray(sql);
-            if (list.HasValues)
-            {
-                res["status"] = 200;
-                res["msg"] = "获取数据成功";
-                res.Add("list", list);
-            }
-            else
-            {
-                res["status"] = 201;
-                res["msg"] = "没有获取到相应的数据";
-            }
-            return res;
+            res["list"] = base.GetList();
+            return Response_200_read.GetResult(res);
         }
 
 
@@ -108,43 +70,35 @@ AND t_messagesent.IsPublic = 1
         /// </summary>
         /// <param name="id">指定的id</param>
         /// <returns>JSON对象，包含相应的“公告”信息</returns>
-        [HttpGet]
-        [Route("GetMessage")]
+        [NonAction]
         public override JObject Get(int id)
         {
-            string sql = @"SELECT
-IFNULL(ID,'') AS ID
-,IFNULL(OrgnizationID,'') AS OrgnizationID
-,IFNULL(PublishUserID,'') AS PublishUserID
-,IFNULL(PublishTime,'') as PublishTime
-,IFNULL(Title,'') AS Title
-,IFNULL(Abstract,'') AS Abstract
-,IFNULL(Thumbnail,'') AS Thumbnail
-,IFNULL(Content,'') AS Content
-,IFNULL(Attachment,'') as Attachment
-,IFNULL(IsPublic,'') as IsPublic
-,IFNULL(IsActive,'') AS IsActive
-FROM t_messagesent 
-WHERE t_messagesent.ID=?p1
-AND t_messagesent.IsDeleted=0";
+            return base.Get(id);
+        }
 
-            if (!IsOrgUser())
-                sql += @"
-AND IsPublic=1
-";
 
-            JObject res = db.GetOne(sql, id);
+        /// <summary>
+        /// 获取“公告”信息，点击[科普公告]中的一个栏目
+        /// </summary>
+        /// <param name="option"></param>
+        /// <param name="id">指定的id</param>
+        /// <returns>JSON对象，包含相应的“公告”信息</returns>
+        [HttpGet]
+        [Route("GetMessage")]
+        public JObject Get([FromServices] OptionRepository option,int id)
+        {
+            JObject res = base.Get(id);
             if (res["id"] == null)
                 return Response_201_read.GetResult();
 
-            var fileserver = db.GetOne(@"SELECT Value FROM t_option WHERE name='fileserver'");
+            var fileserver = option.GetOptionByName("fileserver"); 
             res["thumbnail"] = fileserver["value"]?.ToObject<string>()
                 + res["thumbnail"]?.ToObject<string>();
             res["attachment"] = fileserver["value"]?.ToObject<string>()
                 + res["attachment"]?.ToObject<string>();
 
-            res["orgnization"] = _org.GetOrgInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
-            res["publish"] = _person.GetUserInfo(res["publishuserid"]?.ToObject<int>() ?? 0);
+            res["orgnization"] = _org.GetAltInfo(res["orgnizationid"]?.ToObject<int>() ?? 0);
+            res["publish"] = _person.GetUserAltInfo(res["publishuserid"]?.ToObject<int>() ?? 0);
 
             return Response_200_read.GetResult(res);
         }
@@ -160,9 +114,20 @@ AND IsPublic=1
         public override JObject Set([FromBody] JObject req)
         {
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
-            if (!canwrite)
-                return Response_201_write.GetResult();
+            var userid = HttpContext.GetIdentityInfo<int?>("id");
+            var id = req.ToInt("id");
+            if (id == 0)
+            {
+                // 新增
+                req["orgnizationid"] = orgid;
+                req["publishuserid"] = userid;
+            }
+            else
+            {
+                var canwrite = req.Challenge(r => r.ToInt("orgnizationid") == orgid);
+                if (!canwrite)
+                    return Response_201_write.GetResult();
+            }
 
             return base.Set(req);
         }
@@ -187,14 +152,6 @@ AND IsPublic=1
             return base.Del(req);
         }
 
-        /// <summary>
-        /// 只有机构用户可以查看并编辑未发布的公告
-        /// </summary>
-        /// <returns></returns>
-        private bool IsOrgUser()
-        {
-            return true;
-        }
 
 
         /// <summary>
@@ -343,19 +300,5 @@ AND IsPublic=1
             return res;
         }
 
-        public override Dictionary<string, object> GetReq(JObject req)
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["OrgnizationID"] = 1;
-            dict["PublishUserID"] = 4;
-            dict["Title"] = req["title"]?.ToObject<string>();
-            dict["Abstract"] = req["abstract"]?.ToObject<string>();
-            dict["Thumbnail"] = req["thumbnail"]?.ToObject<string>();
-            dict["Content"] = req["content"]?.ToObject<string>();
-            dict["Attachment"] = req["attachment"]?.ToObject<string>();
-            dict["IsPublic"] = req["ispublic"]?.ToObject<string>();
-
-            return dict;
-        }
     }
 }
