@@ -185,6 +185,22 @@ namespace health.Controllers
             return Response_200_read.GetResult(res);
         }
 
+        /// <summary>
+        /// 获取用户组的系统菜单列表
+        /// </summary>
+        /// <param name="pid">指定根菜单的id</param>
+        /// <param name="groupid">指定的用户组id</param>
+        /// <returns>JSON对象，递归地包含了相应的系统菜单</returns>
+        [HttpGet]
+        [Route("GetMenuByGroup")]
+        public JObject GetMenu(int pid,int groupid)
+        {
+            JObject res = new JObject();
+            res["list"] = menuRepository.GetListJointImp(groupid, pid, int.MaxValue, 0);
+            return Response_200_read.GetResult(res);
+        }
+
+
 
         /// <summary>
         /// 获取系统菜单列表
@@ -200,6 +216,18 @@ namespace health.Controllers
             return Response_200_read.GetResult(res);
         }
 
+        /// <summary>
+        /// 获取用户组的系统菜单列表
+        /// </summary>
+        /// <returns>JSON对象，递归地包含了相应的系统菜单</returns>
+        [HttpGet]
+        [Route("GetMenuListByGroup")]
+        public JObject GetList(int usergroupid)
+        {
+            JObject res = new JObject();
+            res["list"] = menuRepository.GetListJointImp(usergroupid, int.MaxValue, 0);
+            return Response_200_read.GetResult(res);
+        }
 
         /// <summary>
         /// 获取系统菜单列表
