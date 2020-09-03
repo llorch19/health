@@ -160,6 +160,7 @@ namespace health
             services.AddTransient(typeof(TreatRepository));
             services.AddTransient(typeof(TreatItemRepository));
             services.AddTransient(typeof(MessageInOrgRepository));
+            services.AddTransient(typeof(NoticeRepository));
 
             services.AddTransient(typeof(FileUploadCommand));
 
