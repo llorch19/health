@@ -15,13 +15,13 @@ namespace health.web.Controllers.BusinessData
     [Route("api")]
     public class TransferController : BaseTransactionController
     {
-        TransferRepository _repository;
+        TransferRepository _srvTransfer;
         public TransferController(
             TransferRepository repository
             , IServiceProvider serviceProvider)
             : base(repository, serviceProvider)
         {
-            _repository = repository;
+            _srvTransfer = repository;
         }
 
         [HttpGet("GetTransferList")]
@@ -35,7 +35,7 @@ namespace health.web.Controllers.BusinessData
         {
             var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
             JObject res = new JObject();
-            res["list"] = _repository.GetListByRecvOrgJointImp(orgid ?? 0, Const.defaultPageSize, Const.defaultPageIndex);
+            res["list"] = _srvTransfer.GetListByRecvOrgJointImp(orgid ?? 0, Const.defaultPageSize, Const.defaultPageIndex);
             return Response_200_read.GetResult(res);
         }
 
@@ -47,15 +47,29 @@ namespace health.web.Controllers.BusinessData
 
         [HttpPost("DoTransfer")]
         public JObject DoTransfer(
-            [FromServices] AppointRepository appoint,
-            [FromServices] CheckRepository check,
-            [FromServices] FollowupRepository followup,
-            [FromServices] TreatRepository treat,
-            [FromServices] VaccRepository vacc,
+            [FromServices] AppointRepository srvAppoint,
+            [FromServices] CheckRepository srvCheck,
+            [FromServices] FollowupRepository srvFollowup,
+            [FromServices] TreatRepository srvTreat,
+            [FromServices] VaccRepository srvVacc,
+            [FromServices] PersonRepository srvPerson,
+            [FromServices] OrgnizationRepository srvOrg,
             [FromQuery] int patientid
             , [FromQuery] int desorgid
             , [FromQuery] string remarks)
         {
+            var intUserOrgId = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+
+            JObject objPerson = srvPerson.GetOneRawImp(patientid);
+            if (objPerson.ToInt("id") != patientid || objPerson.ToInt("orgnizationid") != intUserOrgId)
+                return Response_201_write.GetResult();
+
+
+            JObject objOrg = srvOrg.GetOneRawImp(desorgid);
+            if (objOrg.ToInt("id") != desorgid)
+                return Response_201_write.GetResult();
+
+
             // 防止重复转诊
             JArray array = _repo.GetListByPersonJointImp(patientid, int.MaxValue, 0);
             JToken active = array.Where(t => !t.Value<bool>("iscancel") && !t.Value<bool>("isfinish")).FirstOrDefault();
@@ -64,30 +78,42 @@ namespace health.web.Controllers.BusinessData
 
             // 锁定个人信息
             var username = StampUtil.Stamp(HttpContext);
-            appoint.LockPersonData(patientid, username);
-            check.LockPersonData(patientid, username);
-            followup.LockPersonData(patientid, username);
-            treat.LockPersonData(patientid, username);
-            vacc.LockPersonData(patientid, username);
+            srvAppoint.LockPersonData(patientid, username);
+            srvCheck.LockPersonData(patientid, username);
+            srvFollowup.LockPersonData(patientid, username);
+            srvTreat.LockPersonData(patientid, username);
+            srvVacc.LockPersonData(patientid, username);
 
             // 开始转诊
             JObject res = new JObject();
-            res["id"] = _repository.BeginTransfer(HttpContext,patientid,desorgid,remarks);
+            res["id"] = _srvTransfer.BeginTransfer(HttpContext,patientid,desorgid,remarks);
+            objPerson["IsOnReferral"] = 1;
+            srvPerson.AddOrUpdateRaw(objPerson, StampUtil.Stamp(HttpContext));
             return Response_200_write.GetResult(res);
         }
 
         [HttpPost("CancelTransfer")]
-        public JObject CancelTransfer([FromQuery] int transferId, [FromQuery] string remarks)
+        public JObject CancelTransfer(
+            [FromServices] PersonRepository srvPerson
+            , [FromQuery] int transferId
+            , [FromQuery] string remarks)
         {
-            // 防止重复取消
+            
             JObject active = _repo.GetOneRawImp(transferId);
+
+            // 防止重复取消
             if (active == null || active.Value<bool>("iscancel") || active.Value<bool>("isfinish"))
                 return Response_201_write.GetResult(null, "转诊已取消或已完成");
 
             JObject res = new JObject();
-            if (_repository.CancelTransfer(HttpContext, transferId, remarks) > 0)
+            if (_srvTransfer.CancelTransfer(HttpContext, transferId, remarks) > 0)
             {
                 res["id"] = transferId;
+                JObject objPerson = srvPerson.GetOneRawImp(active.ToInt("patientid") ?? 0);
+                objPerson["IsOnReferral"] = 0;
+                srvPerson.AddOrUpdateRaw(objPerson, StampUtil.Stamp(HttpContext)); // 修改转诊标志
+                objPerson["isactive"] = 1;
+                srvPerson.SetLock(objPerson,StampUtil.Stamp(HttpContext)); // 解锁个人信息
                 return Response_200_write.GetResult(res);
             }
             else
@@ -95,7 +121,7 @@ namespace health.web.Controllers.BusinessData
         }
 
         [HttpPost("AcceptTransfer")]
-        public JObject AcceptTransfer([FromServices] PersonRepository personRepository ,[FromQuery] int transferId, [FromQuery] string remarks)
+        public JObject AcceptTransfer([FromServices] PersonRepository srvPerson ,[FromQuery] int transferId, [FromQuery] string remarks)
         {
             // 防止重复接收
             JObject active = _repo.GetOneRawImp(transferId);
@@ -103,13 +129,16 @@ namespace health.web.Controllers.BusinessData
                 return Response_201_write.GetResult(null, "转诊已取消或已完成");
 
             JObject res = new JObject();
-            if (_repository.AcceptTransfer(HttpContext, transferId, remarks) > 0)
+            if (_srvTransfer.AcceptTransfer(HttpContext, transferId, remarks) > 0)
             {
                 // 接收后回写Patient.OrgnizationID
                 var transfer = _repo.GetOneRawImp(transferId);
-                var person = personRepository.GetOneRawImp(transfer.ToInt("patientid") ?? 0);
-                person["orgnizationid"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-                var isPersonUpdated = personRepository.AddOrUpdateRaw(person, StampUtil.Stamp(HttpContext));
+                var objPerson = srvPerson.GetOneRawImp(transfer.ToInt("patientid") ?? 0);
+                objPerson["orgnizationid"] = HttpContext.GetIdentityInfo<int?>("orgnizationid");
+                objPerson["IsOnReferral"] = 0; 
+                var isPersonUpdated = srvPerson.AddOrUpdateRaw(objPerson, StampUtil.Stamp(HttpContext));
+                objPerson["isactive"] = 1;
+                srvPerson.SetLock(objPerson, StampUtil.Stamp(HttpContext)); // 解锁个人信息
                 res["id"] = isPersonUpdated > 0 ? transferId : 0;
                 if (isPersonUpdated>0)
                     return Response_200_write.GetResult(res);

@@ -11,7 +11,7 @@ namespace health.web.Domain
     {
         public ReadNoticeRepository(dbfactory db) : base(db) { }
         public override Func<JObject, bool> IsAddAction => req => req.ToInt("id") == 0;
-        public override string TableName => "data_addresscategory";
+        public override string TableName => "t_noticeread";
         public override Func<JObject, bool> IsLockAction => req => false;
 
         public override JArray GetListByOrgJointImp(int orgid, int pageSize, int pageIndex)
@@ -30,26 +30,57 @@ namespace health.web.Domain
             if (pageIndex > 0)
                 offset = pageSize * (pageIndex - 1);
             return _db.GetArray(@"
-select ID,Code,AddressCategory,IsActive 
-from data_addresscategory 
-WHERE IsDeleted=0 LIMIT ?p1,?p2
-",offset,pageSize);
+-- 根据UserID查询未读通知
+SELECT 
+IFNULL(t_notice.ID,'') AS ID
+,IFNULL(t_notice.OrgnizationID,'') as OrgnizationID
+,IFNULL(t_orgnization.OrgName,'') AS OrgName 
+,IFNULL(t_user.ID,'') AS PublishUserID
+,IFNULL(t_user.FamilyName,'') AS Publish 
+,IFNULL(PublishTime,'') AS PublishTime
+,IFNULL(t_notice.Title,'') AS Title
+,IFNULL(Content,'') AS Content
+,IFNULL(Attachment,'') AS Attachment
+,IFNULL(t_notice.IsActive,'') AS IsActive
+FROM t_notice
+LEFT JOIN t_user
+ON t_user.ID=t_notice.PublishUserID
+LEFT JOIN t_orgnization
+ON t_orgnization.ID=t_notice.OrgnizationID
+WHERE t_notice.ID NOT IN(
+SELECT NoticeID AS ID FROM t_noticeread
+WHERE UserID=?p1
+AND IsDeleted=0
+AND IsRead=1)
+AND t_notice.IsDeleted = 0
+LIMIT ?p1,?p2
+", offset,pageSize);
         }
 
         public override JObject GetOneRawImp(int id)
         {
             return _db.GetOne(@"
-select ID,Code,AddressCategory,IsActive 
-from data_addresscategory 
-where id=?p1 AND IsDeleted=0
+SELECT 
+IFNULL(ID,'') AS ID
+,IFNULL(NoticeID,'') AS NoticeID
+,IFNULL(UserID,'') AS UserID
+,IFNULL(OpenTime,'') AS OpenTime
+,IFNULL(FinishTime,'') AS FinishTime
+,IFNULL(IsRead,'') AS IsRead 
+,IFNULL(IsActive,'') AS IsActive 
+FROM t_noticeread
+WHERE ID=?p1
+AND IsDeleted=0
 ", id);
         }
 
         public override Dictionary<string, object> GetValue(JObject data)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["Code"] = data["code"]?.ToObject<string>();
-            dict["AddressCategory"] = data["addresscategory"]?.ToObject<string>();
+            dict["NoticeID"] = data.ToInt("noticeid");
+            dict["UserID"] = data.ToInt("userid");
+            dict["OpenTime"] = DateTime.Now;
+            dict["IsRead"] = 1;
             return dict;
         }
 
@@ -69,11 +100,7 @@ where id=?p1 AND IsDeleted=0
 
         public override JObject GetAltInfo(int? id)
         {
-            return _db.GetOne(@"
-select id,AddressCategory text 
-from data_addresscategory 
-where id=?p1 and isdeleted=0
-", id);
+            throw new NotImplementedException();
         }
 
         public override Dictionary<string, object> GetPostDelSetting(JObject data)
