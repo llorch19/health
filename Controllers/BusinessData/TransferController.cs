@@ -13,25 +13,21 @@ using System.Threading.Tasks;
 namespace health.web.Controllers.BusinessData
 {
     [Route("api")]
-    public class TransferController : BaseController
+    public class TransferController : BaseTransactionController
     {
         TransferRepository _repository;
-        OrgnizationRepository _org;
-        public TransferController(TransferRepository repository
+        public TransferController(
+            TransferRepository repository
             , IServiceProvider serviceProvider)
             : base(repository, serviceProvider)
         {
             _repository = repository;
-            _org = serviceProvider.GetService<OrgnizationRepository>();
         }
 
         [HttpGet("GetTransferList")]
         public JObject GetTransferList()
         {
-            var orgid = HttpContext.GetIdentityInfo<int?>("orgnizationid");
-            JObject res = new JObject();
-            res["list"] = _repository.GetListByOrgJointImp(orgid ?? 0, Const.defaultPageSize, Const.defaultPageIndex);
-            return Response_200_read.GetResult(res);
+            return base.GetList(int.MaxValue, 0);
         }
 
         [HttpGet("GetTransferUnhandledList")]
@@ -46,29 +42,74 @@ namespace health.web.Controllers.BusinessData
         [HttpGet("GetTransferListForPerson")]
         public JObject GetTransferListForPerson(int personid)
         {
-            JObject res = new JObject();
-            res["list"] = _repository.GetListByPersonJointImp(personid, Const.defaultPageSize, Const.defaultPageIndex);
-            return Response_200_read.GetResult(res);
+            return base.GetListByPerson(personid);
         }
 
         [HttpPost("DoTransfer")]
-        public JObject DoTransfer(JObject data)
+        public JObject DoTransfer(
+            [FromServices] AppointRepository appoint,
+            [FromServices] CheckRepository check,
+            [FromServices] FollowupRepository followup,
+            [FromServices] TreatRepository treat,
+            [FromServices] VaccRepository vacc,
+            [FromQuery] int patientid
+            , [FromQuery] int desorgid
+            , [FromQuery] string remarks)
         {
-            throw new NotImplementedException();
+            // 防止重复转诊
+            JArray array = _repo.GetListByPersonJointImp(patientid, int.MaxValue, 0);
+            JToken active = array.Where(t => !t.Value<bool>("iscancel") && !t.Value<bool>("isfinish")).FirstOrDefault();
+            if (active!=null)
+                return Response_201_write.GetResult(null,"已经发起过转诊："+active.Value<string>("id"));
+
+            // 锁定个人信息
+            var username = StampUtil.Stamp(HttpContext);
+            appoint.LockPersonData(patientid, username);
+            check.LockPersonData(patientid, username);
+            followup.LockPersonData(patientid, username);
+            treat.LockPersonData(patientid, username);
+            vacc.LockPersonData(patientid, username);
+
+            // 开始转诊
             JObject res = new JObject();
-            return Response_200_read.GetResult(res);
+            res["id"] = _repository.BeginTransfer(HttpContext,patientid,desorgid,remarks);
+            return Response_200_write.GetResult(res);
         }
 
         [HttpPost("CancelTransfer")]
-        public JObject CancelTransfer()
+        public JObject CancelTransfer([FromQuery] int transferId, [FromQuery] string remarks)
         {
-            throw new NotImplementedException();
+            // 防止重复取消
+            JObject active = _repo.GetOneRawImp(transferId);
+            if (active == null || active.Value<bool>("iscancel") || active.Value<bool>("isfinish"))
+                return Response_201_write.GetResult(null, "转诊已取消或已完成");
+
+            JObject res = new JObject();
+            if (_repository.CancelTransfer(HttpContext, transferId, remarks) > 0)
+            {
+                res["id"] = transferId;
+                return Response_200_write.GetResult(res);
+            }
+            else
+                return Response_201_write.GetResult();
         }
 
         [HttpPost("AcceptTransfer")]
-        public JObject AcceptTransfer()
+        public JObject AcceptTransfer([FromServices] PersonRepository personRepository ,[FromQuery] int transferId, [FromQuery] string remarks)
         {
-            throw new NotImplementedException();
+            // 防止重复接收
+            JObject active = _repo.GetOneRawImp(transferId);
+            if (active == null || active.Value<bool>("iscancel") || active.Value<bool>("isfinish"))
+                return Response_201_write.GetResult(null, "转诊已取消或已完成");
+
+            JObject res = new JObject();
+            if (_repository.AcceptTransfer(personRepository, HttpContext, transferId, remarks) > 0)
+            {
+                res["id"] = transferId;
+                return Response_200_write.GetResult(res);
+            }
+            else
+                return Response_201_write.GetResult();
         }
 
         [NonAction]

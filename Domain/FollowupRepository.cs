@@ -7,7 +7,7 @@ using util.mysql;
 
 namespace health.web.Domain
 {
-    public class FollowupRepository : BaseRepository
+    public class FollowupRepository : BaseLockableRepository
     {
         public FollowupRepository(dbfactory db) : base(db) { }
         public override Func<JObject, bool> IsAddAction => req => req.ToInt("id") == 0;

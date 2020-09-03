@@ -46,8 +46,10 @@ LEFT JOIN t_patient person
 ON t.PatientID=person.ID
 WHERE t.IsDeleted=0
 AND t.OrgnizationID=?p1
+AND t.IsCancel=0
+AND t.IsFinish=0
 LIMIT ?p2,?p3
-",orgid,offset,pageSize);
+", orgid,offset,pageSize);
             return array;
         }
 
@@ -79,6 +81,8 @@ LEFT JOIN t_patient person
 ON t.PatientID=person.ID
 WHERE t.IsDeleted=0
 AND t.DestOrgID=?p1
+AND t.IsCancel=0
+AND t.IsFinish=0
 LIMIT ?p2,?p3
 ", orgid,offset,pageSize);
             return array;
@@ -144,14 +148,14 @@ AND t.ID=?p1
         public override Dictionary<string, object> GetValue(JObject data)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict["OrgnizationID"] = data.ToInt("OrgnizationID");
-            dict["PatientID"] = data.ToInt("PatientID");
-            dict["DestOrgID"] = data.ToInt("DestOrgID");
-            dict["StartTime"] = data.ToDateTime("StartTime");
-            dict["Remarks"] = data["Remarks"]?.ToObject<string>();
-            dict["IsCancel"] = data.ToInt("IsCancel");
-            dict["IsFinish"] = data.ToInt("IsFinish");
-            dict["EndTime"] = data.ToInt("EndTime");
+            dict["OrgnizationID"] = data.ToInt("orgnizationid");
+            dict["PatientID"] = data.ToInt("patientid");
+            dict["DestOrgID"] = data.ToInt("destorgid");
+            dict["StartTime"] = data.ToDateTime("starttime");
+            dict["Remarks"] = data["remarks"]?.ToObject<string>();
+            dict["IsCancel"] = data.ToInt("iscancel");
+            dict["IsFinish"] = data.ToInt("isfinish");
+            dict["EndTime"] = data.ToDateTime("endtime");
             return dict;
         }
 
@@ -159,9 +163,11 @@ AND t.ID=?p1
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
             dict["ID"] = data.ToInt("id");
-            dict["OrgnizationID"] = data.ToInt("OrgnizationID");
-            dict["PatientID"] = data.ToInt("PatientID");
-            dict["DestOrgID"] = data.ToInt("DestOrgID");
+            dict["OrgnizationID"] = data.ToInt("orgnizationid");
+            dict["PatientID"] = data.ToInt("patientid");
+            dict["DestOrgID"] = data.ToInt("destorgid");
+            dict["IsCancel"] = 0;  // 未取消的转诊记录可以更新
+            dict["IsFinish"] = 0;  // 未完成的转正记录可以更新
             dict["IsDeleted"] = 0; // IsDeleted=0 的记录可以被查看
             dict["IsActive"] = 1;  // IsActive=1 的记录可以被修改和删除
             return dict;
@@ -195,7 +201,7 @@ AND t.ID=1
         }
 
 
-        public int Transfer(HttpContext ctx,int patientid,int desorgid,string remarks)
+        public int BeginTransfer(HttpContext ctx,int patientid,int desorgid,string remarks)
         {
             /* todo from service get 
              * - Appoint
@@ -205,44 +211,90 @@ AND t.ID=1
              * - Treat
              * - Vacc
             */
+
+            // 本质上是新增
             JObject data = new JObject();
-            data["ID"] = 0;
-            data["OrgnizationID"] = ctx.GetIdentityInfo<int?>("orgnizationid");
-            data["PatientID"] = patientid;
-            data["DestOrgID"] = desorgid;
-            data["StartTime"] = DateTime.Now;
-            data["Remarks"] = remarks;
-            data["IsCancel"] = 0;
-            data["IsFinish"] = 0;
-            data["EndTime"] = null;
+            data["id"] = 0;
+            data["orgnizationid"] = ctx.GetIdentityInfo<int?>("orgnizationid");
+            data["patientid"] = patientid;
+            data["destorgid"] = desorgid;
+            data["starttime"] = DateTime.Now;
+            data["remarks"] = remarks;
+            data["iscancel"] = 0;
+            data["isfinish"] = 0;
+            data["endtime"] = null;
             // 失活所有的业务数据
-            return AddOrUpdateRaw(data , StampUtil.Stamp(ctx));
+            return this.AddOrUpdateRaw(data , StampUtil.Stamp(ctx));
         }
 
 
         public int CancelTransfer(HttpContext ctx, int transferId,string remarks)
         {
+            // 本质上是更新
             JObject data = GetOneRawImp(transferId);
-            data["ID"] = transferId;
-            data["Remarks"] = remarks;
-            data["IsCancel"] = 1;
-            data["IsFinish"] = 0;
-            data["IsActive"] = 0;  // 取消转诊后，该条转诊记录不再可写更新
-            data["EndTime"] = DateTime.Now;
-            return AddOrUpdateRaw(data, StampUtil.Stamp(ctx));
+            data["id"] = transferId;
+            data["remarks"] = remarks;
+            data["iscancel"] = 1;
+            data["isfinish"] = 0;
+            data["isactive"] = 0;  // 取消转诊后，该条转诊记录不再可写更新
+            data["endtime"] = DateTime.Now;
+            return this.AddOrUpdateRaw(data, StampUtil.Stamp(ctx));
         }
 
 
-        public int AcceptTransfer(HttpContext ctx, int transferId, string remarks)
+        public int AcceptTransfer(PersonRepository personRepository, HttpContext ctx, int transferId, string remarks)
         {
+            // 本质上是更新
             JObject data = GetOneRawImp(transferId);
-            data["ID"] = transferId;
-            data["Remarks"] = remarks;
-            data["IsCancel"] = 0;
-            data["IsFinish"] = 1;
-            data["IsActive"] = 0; // 接收转诊后，该条转诊记录不再可写更新
-            data["EndTime"] = DateTime.Now;
-            return AddOrUpdateRaw(data, StampUtil.Stamp(ctx));
+            data["id"] = transferId;
+            data["remarks"] = remarks;
+            data["iscancel"] = 0;
+            data["isfinish"] = 1;
+            data["isactive"] = 0; // 接收转诊后，该条转诊记录不再可写更新
+            data["endtime"] = DateTime.Now;
+            var rc = this.AddOrUpdateRaw(data, StampUtil.Stamp(ctx));
+            if (rc > 0)
+            {
+                var transfer = GetOneRawImp(transferId);
+                var person = personRepository.GetOneRawImp(transfer.ToInt("patientid")??0);
+                person["orgnizationid"] = ctx.GetIdentityInfo<int?>("orgnizationid");
+                var isPersonUpdated = personRepository.AddOrUpdateRaw(person,"Function::TransferRepository::AcceptTransfer");
+                return isPersonUpdated > 0 ? transferId : 0;
+            }
+
+            return 0;
+        }
+
+
+        public override int AddOrUpdateRaw(JObject data, string username)
+        {
+            if (IsAddAction(data))
+            {
+                var dict = GetValue(data);
+                dict["CreatedBy"] = username;
+                dict["CreatedTime"] = DateTime.Now;
+                dict["IsActive"] = 1;  // 新增的默认是激活的,如果Repository需要自动锁定新增，在AddOrUpdate之后调用SetLock()
+                dict["IsDeleted"] = 0;
+                return _db.Insert(TableName, dict);
+            }
+            else
+            {
+                if (IsLockAction(data))
+                    return SetLock(data, username) > 0
+                        ? GetId(data) : 0;
+                else
+                {
+                    var valuedata = GetValue(data);
+                    var keydata = GetKey(data);
+                    valuedata["LastUpdatedBy"] = username;
+                    valuedata["LastUpdatedTime"] = DateTime.Now;
+                    valuedata["IsActive"] = 0;  // 转诊状态一次修改后不可再修改，只能重新发起
+                    valuedata["IsDeleted"] = 0;
+                    return _db.Update(TableName, valuedata, keydata) > 0
+                        ? GetId(data)
+                        : 0;
+                }
+            }
         }
     }
 }
