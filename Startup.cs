@@ -159,6 +159,7 @@ namespace health
             services.AddTransient(typeof(CheckRepository));
             services.AddTransient(typeof(TreatRepository));
             services.AddTransient(typeof(TreatItemRepository));
+            services.AddTransient(typeof(MessageInOrgRepository));
 
             services.AddTransient(typeof(FileUploadCommand));
 
@@ -197,6 +198,12 @@ namespace health
             app.UseMiddleware<NotLogin401MiddleWare>();
 
 
+            var sfo = new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                            Path.Combine(env.ContentRootPath, conf.GetValue("user:static"))),
+                RequestPath = "/" + conf.GetValue("user:static")
+            };
             // 在生产环境当中，upload不可以static资源发放，应该以UploadController的形式发放
             app.UseStaticFiles(new StaticFileOptions
             {

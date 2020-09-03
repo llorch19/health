@@ -25,6 +25,7 @@ using System.Text;
 using System.Threading;
 using util;
 using util.mysql;
+using health.web.Service;
 
 namespace health.Controllers
 {
@@ -37,13 +38,13 @@ namespace health.Controllers
         IWebHostEnvironment _env;
         config conf = new config();
         const string spliter = "$$";
-        string[] permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
+        private readonly string[] permittedExtensions = new string[] { ".jpg", ".png", ".jpeg", ".gif" };
 
         public MessageController(
             MessageInOrgRepository messageInOrgRepository
-            ,IServiceProvider serviceProvider
+            , IServiceProvider serviceProvider
             )
-            :base(messageInOrgRepository,serviceProvider)
+            : base(messageInOrgRepository, serviceProvider)
         {
             _logger = serviceProvider.GetService<ILogger<MessageController>>();
             _env = serviceProvider.GetService<IWebHostEnvironment>(); ;
@@ -85,13 +86,13 @@ namespace health.Controllers
         /// <returns>JSON对象，包含相应的“公告”信息</returns>
         [HttpGet]
         [Route("GetMessage")]
-        public JObject Get([FromServices] OptionRepository option,int id)
+        public JObject Get([FromServices] OptionRepository option, int id)
         {
             JObject res = base.Get(id);
             if (res["id"] == null)
                 return Response_201_read.GetResult();
 
-            var fileserver = option.GetOptionByName("fileserver"); 
+            var fileserver = option.GetOptionByName("fileserver");
             res["thumbnail"] = fileserver["value"]?.ToObject<string>()
                 + res["thumbnail"]?.ToObject<string>();
             res["attachment"] = fileserver["value"]?.ToObject<string>()
@@ -153,151 +154,63 @@ namespace health.Controllers
         }
 
 
-
         /// <summary>
         /// 上传指定“公告”对应的图片
         /// </summary>
+        /// <param name="fuc"></param>
         /// <param name="files"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost("Upload[controller]Pics")]
         public JObject UploadPics(
+        [FromServices] FileUploadCommand fuc,
          IFormFile[] files,
          CancellationToken cancellationToken)
         {
-            JObject res = new JObject();
-            config conf = new config();
             string uploadir = conf.GetValue("user:pic:upload");
+            string physical = Path.Combine(_env.ContentRootPath, conf.GetValue("user:static"), uploadir);
             int countlimit = int.Parse(conf.GetValue("user:pic:filecount"));
-            if (files.Length > countlimit)
-            {
-                res["status"] = 201;
-                res["msg"] = "最多允许上传 " + countlimit + " 个图像文件";
-                return res;
-            }
-
             long sizelimit = long.Parse(conf.GetValue("user:pic:filesize"));
-            if (files
-                .Where(f => f.Length == 0 || f.Length > sizelimit)
-                .FirstOrDefault() != null)
-            {
-                res["status"] = 201;
-                res["msg"] = "文件大小介于0，" + sizelimit;
-                return res;
-            }
+            var hasUploaded = fuc.ExecuteRelative(files, cancellationToken, physical, permittedExtensions, countlimit, sizelimit
+                , out string[] lstServerFiles
+                , out string strError);
 
+            JObject res = new JObject();
+            if (!hasUploaded)
+                return Response_201_write.GetResult(res, strError);
 
-            string filestore = Path.Combine(_env.ContentRootPath, conf.GetValue("user:static"), uploadir);
-
-            if (!Directory.Exists(filestore))
-                Directory.CreateDirectory(filestore);
-
-            JArray array = new JArray();
-            foreach (var f in files)
-            {
-                string filepath = Path.Combine(filestore, Path.GetRandomFileName() + Path.GetExtension(f.FileName));
-                while (System.IO.File.Exists(filepath))
-                    filepath = Path.Combine(filestore, Path.GetRandomFileName() + Path.GetExtension(f.FileName));
-
-                using (var memoryStream = new MemoryStream())
-                {
-                    f.CopyTo(memoryStream);
-                    if (!FileHelpers.IsValidFileExtensionAndSignature(f.FileName, memoryStream, permittedExtensions))
-                    {
-                        res["status"] = 201;
-                        res["msg"] = f.FileName + " 不能上传";
-                        return res;
-                    }
-                    else
-                    {
-                        using (var fileStream = new FileStream(filepath, FileMode.Create))
-                            f.CopyTo(fileStream);
-                    }
-                }
-                Uri full = new Uri(filepath);
-                Uri baseUri = new Uri(_env.ContentRootPath);
-                array.Add(full.ToString().Replace(baseUri.ToString(), ""));
-            }
-
-
-            res["list"] = array;
-            res["status"] = 200;
-            res["msg"] = "上传成功";
-
-            return res;
+            res["list"] = JArray.FromObject(lstServerFiles);
+            return Response_200_write.GetResult(res, strError);
         }
+
 
         /// <summary>
         /// 上传指定“公告”对应的附件
         /// </summary>
+        /// <param name="fuc"></param>
         /// <param name="files"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost("Upload[controller]Zip")]
         public JObject UploadZip(
+        [FromServices] FileUploadCommand fuc,
          IFormFile[] files,
          CancellationToken cancellationToken)
         {
-            JObject res = new JObject();
-            config conf = new config();
             string uploadir = conf.GetValue("user:zip:upload");
+            string physical = Path.Combine(_env.ContentRootPath, conf.GetValue("user:static"), uploadir);
             int countlimit = int.Parse(conf.GetValue("user:zip:filecount"));
-            if (files.Length > countlimit)
-            {
-                res["status"] = 201;
-                res["msg"] = "最多允许上传 " + countlimit + " 个zip文件";
-                return res;
-            }
-
             long sizelimit = long.Parse(conf.GetValue("user:zip:filesize"));
-            if (files
-                .Where(f => f.Length == 0 || f.Length > sizelimit)
-                .FirstOrDefault() != null)
-            {
-                res["status"] = 201;
-                res["msg"] = "文件大小介于0，" + sizelimit;
-                return res;
-            }
+            var hasUploaded = fuc.ExecuteRelative(files, cancellationToken, physical, new string[] { ".zip" }, countlimit, sizelimit
+                , out string[] lstServerFiles
+                , out string strError);
 
+            JObject res = new JObject();
+            if (!hasUploaded)
+                return Response_201_write.GetResult(res, strError);
 
-            string filestore = Path.Combine(_env.ContentRootPath, conf.GetValue("user:static"), uploadir);
-
-            if (!Directory.Exists(filestore))
-                Directory.CreateDirectory(filestore);
-
-            JArray array = new JArray();
-            foreach (var f in files)
-            {
-                string filepath = Path.Combine(filestore, Path.GetRandomFileName() + Path.GetExtension(f.FileName));
-                while (System.IO.File.Exists(filepath))
-                    filepath = Path.Combine(filestore, Path.GetRandomFileName() + Path.GetExtension(f.FileName));
-
-                using (var memoryStream = new MemoryStream())
-                {
-                    f.CopyTo(memoryStream);
-                    if (!FileHelpers.IsValidFileExtensionAndSignature(f.FileName, memoryStream, new string[] { ".zip" }))
-                    {
-                        res["status"] = 201;
-                        res["msg"] = f.FileName + " 不能上传";
-                        return res;
-                    }
-                    else
-                    {
-                        using (var fileStream = new FileStream(filepath, FileMode.Create))
-                            f.CopyTo(fileStream);
-                    }
-                }
-
-                Uri full = new Uri(filepath);
-                Uri baseUri = new Uri(_env.ContentRootPath);
-                array.Add(full.ToString().Replace(baseUri.ToString(), ""));
-            }
-
-            res["list"] = array;
-            res["status"] = 200;
-            res["msg"] = "上传成功";
-
-            return res;
+            res["list"] = JArray.FromObject(lstServerFiles);
+            return Response_200_write.GetResult(res, strError);
         }
 
     }
